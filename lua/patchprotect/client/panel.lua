@@ -14,6 +14,9 @@ function cl_PProtect.as_menu(p)
 
   if cl_PProtect.Settings.Antispam['enabled'] then
     -- General
+	p:addchk('Ignore SuperAdmins', nil, cl_PProtect.Settings.Antispam['superadmins'], function(c)
+      cl_PProtect.Settings.Antispam['superadmins'] = c
+    end)
     p:addchk('Ignore Admins', nil, cl_PProtect.Settings.Antispam['admins'], function(c)
       cl_PProtect.Settings.Antispam['admins'] = c
     end)

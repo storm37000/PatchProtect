@@ -3,7 +3,7 @@
 ----------------------
 
 -- SET PLAYER VARS
-function sv_PProtect.Setup(ply)
+hook.Add('PlayerInitialSpawn', 'pprotect_initialspawn', function(ply)
   -- Props
   ply.propcooldown = 0
   ply.props = 0
@@ -14,20 +14,14 @@ function sv_PProtect.Setup(ply)
 
   -- Duplicate
   ply.duplicate = false
-end
-hook.Add('PlayerInitialSpawn', 'pprotect_initialspawn', sv_PProtect.Setup)
+end)
 
 -- CHECK ANTISPAM ADMIN
 function sv_PProtect.CheckASAdmin(ply)
-  if not IsValid(ply) then
-    return false
-  end
-  if !sv_PProtect.Settings.Antispam['enabled'] or ply:IsSuperAdmin() then
-    return true
-  end
-  if ply:IsAdmin() and sv_PProtect.Settings.Antispam['admins'] then
-    return true
-  end
+  if not IsValid(ply) then return false end
+  if !sv_PProtect.Settings.Antispam['enabled'] then return true end
+  if ply:IsSuperAdmin() and sv_PProtect.Settings.Antispam['superadmins'] then return true end
+  if ply:IsAdmin() and sv_PProtect.Settings.Antispam['admins'] then return true end
   return false
 end
 
@@ -113,7 +107,7 @@ hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect.CanSpawn)
 ----------------------
 
 -- TOOL-ANTISPAM
-function sv_PProtect.CanUseTool(ply, trace, tool)
+hook.Add('CanTool', 'pprotect_toolgun', function(ply,trace,tool)
   if sv_PProtect.CheckASAdmin(ply) then return end
 
   -- Blocked Tool
@@ -129,16 +123,11 @@ function sv_PProtect.CanUseTool(ply, trace, tool)
     ply.duplicate = false
   end
 
-  -- Antispamed Tool
-  if !sv_PProtect.Blocked.atools[tool] then
-    return sv_PProtect.CanTool(ply, trace, tool)
-  end
-
   -- Cooldown
   if CurTime() > ply.toolcooldown then
     ply.tools = 0
     ply.toolcooldown = CurTime() + sv_PProtect.Settings.Antispam['cooldown']
-    return sv_PProtect.CanTool(ply, trace, tool)
+	return
   end
 
   ply.tools = ply.tools + 1
@@ -150,11 +139,9 @@ function sv_PProtect.CanUseTool(ply, trace, tool)
     sv_PProtect.spamaction(ply)
     sv_PProtect.Notify(nil, ply:Nick() .. ' is spamming with ' .. tostring(tool) .. 's.', 'admin')
     print('PatchProtect - AntiSpam] ' .. ply:Nick() .. ' is spamming with ' .. tostring(tool) .. 's.')
+	return false
   end
-
-  return false
-end
-hook.Add('CanTool', 'pprotect_toolgun', sv_PProtect.CanUseTool)
+end)
 
 --------------------------
 --  BLOCKED PROPS/ENTS  --
