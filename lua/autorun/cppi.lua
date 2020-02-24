@@ -39,7 +39,7 @@ end
 -- Get the owner of an entity
 function ENTITY:CPPIGetOwner()
   local ply = sh_PProtect.GetOwner(self)
-  if !ply or !ply:IsPlayer() then return nil, nil end
+  if ply == nil or !IsValid(ply) or !ply:IsPlayer() then return nil, nil end
   return ply, ply:UniqueID()
 end
 
@@ -52,7 +52,7 @@ end
 
 -- Set owner of an entity by UID
 function ENTITY:CPPISetOwnerUID(uid)
-  return self:CPPISetOwner(player.GetByUniqueID(uid) or nil)
+  return self:CPPISetOwner(player.GetByUniqueID(uid))
 end
 
 -- Set entity to no world (true) or not even world (false)

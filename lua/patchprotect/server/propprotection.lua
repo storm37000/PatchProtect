@@ -102,6 +102,28 @@ function undo.Finish()
   uf()
 end
 
+hook.Add("PlayerSpawnedEffect","PlayerSpawnedEffect",function(ply,mdl,ent)
+	sv_PProtect.SetOwner(ent, ply)
+end)
+hook.Add("PlayerSpawnedNPC","PlayerSpawnedNPC",function(ply,ent)
+	sv_PProtect.SetOwner(ent, ply)
+end)
+hook.Add("PlayerSpawnedProp","PlayerSpawnedProp",function(ply,mdl,ent)
+	sv_PProtect.SetOwner(ent, ply)
+end)
+hook.Add("PlayerSpawnedRagdoll","PlayerSpawnedRagdoll",function(ply,mdl,ent)
+	sv_PProtect.SetOwner(ent, ply)
+end)
+hook.Add("PlayerSpawnedSENT","PProtect_PlayerSpawnedSENT",function(ply,ent)
+	sv_PProtect.SetOwner(ent, ply)
+end)
+hook.Add("PlayerSpawnedSWEP","PProtect_PlayerSpawnedSWEP",function(ply,ent)
+	sv_PProtect.SetOwner(ent, ply)
+end)
+hook.Add("PlayerSpawnedVehicle","PProtect_PlayerSpawnedVehicle",function(ply,ent)
+	sv_PProtect.SetOwner(ent, ply)
+end)
+
 
 -------------------------------
 --  PHYSGUN PROP PROTECTION  --
@@ -138,16 +160,7 @@ hook.Add('PhysgunPickup', 'pprotect_touch', sv_PProtect.CanPhysgun)
 
 function sv_PProtect.CanTool(ply, ent, tool)
   -- Check Entity
-  if !IsValid(ent) then return false end
-
-  -- Check Admin
-  if sv_PProtect.CheckPPAdmin(ply) then return end
-
-  -- Check Protection
-  if tool == 'creator' and !sv_PProtect.Settings.Propprotection['creator'] then
-    sv_PProtect.Notify(ply, 'You are not allowed to use the creator tool on this server.')
-    return false
-  end
+  if !IsValid(ent) then return end
 
   -- Check World
   if sv_PProtect.CheckWorld(ent, 'tool') then return end
@@ -163,10 +176,16 @@ function sv_PProtect.CanTool(ply, ent, tool)
   return false
 end
 
-function sv_PProtect.CanToolTrace(ply, trace, tool)
-  return sv_PProtect.CanTool(ply, trace.Entity, tool)
-end
-hook.Add('CanTool', 'pprotect_toolgun', sv_PProtect.CanToolTrace)
+hook.Add('CanTool', 'pprotect_toolgun', function(ply, trace, tool)
+	-- Check Admin
+	if sv_PProtect.CheckPPAdmin(ply) then return end
+	-- Check Protection
+	if tool == 'creator' and !sv_PProtect.Settings.Propprotection['creator'] then
+		sv_PProtect.Notify(ply, 'You are not allowed to use the creator tool on this server.')
+		return false
+	end
+	return sv_PProtect.CanTool(ply, trace.Entity, tool)
+end)
 
 ---------------------------
 --  USE PROP PROTECTION  --
