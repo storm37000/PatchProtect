@@ -10,3 +10,22 @@ end
 function sh_PProtect.IsShared(ent, mode)
   return ent:GetNWBool('pprotect_shared_' .. mode)
 end
+
+
+-------------------
+--  CHECK BUDDY  --
+-------------------
+function sh_PProtect.IsBuddy(ply, bud, mode)
+  if ply == nil or !ply:IsPlayer() or bud == nil or !bud:IsPlayer() then return false end
+  if CLIENT and ply.Buddies == nil then
+    net.Start('pprotect_request_buddies')
+	 net.WriteString(ply:SteamID())
+    net.SendToServer()
+	return false
+  end
+  if ply.Buddies == nil or !ply.Buddies[bud:SteamID()] or !ply.Buddies[bud:SteamID()].bud then return false end
+  if (!mode and ply.Buddies[bud:SteamID()].bud == true) or (ply.Buddies[bud:SteamID()].bud == true and ply.Buddies[bud:SteamID()].perm[mode] == true) then
+    return true
+  end
+  return false
+end

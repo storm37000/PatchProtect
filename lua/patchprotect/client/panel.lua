@@ -265,8 +265,8 @@ function cl_PProtect.b_menu(p)
     if ply == LocalPlayer() then return end
     local chk = false
     local id = ply:SteamID()
-    if istable(cl_PProtect.Buddies[id]) then
-      chk = cl_PProtect.Buddies[id].bud
+    if istable(LocalPlayer().Buddies[id]) then
+      chk = LocalPlayer().Buddies[id].bud
     end
 
     p:addplp(
@@ -281,8 +281,8 @@ function cl_PProtect.b_menu(p)
           prop = false,
           dmg = false
         }
-        if cl_PProtect.Buddies[id] then
-          ps = cl_PProtect.Buddies[id].perm
+        if LocalPlayer().Buddies[id] then
+          ps = LocalPlayer().Buddies[id].perm
         end
         edit_perm(ply, ps)
       end,

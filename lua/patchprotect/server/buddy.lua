@@ -1,37 +1,36 @@
--------------------
---  CHECK BUDDY  --
--------------------
-
-function sv_PProtect.IsBuddy(ply, bud, mode)
-  if !ply or !ply.Buddies or !bud:IsPlayer() or !ply.Buddies[bud:SteamID()] or !ply.Buddies[bud:SteamID()].bud then
-    return false
+-- SEND BUDDIES TO CLIENT
+local function sv_PProtect_sendbuddies(ply, bud, sendto)
+  if ply == nil then return end
+  net.Start('pprotect_send_buddies')
+   net.WriteEntity(ply)
+   net.WriteTable(ply.Buddies[bud] or {})
+  if sendto == nil then
+    net.Broadcast()
+  else
+    net.Send(sendto)
   end
-  if (!mode and ply.Buddies[bud:SteamID()].bud == true) or (ply.Buddies[bud:SteamID()].bud == true and ply.Buddies[bud:SteamID()].perm[mode] == true) then
-    return true
-  end
-  return false
 end
 
---------------------
---  SEND BUDDIES  --
---------------------
+net.Receive('pprotect_request_buddies', function(len, ply)
+	sv_PProtect_sendbuddies(player.GetBySteamID(net.ReadString()), ply:SteamID(), ply)
+end
 
--- SEND BUDDY
-net.Receive('pprotect_buddy', function(len, ply)
-  ply.Buddies = net.ReadTable()
-end)
-
--- NOTIFICATION
+-- NOTIFICATION/MODIFICATION
 net.Receive('pprotect_info_buddy', function(len, ply)
   local bud = net.ReadEntity()
-  sv_PProtect.Notify(bud, ply:Nick() .. ' added you as a buddy.', 'normal')
-end)
-
--- SEND BUDDIES TO CLIENT
-concommand.Add('pprotect_send_buddies', function(ply, cmd, args)
-  local bud = player.GetByUniqueID(args[1])
-  if !bud or !bud.Buddies then return end
-  net.Start('pprotect_send_buddies')
-    net.WriteBool(sv_PProtect.IsBuddy(ply, bud))
-  net.Send(ply)
+  local tbl = net.ReadTable()
+  local sid = bud:SteamID()
+  if tbl.bud and tbl.bud == ply.Buddies[sid].bud then
+	ply.Buddies[sid] = tbl
+	sv_PProtect_sendbuddies(ply,sid)
+    return 
+  end
+  if tbl.bud then
+    ply.Buddies[sid)] = tbl
+    sv_PProtect.Notify(bud, ply:Nick() .. ' added you as a buddy.', 'normal')
+  else
+    ply.Buddies[sid] = nil
+    sv_PProtect.Notify(bud, ply:Nick() .. ' removed you as a buddy.', 'normal')
+  end
+  sv_PProtect_sendbuddies(ply,sid)
 end)

@@ -32,8 +32,11 @@ end
 
 -- Get friends from a player
 function PLAYER:CPPIGetFriends()
-  if CLIENT then return CPPI.CPPI_NOTIMPLEMENTED end -- TODO add this for client side (maybe only for local player)
-  return self.Buddies
+  local plist = {}
+  for k,_ in pairs( self.Buddies ) do
+    table.insert(plist,player.GetBySteamID(k))
+  end
+  return plist
 end
 
 -- Get the owner of an entity

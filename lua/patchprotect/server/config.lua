@@ -11,7 +11,7 @@ util.AddNetworkString('pprotect_cleanup')
 util.AddNetworkString('pprotect_new_counts')
 
 -- BUDDY
-util.AddNetworkString('pprotect_buddy')
+util.AddNetworkString('pprotect_request_buddies')
 util.AddNetworkString('pprotect_info_buddy')
 util.AddNetworkString('pprotect_send_buddies')
 

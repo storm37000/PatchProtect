@@ -147,7 +147,7 @@ function sv_PProtect.CanPhysgun(ply, ent)
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sv_PProtect.IsBuddy(owner, ply, 'phys') then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to hold this object.')
   return false
@@ -170,7 +170,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sv_PProtect.IsBuddy(owner, ply, 'tool') then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'tool') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to use ' .. tool .. ' on this object.')
   return false
@@ -209,7 +209,7 @@ function sv_PProtect.CanUse(ply, ent)
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sv_PProtect.IsBuddy(owner, ply, 'use') then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'use') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to use this object.')
   return false
@@ -238,7 +238,7 @@ function sv_PProtect.CanPickup(ply, ent)
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sv_PProtect.IsBuddy(owner, ply, 'use') then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'use') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to pick up this object.')
   return false
@@ -267,7 +267,7 @@ function sv_PProtect.CanProperty(ply, property, ent)
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sv_PProtect.IsBuddy(owner, ply, 'prop') then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'prop') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to change the properties on this object.')
   return false
@@ -292,7 +292,7 @@ function sv_PProtect.CanDrive(ply, ent)
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sv_PProtect.IsBuddy(owner, ply, 'prop') then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'prop') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to drive this object.')
   return false
@@ -327,7 +327,7 @@ function sv_PProtect.CanDamage(ply, ent)
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sv_PProtect.IsBuddy(owner, ply, 'dmg') or ent:IsPlayer() then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'dmg') or ent:IsPlayer() then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to damage this object.')
   return true
@@ -357,7 +357,7 @@ function sv_PProtect.CanPhysReload(ply, ent)
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sv_PProtect.IsBuddy(owner, ply, 'phys') then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
   return false

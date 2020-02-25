@@ -23,12 +23,9 @@ function cl_PProtect.showOwner()
   if !ent or !ent:IsValid() or ent:IsWorld() or ent:IsPlayer() then return end
 
   if LastID != ent:EntIndex() or (!Owner and !IsWorld) then
-    Owner, IsWorld, IsShared, IsBuddy = ent:GetNWBool('pprotect_owner'), ent:GetNWBool('pprotect_world'), false, false
-    if Owner and Owner:IsValid() and Owner != LocalPlayer() and !IsWorld then
-      RunConsoleCommand('pprotect_send_buddies', Owner:UniqueID())
-    end
+    Owner, IsWorld, IsShared, IsBuddy = ent:GetNWEntity('pprotect_owner'), ent:GetNWBool('pprotect_world'), false, sh_PProtect.IsBuddy(Owner, LocalPlayer())
     table.foreach({'phys', 'tool', 'use', 'dmg'}, function(k, v)
-      if ent:GetNWBool('pprotect_shared_' .. v) then
+      if sh_PProtect.IsShared(ent, v) then
         IsShared = true
       end
     end)
@@ -83,7 +80,7 @@ function cl_PProtect.showOwner()
     draw.SimpleText(txt, cl_PProtect.setFont('roboto', 14, 500, true), scr_w * 0.5, t + 20, col, TEXT_ALIGN_CENTER, 0)
   end
 end
-hook.Add('HUDPaint', 'pprotect_owner', cl_PProtect.showOwner)
+hook.Add('HUDPaint', 'pprotect_hud_owner', cl_PProtect.showOwner)
 
 ------------------------
 --  PHYSGUN BEAM FIX  --
@@ -256,12 +253,5 @@ end
 -- NOTIFY
 net.Receive('pprotect_notify', function(len)
   local note = net.ReadTable()
-  if note[2] == 'admin' and !LocalPlayer():IsAdmin() then return end
-
   cl_PProtect.ClientNote(note[1], note[2])
-end)
-
--- BUDDIES
-net.Receive('pprotect_send_buddies', function(len)
-  IsBuddy = net.ReadBool()
 end)

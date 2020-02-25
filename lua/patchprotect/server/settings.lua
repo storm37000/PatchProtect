@@ -265,6 +265,7 @@ concommand.Add('pprotect_request_new_settings', sv_PProtect.sendSettings)
 
 -- SEND NOTIFICATION
 function sv_PProtect.Notify(ply, text, typ)
+  if typ == 'admin' and !ply:IsAdmin() then return end
   net.Start('pprotect_notify')
   net.WriteTable({text, typ})
   if ply then
