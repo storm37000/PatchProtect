@@ -90,9 +90,8 @@ function sv_PProtect.CanSpawn(ply, mdl)
     sv_PProtect.spamaction(ply)
     sv_PProtect.Notify(nil, ply:Nick() .. ' is spamming.', 'admin')
     print('[PatchProtect - AntiSpam] ' .. ply:Nick() .. ' is spamming.')
+	return false
   end
-
-  return false
 end
 hook.Add('PlayerSpawnProp', 'pprotect_spawnprop', sv_PProtect.CanSpawn)
 hook.Add('PlayerSpawnEffect', 'pprotect_spawneffect', sv_PProtect.CanSpawn)
@@ -109,6 +108,7 @@ hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect.CanSpawn)
 -- TOOL-ANTISPAM
 hook.Add('CanTool', 'pprotect_toolgun', function(ply,trace,tool)
   if sv_PProtect.CheckASAdmin(ply) then return end
+  if !sv_PProtect.Settings.Antispam['tool'] then return end
 
   -- Blocked Tool
   if sv_PProtect.Settings.Antispam['toolblock'] and sv_PProtect.Blocked.btools[tool] then
