@@ -26,7 +26,7 @@ net.Receive('pprotect_info_buddy', function(len, ply)
     return 
   end
   if tbl.bud then
-    ply.Buddies[sid)] = tbl
+    ply.Buddies[sid] = tbl
     sv_PProtect.Notify(bud, ply:Nick() .. ' added you as a buddy.', 'normal')
   else
     ply.Buddies[sid] = nil
