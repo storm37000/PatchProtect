@@ -29,6 +29,9 @@ function cl_PProtect.as_menu(p)
     p:addchk('Tool-AntiSpam', nil, cl_PProtect.Settings.Antispam['tool'], function(c)
       cl_PProtect.Settings.Antispam['tool'] = c
     end)
+    p:addchk('Prop/Entity-AntiSpam', nil, cl_PProtect.Settings.Antispam['prop'], function(c)
+      cl_PProtect.Settings.Antispam['prop'] = c
+    end)
     p:addchk('Tool-Block', nil, cl_PProtect.Settings.Antispam['toolblock'], function(c)
       cl_PProtect.Settings.Antispam['toolblock'] = c
     end)
@@ -349,13 +352,13 @@ function cl_PProtect.cs_menu(p)
   p:ClearControls()
 
   p:addlbl('Enable/Disable features:', true)
-  p:addchk('Use Owner-HUD', 'Allows you to see the owner of a prop.', cl_PProtect.Settings.CSettings['ownerhud'], function(c)
+  p:addchk('Use Owner-HUD', 'Allows you to see the owner of a prop.', cl_PProtect.CSettings['ownerhud'], function(c)
     cl_PProtect.update_csetting('ownerhud', c)
   end)
-  p:addchk('FPP-Mode (Owner HUD)', 'Owner will be shown under the crosshair', cl_PProtect.Settings.CSettings['fppmode'], function(c)
+  p:addchk('FPP-Mode (Owner HUD)', 'Owner will be shown under the crosshair', cl_PProtect.CSettings['fppmode'], function(c)
     cl_PProtect.update_csetting('fppmode', c)
   end)
-  p:addchk('Use Notifications', 'Allows you to see incoming notifications. (right-bottom).', cl_PProtect.Settings.CSettings['notes'], function(c)
+  p:addchk('Use Notifications', 'Allows you to see incoming notifications. (right-bottom).', cl_PProtect.CSettings['notes'], function(c)
     cl_PProtect.update_csetting('notes', c)
   end)
 end
@@ -435,12 +438,9 @@ hook.Add('SpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
 
 -- RECEIVE NEW SETTINGS
 net.Receive('pprotect_new_settings', function()
-  local settings = net.ReadTable()
+  cl_PProtect.Settings = net.ReadTable()
+
   local typ = net.ReadString()
-
-  cl_PProtect.Settings.Antispam = settings.AntiSpam
-  cl_PProtect.Settings.Propprotection = settings.PropProtection
-
   if typ != 'as' and typ != 'pp' then return end
   cl_PProtect[typ .. '_menu'](pans[typ])
 end)

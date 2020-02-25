@@ -9,6 +9,8 @@ local csettings_default = {
   notes = true
 }
 
+cl_PProtect.CSettings = {}
+
 -- Load/Create CSettings
 function cl_PProtect.load_csettings()
   -- Delete old settings version
@@ -26,9 +28,9 @@ function cl_PProtect.load_csettings()
     local v = sql.QueryValue("SELECT value FROM pprotect_csettings WHERE setting = '" .. setting .. "'")
     if !v then
       sql.Query("INSERT INTO pprotect_csettings (setting, value) VALUES ('" .. setting .. "', '" .. tostring(value) .. "')")
-      cl_PProtect.Settings.CSettings[setting] = value
+      cl_PProtect.CSettings[setting] = value
     else
-      cl_PProtect.Settings.CSettings[setting] = tobool(v)
+      cl_PProtect.CSettings[setting] = tobool(v)
     end
   end)
 end
@@ -36,7 +38,7 @@ end
 -- Update CSettings
 function cl_PProtect.update_csetting(setting, value)
   sql.Query("UPDATE pprotect_csettings SET value = '" .. tostring(value) .. "' WHERE setting = '" .. setting .. "'")
-  cl_PProtect.Settings.CSettings[setting] = value
+  cl_PProtect.CSettings[setting] = value
 end
 
 cl_PProtect.load_csettings()

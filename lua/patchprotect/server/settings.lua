@@ -133,11 +133,55 @@ net.Receive('pprotect_save', function(len, pl)
 
   -- SAVE TO SQL TABLES
   table.foreach(sv_PProtect.Settings[data[1]], function(setting, value)
+    if !sql.Query('SELECT value FROM ' .. string.lower(data[1]) .. " WHERE setting = '" .. setting .. "'") then
+      sql.Query('INSERT INTO ' .. string.lower(data[1]) .. " (setting, value) VALUES ('" .. setting .. "', '" .. tostring(value) .. "')")
+    end
     sql.Query('UPDATE pprotect_' .. string.lower(data[1]) .. " SET value = '" .. tostring(value) .. "' WHERE setting = '" .. setting .. "'")
   end)
 
   sv_PProtect.Notify(pl, 'Saved new ' .. data[1] .. '-Settings', 'info')
   print('[PatchProtect - ' .. data[1] .. '] ' .. pl:Nick() .. ' saved new ' .. data[1] .. '-Settings.')
+end)
+
+
+--------------------------
+--  BLOCKED PROPS/ENTS  --
+--------------------------
+
+-- SEND BLOCKED PROPS/ENTS TABLE
+net.Receive('pprotect_request_ents', function(len, pl)
+  local typ = net.ReadTable()[1]
+
+  net.Start('pprotect_send_ents')
+  net.WriteString(typ)
+  net.WriteTable(sv_PProtect.Blocked[typ])
+  net.Send(pl)
+end)
+
+-- SAVE BLOCKED PROPS/ENTS TABLE
+net.Receive('pprotect_save_ents', function(len, pl)
+  local d = net.ReadTable()
+  local typ, key = d[1], d[2]
+
+  sv_PProtect.Blocked[typ][key] = nil
+  sv_PProtect.saveBlockedEnts(typ, sv_PProtect.Blocked[typ])
+  print('[PatchProtect - AntiSpam] ' .. pl:Nick() .. ' removed ' .. key .. ' from the blocked-' .. typ .. '-list.')
+end)
+
+-- SAVE BLOCKED PROP/ENT FROM CPANEL
+net.Receive('pprotect_save_cent', function(len, pl)
+  local ent = net.ReadTable()
+
+  if sv_PProtect.Blocked[ent.typ][ent.name] then
+    sv_PProtect.Notify(pl, 'This object is already in the ' .. ent.typ .. '-list.', 'info')
+    return
+  end
+
+  sv_PProtect.Blocked[ent.typ][string.lower(ent.name)] = string.lower(ent.model)
+  sv_PProtect.saveBlockedEnts(ent.typ, sv_PProtect.Blocked[ent.typ])
+
+  sv_PProtect.Notify(pl, 'Saved ' .. ent.name .. ' to blocked-' .. ent.typ .. '-list.', 'info')
+  print('[PatchProtect - AntiSpam] ' .. pl:Nick() .. ' added ' .. ent.name .. ' to the blocked-' .. ent.typ .. '-list.')
 end)
 
 -- SAVE BLOCKED PROPS/ENTS
@@ -149,6 +193,45 @@ function sv_PProtect.saveBlockedEnts(typ, data)
     sql.Query('INSERT INTO pprotect_blocked_' .. typ .. " (name, model) VALUES ('" .. n .. "', '" .. m .. "')")
   end)
 end
+
+--------------------------------
+--  ANTISPAMED/BLOCKED TOOLS  --
+--------------------------------
+
+-- SEND ANTISPAMED/BLOCKED TOOLS TABLE
+net.Receive('pprotect_request_tools', function(len, pl)
+  local t = string.sub(net.ReadTable()[1], 1, 1) .. 'tools'
+  local tools = {}
+
+  table.foreach(weapons.GetList(), function(_, wep)
+    if wep.ClassName != 'gmod_tool' then return end
+    table.foreach(wep.Tool, function(name, tool)
+      tools[name] = false
+    end)
+  end)
+
+  table.foreach(sv_PProtect.Blocked[t], function(name, value)
+    if value == true then
+      tools[name] = true
+    end
+  end)
+
+  net.Start('pprotect_send_tools')
+  net.WriteString(t)
+  net.WriteTable(tools)
+  net.Send(pl)
+end)
+
+-- SAVE BLOCKED/ANTISPAMED TOOLS
+net.Receive('pprotect_save_tools', function(len, pl)
+  local d = net.ReadTable()
+  local t1, t2, k, c = d[1], d[2], d[3], d[4]
+
+  sv_PProtect.Blocked[t1][k] = c
+  sv_PProtect.saveBlockedTools(t2, sv_PProtect.Blocked[t1])
+
+  print('[PatchProtect - AntiSpam] ' .. pl:Nick() .. ' set "' .. k .. '" from ' .. t2 .. '-tools-list to "' .. tostring(c) .. '".')
+end)
 
 -- SAVE ANTISPAMED/BLOCKED TOOLS
 function sv_PProtect.saveBlockedTools(typ, data)
@@ -166,12 +249,8 @@ end
 
 -- SEND SETTINGS
 function sv_PProtect.sendSettings(ply, cmd, args)
-  local new_settings = {}
-  new_settings.AntiSpam = sv_PProtect.Settings.Antispam
-  new_settings.PropProtection = sv_PProtect.Settings.Propprotection
-
   net.Start('pprotect_new_settings')
-  net.WriteTable(new_settings)
+  net.WriteTable(sv_PProtect.Settings)
   if args and args[1] then
     net.WriteString(args[1])
   end

@@ -16,7 +16,7 @@ local scr_w, scr_h = ScrW(), ScrH()
 ------------------
 
 function cl_PProtect.showOwner()
-  if !cl_PProtect.Settings.Propprotection['enabled'] or !cl_PProtect.Settings.CSettings['ownerhud'] or !LocalPlayer():Alive() then return end
+  if !cl_PProtect.Settings.Propprotection['enabled'] or !cl_PProtect.CSettings['ownerhud'] or !LocalPlayer():Alive() then return end
 
   -- Check Entity
   local ent = LocalPlayer():GetEyeTrace().Entity
@@ -70,7 +70,7 @@ function cl_PProtect.showOwner()
   end
 
   -- Check Draw-Mode (FPP-Mode or not)
-  if !cl_PProtect.Settings.CSettings['fppmode'] then
+  if !cl_PProtect.CSettings['fppmode'] then
     -- Background
     draw.RoundedBoxEx(4, l - 5, t - 12, 5, 24, col, true, false, true, false)
     draw.RoundedBoxEx(4, l, t - 12, w, 24, Color(240, 240, 240, 200), false, true, false, true)
@@ -229,7 +229,7 @@ end
 hook.Add('HUDPaint', 'pprotect_drawnote', DrawNote)
 
 function cl_PProtect.ClientNote(msg, typ)
-  if !cl_PProtect.Settings.CSettings['notes'] then return end
+  if !cl_PProtect.CSettings['notes'] then return end
 
   local al = 0
   if Note.alpha > 0 then
