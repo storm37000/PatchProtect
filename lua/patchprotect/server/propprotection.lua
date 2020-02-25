@@ -176,7 +176,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
   return false
 end
 
-hook.Add('CanTool', 'pprotect_toolgun', function(ply, trace, tool)
+hook.Add('CanTool', 'pprotect_propprotection_toolgun', function(ply, trace, tool)
 	-- Check Admin
 	if sv_PProtect.CheckPPAdmin(ply) then return end
 	-- Check Protection

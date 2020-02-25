@@ -107,7 +107,7 @@ hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect.CanSpawn)
 ----------------------
 
 -- TOOL-ANTISPAM
-hook.Add('CanTool', 'pprotect_toolgun', function(ply,trace,tool)
+hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   -- Check Dupe
   if tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' then
     ply.duplicate = true
