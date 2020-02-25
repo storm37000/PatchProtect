@@ -197,6 +197,24 @@ function sv_PProtect.saveBlockedEnts(typ, data)
   end)
 end
 
+-- IMPORT BLOCKED PROPS LIST
+concommand.Add('pprotect_import_blocked_props', function(ply, cmd, args)
+  if !file.Read('pprotect_import_blocked_props.txt', 'DATA') then
+    print("Cannot find 'pprotect_import_blocked_props.txt' to import props. Please read the description of patchprotect.")
+    return
+  end
+  local imp = string.Explode(';', file.Read('pprotect_import_blocked_props.txt', 'DATA'))
+  table.foreach(imp, function(key, model)
+    if model == '' then return end
+    model = string.lower(string.sub(model, string.find(model, 'models/'), string.find(model, ';')))
+    if util.IsValidModel(model) and !sv_PProtect.Blocked.props[model] then
+      sv_PProtect.Blocked.props[model] = model
+    end
+  end)
+  sv_PProtect.saveBlockedEnts('props', sv_PProtect.Blocked.props)
+  print("\n[PatchProtect] Imported all blocked props. If you experience any errors,\nthen use the command to reset the whole blocked-props-list:\n'pprotect_reset blocked_props'\n")
+end)
+
 --------------------------------
 --  ANTISPAMED/BLOCKED TOOLS  --
 --------------------------------

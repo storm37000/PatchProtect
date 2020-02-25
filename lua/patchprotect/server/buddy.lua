@@ -13,7 +13,7 @@ end
 
 net.Receive('pprotect_request_buddies', function(len, ply)
 	sv_PProtect_sendbuddies(player.GetBySteamID(net.ReadString()), ply:SteamID(), ply)
-end
+end)
 
 -- NOTIFICATION/MODIFICATION
 net.Receive('pprotect_info_buddy', function(len, ply)

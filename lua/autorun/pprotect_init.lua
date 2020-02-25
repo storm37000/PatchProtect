@@ -39,9 +39,9 @@ else
     Settings = {
       Antispam = {},
       Propprotection = {}
-    }
+    },
+    CSettings = {}
   }
-  CSettings = {}
 
   -- Include client files
   include('patchprotect/client/csettings.lua')
