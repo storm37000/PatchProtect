@@ -150,6 +150,7 @@ end)
 
 -- SEND BLOCKED PROPS/ENTS TABLE
 net.Receive('pprotect_request_ents', function(len, pl)
+  if !pl:IsSuperAdmin() then return end
   local typ = net.ReadTable()[1]
 
   net.Start('pprotect_send_ents')
@@ -160,6 +161,7 @@ end)
 
 -- SAVE BLOCKED PROPS/ENTS TABLE
 net.Receive('pprotect_save_ents', function(len, pl)
+  if !pl:IsSuperAdmin() then return end
   local d = net.ReadTable()
   local typ, key = d[1], d[2]
 
@@ -170,6 +172,7 @@ end)
 
 -- SAVE BLOCKED PROP/ENT FROM CPANEL
 net.Receive('pprotect_save_cent', function(len, pl)
+  if !pl:IsSuperAdmin() then return end
   local ent = net.ReadTable()
 
   if sv_PProtect.Blocked[ent.typ][ent.name] then
@@ -200,6 +203,7 @@ end
 
 -- SEND ANTISPAMED/BLOCKED TOOLS TABLE
 net.Receive('pprotect_request_tools', function(len, pl)
+  if !pl:IsSuperAdmin() then return end
   local t = string.sub(net.ReadTable()[1], 1, 1) .. 'tools'
   local tools = {}
 
@@ -224,6 +228,7 @@ end)
 
 -- SAVE BLOCKED/ANTISPAMED TOOLS
 net.Receive('pprotect_save_tools', function(len, pl)
+  if !pl:IsSuperAdmin() then return end
   local d = net.ReadTable()
   local t1, t2, k, c = d[1], d[2], d[3], d[4]
 

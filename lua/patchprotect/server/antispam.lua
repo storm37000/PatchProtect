@@ -106,7 +106,6 @@ hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect.CanSpawn)
 --  TOOL ANTI SPAM  --
 ----------------------
 
--- TOOL-ANTISPAM
 hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   -- Check Dupe
   if tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' then
@@ -123,7 +122,7 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
     return false
   end
 
-  if !sv_PProtect.Settings.Antispam['tool'] then return end
+  if !sv_PProtect.Settings.Antispam['tool'] and !sv_PProtect.Blocked.atools[tool] then return end
   -- Cooldown
   if CurTime() > ply.toolcooldown then
     ply.tools = 0

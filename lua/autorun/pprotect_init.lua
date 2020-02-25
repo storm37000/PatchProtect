@@ -38,11 +38,10 @@ else
   cl_PProtect = {
     Settings = {
       Antispam = {},
-      Propprotection = {},
-      CSettings = {}
-    },
-    Buddies = {}
+      Propprotection = {}
+    }
   }
+  CSettings = {}
 
   -- Include client files
   include('patchprotect/client/csettings.lua')

@@ -9,8 +9,6 @@ local csettings_default = {
   notes = true
 }
 
-cl_PProtect.CSettings = {}
-
 -- Load/Create CSettings
 function cl_PProtect.load_csettings()
   -- Delete old settings version
