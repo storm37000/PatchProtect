@@ -3,6 +3,7 @@ local function sv_PProtect_sendbuddies(ply, bud, sendto)
   if ply == nil then return end
   net.Start('pprotect_send_buddies')
    net.WriteEntity(ply)
+   if ply.Buddies == nil then ply.Buddies = {} end
    net.WriteTable(ply.Buddies[bud] or {})
   if sendto == nil then
     net.Broadcast()
@@ -20,6 +21,7 @@ net.Receive('pprotect_info_buddy', function(len, ply)
   local bud = net.ReadEntity()
   local tbl = net.ReadTable()
   local sid = bud:SteamID()
+  if ply.Buddies == nil then ply.Buddies = {} end
   if tbl.bud and tbl.bud == ply.Buddies[sid].bud then
 	ply.Buddies[sid] = tbl
 	sv_PProtect_sendbuddies(ply,sid)
