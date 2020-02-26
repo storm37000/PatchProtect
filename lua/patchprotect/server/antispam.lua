@@ -122,7 +122,9 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
     return false
   end
 
-  if !sv_PProtect.Settings.Antispam['tool'] and !sv_PProtect.Blocked.atools[tool] then return end
+  if !sv_PProtect.Settings.Antispam['tool'] then return end
+  if !sv_PProtect.Blocked.atools[tool] then return end
+
   -- Cooldown
   if CurTime() > ply.toolcooldown then
     ply.tools = 0
