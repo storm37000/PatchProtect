@@ -2,8 +2,8 @@
 
 CPPI = CPPI or {}
 
-CPPI.CPPI_DEFER = 8080 -- PP (PathProtect)
-CPPI.CPPI_NOTIMPLEMENTED = 012019 -- month/year of newest version
+CPPI.CPPI_DEFER = 8080
+CPPI.CPPI_NOTIMPLEMENTED = 9090
 
 local PLAYER = FindMetaTable('Player')
 local ENTITY = FindMetaTable('Entity')
@@ -75,45 +75,63 @@ end
 
 -- Can tool
 function ENTITY:CPPICanTool(ply, tool)
-  return sv_PProtect.CanTool(ply, self, tool)
+  local ret = sv_PProtect.CanTool(ply, self, tool)
+  if ret == nil then return true end
+  return ret
 end
 
 -- Can physgun
 function ENTITY:CPPICanPhysgun(ply)
-  return sv_PProtect.CanPhysgun(ply, self)
+  local ret = sv_PProtect.CanPhysgun(ply, self)
+  if ret == nil then return true end
+  return ret
 end
 
 -- Can pickup
 function ENTITY:CPPICanPickup(ply)
-  return sv_PProtect.CanPickup(ply, self)
+  local ret = sv_PProtect.CanPickup(ply, self)
+  if ret == nil then return true end
+  return ret
 end
 
 -- Can punt
 function ENTITY:CPPICanPunt(ply)
-  return sv_PProtect.CanGravPunt(ply, self)
+  local ret = sv_PProtect.CanGravPunt(ply, self)
+  if ret == nil then return true end
+  return ret
 end
 
 -- Can use
 function ENTITY:CPPICanUse(ply)
-  return sv_PProtect.CanUse(ply, self)
+  local ret = sv_PProtect.CanUse(ply, self)
+  if ret == nil then return true end
+  return ret
 end
 
 -- Can damage
 function ENTITY:CPPICanDamage(ply)
-  return sv_PProtect.CanDamage(ply, self)
+  local ret = sv_PProtect.CanDamage(ply, self)
+  if ret == nil then return true end
+  return ret
 end
 
 -- Can drive
 function ENTITY:CPPICanDrive(ply)
-  return sv_PProtect.CanDrive(ply, self)
+  local ret = sv_PProtect.CanDrive(ply, self)
+  if ret == nil then return true end
+  return ret
 end
 
 -- Can property
 function ENTITY:CPPICanProperty(ply, property)
-  return sv_PProtect.CanProperty(ply, property, self)
+  local ret = sv_PProtect.CanProperty(ply, property, self)
+  if ret == nil then return true end
+  return ret
 end
 
 -- Can edit variable
 function ENTITY:CPPICanEditVariable(ply, key, val, edit)
-  return sv_PProtect.CanProperty(ply, key, self)
+  local ret = sv_PProtect.CanProperty(ply, key, self)
+  if ret == nil then return true end
+  return ret
 end
