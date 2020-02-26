@@ -115,5 +115,5 @@ end
 
 -- Can edit variable
 function ENTITY:CPPICanEditVariable(ply, key, val, edit)
-  return CPPI.CPPI_NOTIMPLEMENTED -- TODO
+  return sv_PProtect.CanProperty(ply, key, self)
 end

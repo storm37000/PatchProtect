@@ -275,6 +275,9 @@ function sv_PProtect.CanProperty(ply, property, ent)
   return false
 end
 hook.Add('CanProperty', 'pprotect_property', sv_PProtect.CanProperty)
+hook.Add('CanEditVariable','pprotect_editvariable', function(ent,ply,key)
+	return sv_PProtect.CanProperty(ply, key, ent)
+end)
 
 function sv_PProtect.CanDrive(ply, ent)
   -- Check Entity
