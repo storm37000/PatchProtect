@@ -33,9 +33,10 @@ net.Receive('pprotect_send_buddies', function(len)
 end)
 
 -- Set Buddy
-function cl_PProtect.setBuddy(bud, c)
-  if !bud then return end
-  local id = bud:SteamID()
+function cl_PProtect.setBuddy(budent, c)
+  if !budent then return end
+  if !isbool( c ) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') return end
+  local id = budent:SteamID()
   if !LocalPlayer().Buddies[id] then
     LocalPlayer().Buddies[id] = {
       bud = false,
@@ -53,7 +54,7 @@ function cl_PProtect.setBuddy(bud, c)
 
   -- Send message to buddy
   net.Start('pprotect_info_buddy')
-  net.WriteEntity(bud)
+  net.WriteEntity(budent)
   net.WriteTable(LocalPlayer().Buddies[id])
   net.SendToServer()
 
@@ -67,16 +68,17 @@ function cl_PProtect.setBuddy(bud, c)
 end
 
 -- Set Buddy
-function cl_PProtect.setBuddyPerm(bud, p, c)
-  if !bud then return end
-  local id = bud:SteamID()
+function cl_PProtect.setBuddyPerm(budent, p, c)
+  if !budent then return end
+  if !isbool( c ) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') return end
+  local id = budent:SteamID()
   if !LocalPlayer().Buddies[id] then cl_PProtect.setBuddy(bud, c) end
 
   LocalPlayer().Buddies[id].perm[p] = c
 
   -- Send message to buddy
   net.Start('pprotect_info_buddy')
-  net.WriteEntity(bud)
+  net.WriteEntity(budent)
   net.WriteTable(LocalPlayer().Buddies[id])
   net.SendToServer()
 

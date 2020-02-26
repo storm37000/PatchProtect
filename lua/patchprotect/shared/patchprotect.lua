@@ -16,7 +16,7 @@ end
 --  CHECK BUDDY  --
 -------------------
 function sh_PProtect.IsBuddy(ply, bud, mode)
-  if ply == nil or !ply:IsPlayer() or bud == nil or !bud:IsPlayer() then return false end
+  if ply == nil or !IsValid(ply) or !ply:IsPlayer() or bud == nil or !bud:IsPlayer() then return false end
   if CLIENT and ply.Buddies == nil then
     net.Start('pprotect_request_buddies')
 	 net.WriteString(ply:SteamID())
