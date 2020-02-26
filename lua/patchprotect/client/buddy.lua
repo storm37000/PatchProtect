@@ -59,9 +59,9 @@ function cl_PProtect.setBuddy(budent, c)
   net.SendToServer()
 
   if c then
-    cl_PProtect.ClientNote('Added ' .. bud:Nick() .. ' to the Buddy-List.', 'info')
+    cl_PProtect.ClientNote('Added ' .. budent:Nick() .. ' to the Buddy-List.', 'info')
   else
-    cl_PProtect.ClientNote('Removed ' .. bud:Nick() .. ' from the Buddy-List.', 'info')
+    cl_PProtect.ClientNote('Removed ' .. budent:Nick() .. ' from the Buddy-List.', 'info')
   end
 
   saveBuddies()
@@ -72,7 +72,7 @@ function cl_PProtect.setBuddyPerm(budent, p, c)
   if !budent then return end
   if !isbool( c ) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') return end
   local id = budent:SteamID()
-  if !LocalPlayer().Buddies[id] then cl_PProtect.setBuddy(bud, c) end
+  if !LocalPlayer().Buddies[id] then cl_PProtect.setBuddy(budent, c) end
 
   LocalPlayer().Buddies[id].perm[p] = c
 
