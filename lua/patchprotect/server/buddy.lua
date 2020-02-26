@@ -22,7 +22,7 @@ net.Receive('pprotect_info_buddy', function(len, ply)
   local tbl = net.ReadTable()
   local sid = bud:SteamID()
   if ply.Buddies == nil then ply.Buddies = {} end
-  if tbl.bud and tbl.bud == ply.Buddies[sid].bud then
+  if tbl.bud and ply.Buddies[sid] and tbl.bud == ply.Buddies[sid].bud then
 	ply.Buddies[sid] = tbl
 	sv_PProtect_sendbuddies(ply,sid)
     return 

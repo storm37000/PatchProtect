@@ -159,6 +159,15 @@ hook.Add('PhysgunPickup', 'pprotect_touch', sv_PProtect.CanPhysgun)
 ----------------------------
 
 function sv_PProtect.CanTool(ply, ent, tool)
+   -- Check Admin
+   if sv_PProtect.CheckPPAdmin(ply) then return end
+
+   -- Check Protection
+   if tool == 'creator' and !sv_PProtect.Settings.Propprotection['creator'] then
+     sv_PProtect.Notify(ply, 'You are not allowed to use the creator tool on this server.')
+     return false
+   end
+
   -- Check Entity
   if !IsValid(ent) then return end
 
@@ -177,13 +186,6 @@ function sv_PProtect.CanTool(ply, ent, tool)
 end
 
 hook.Add('CanTool', 'pprotect_propprotection_toolgun', function(ply, trace, tool)
-	-- Check Admin
-	if sv_PProtect.CheckPPAdmin(ply) then return end
-	-- Check Protection
-	if tool == 'creator' and !sv_PProtect.Settings.Propprotection['creator'] then
-		sv_PProtect.Notify(ply, 'You are not allowed to use the creator tool on this server.')
-		return false
-	end
 	return sv_PProtect.CanTool(ply, trace.Entity, tool)
 end)
 

@@ -288,12 +288,16 @@ concommand.Add('pprotect_request_new_settings', sv_PProtect.sendSettings)
 
 -- SEND NOTIFICATION
 function sv_PProtect.Notify(ply, text, typ)
-  if typ == 'admin' and !ply:IsAdmin() then return end
-  net.Start('pprotect_notify')
-  net.WriteTable({text, typ})
-  if ply then
-    net.Send(ply)
+  if ply == nil then
+    for _, v in pairs( player.GetAll() ) do
+      if typ == 'admin' and !v:IsAdmin() then continue end
+      net.Start('pprotect_notify')
+       net.WriteTable({text, typ})
+      net.Send(v)
+    end
   else
-    net.Broadcast()
+    net.Start('pprotect_notify')
+     net.WriteTable({text, typ})
+    net.Send(ply)
   end
 end
