@@ -133,8 +133,8 @@ net.Receive('pprotect_save', function(len, pl)
 
   -- SAVE TO SQL TABLES
   table.foreach(sv_PProtect.Settings[data[1]], function(setting, value)
-    if !sql.Query('SELECT value FROM ' .. string.lower(data[1]) .. " WHERE setting = '" .. setting .. "'") then
-      sql.Query('INSERT INTO ' .. string.lower(data[1]) .. " (setting, value) VALUES ('" .. setting .. "', '" .. tostring(value) .. "')")
+    if !sql.Query('SELECT value FROM pprotect_' .. string.lower(data[1]) .. " WHERE setting = '" .. setting .. "'") then
+      sql.Query('INSERT INTO pprotect_' .. string.lower(data[1]) .. " (setting, value) VALUES ('" .. setting .. "', '" .. tostring(value) .. "')")
     end
     sql.Query('UPDATE pprotect_' .. string.lower(data[1]) .. " SET value = '" .. tostring(value) .. "' WHERE setting = '" .. setting .. "'")
   end)
