@@ -8,7 +8,11 @@ end
 -- ent: valid entity to check for shared state
 -- mode: string value for the mode to check for
 function sh_PProtect.IsShared(ent, mode)
-  return ent:GetNWBool('pprotect_shared_' .. mode)
+  if mode == nil then
+    return ent:GetNWBool('pprotect_shared_phys') or ent:GetNWBool('pprotect_shared_tool') or ent:GetNWBool('pprotect_shared_use') or ent:GetNWBool('pprotect_shared_dmg')
+  else
+    return ent:GetNWBool('pprotect_shared_' .. mode)
+  end
 end
 
 

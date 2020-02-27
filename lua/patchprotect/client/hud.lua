@@ -15,7 +15,7 @@ local scr_w, scr_h = ScrW(), ScrH()
 --  PROP OWNER  --
 ------------------
 
-function cl_PProtect.showOwner()
+local function showOwner()
   if !cl_PProtect.Settings.Propprotection['enabled'] or !cl_PProtect.CSettings['ownerhud'] or !LocalPlayer():Alive() then return end
 
   -- Check Entity
@@ -23,14 +23,7 @@ function cl_PProtect.showOwner()
   if !ent or !ent:IsValid() or ent:IsWorld() or ent:IsPlayer() then return end
 
   if LastID != ent:EntIndex() or (!Owner and !IsWorld) then
-    Owner, IsWorld, IsShared, IsBuddy = ent:GetNWEntity('pprotect_owner'), ent:GetNWBool('pprotect_world'), false, sh_PProtect.IsBuddy(Owner, LocalPlayer())
-    table.foreach({'phys', 'tool', 'use', 'dmg'}, function(k, v)
-      if sh_PProtect.IsShared(ent, v) then
-        IsShared = true
-      end
-    end)
-
-    LastID = ent:EntIndex()
+    Owner, IsWorld, IsShared, IsBuddy, LastID = ent:GetNWEntity('pprotect_owner'), ent:GetNWBool('pprotect_world'), sh_PProtect.IsShared(ent), sh_PProtect.IsBuddy(Owner, LocalPlayer()), ent:EntIndex()
   end
 
   local txt = nil
@@ -80,96 +73,6 @@ function cl_PProtect.showOwner()
     draw.SimpleText(txt, cl_PProtect.setFont('roboto', 14, 500, true), scr_w * 0.5, t + 20, col, TEXT_ALIGN_CENTER, 0)
   end
 end
-hook.Add('HUDPaint', 'pprotect_hud_owner', cl_PProtect.showOwner)
-
-------------------------
---  PHYSGUN BEAM FIX  --
-------------------------
-
-local function PhysBeam(ply, ent)
-  return false
-end
-hook.Add('PhysgunPickup', 'pprotect_physbeam', PhysBeam)
-
-----------------------------
---  ADD BLOCKED PROP/ENT  --
-----------------------------
-
-properties.Add('addblockedprop', {
-  MenuLabel = 'Add to Blocked-List',
-  Order = 2002,
-  MenuIcon = 'icon16/page_white_edit.png',
-  Filter = function(self, ent, ply)
-    local typ = 'prop'
-    if ent:GetClass() != 'prop_physics' then
-      typ = 'ent'
-    end
-    if !cl_PProtect.Settings.Antispam['enabled'] or !cl_PProtect.Settings.Antispam[typ .. 'block'] or !LocalPlayer():IsSuperAdmin() or !ent:IsValid() or ent:IsPlayer() then
-      return false
-    end
-    return true
-  end,
-  Action = function(self, ent)
-    net.Start('pprotect_save_cent')
-    if ent:GetClass() == 'prop_physics' then
-      net.WriteTable({
-        typ = 'props',
-        name = ent:GetModel(),
-        model = ent:GetModel()
-      })
-    else
-      net.WriteTable({
-        typ = 'ents',
-        name = ent:GetClass(),
-        model = ent:GetModel()
-      })
-    end
-    net.SendToServer()
-  end
-})
-
----------------------
---  SHARED ENTITY  --
----------------------
-
-properties.Add('shareentity', {
-  MenuLabel = 'Share entity',
-  Order = 2003,
-  MenuIcon = 'icon16/group.png',
-  Filter = function(self, ent, ply)
-    if !ent:IsValid() or !cl_PProtect.Settings.Propprotection['enabled'] or ent:IsPlayer() then
-      return false
-    end
-    if LocalPlayer():IsSuperAdmin() or Owner == LocalPlayer() then
-      return true
-    else
-      return false
-    end
-  end,
-  Action = function(self, ent)
-    local shared_info = {}
-    table.foreach({'phys', 'tool', 'use', 'dmg'}, function(k, v)
-      shared_info[v] = ent:GetNWBool('pprotect_shared_' .. v)
-    end)
-
-    -- Frame
-    local frm = cl_PProtect.addfrm(180, 165, 'share prop:', false)
-
-    -- Checkboxes
-    frm:addchk('Physgun', nil, shared_info['phys'], function(c)
-      ent:SetNWBool('pprotect_shared_phys', c)
-    end)
-    frm:addchk('Toolgun', nil, shared_info['tool'], function(c)
-      ent:SetNWBool('pprotect_shared_tool', c)
-    end)
-    frm:addchk('Use', nil, shared_info['use'], function(c)
-      ent:SetNWBool('pprotect_shared_use', c)
-    end)
-    frm:addchk('Damage', nil, shared_info['dmg'], function(c)
-      ent:SetNWBool('pprotect_shared_dmg', c)
-    end)
-  end
-})
 
 ----------------
 --  MESSAGES  --
@@ -223,20 +126,19 @@ local function DrawNote()
   -- Text
   draw.SimpleText(Note.msg, cl_PProtect.setFont('roboto', 18, 500, true), x + 10, y + 10, Color(75, 75, 75, alpha))
 end
-hook.Add('HUDPaint', 'pprotect_drawnote', DrawNote)
+hook.Add('HUDPaint', 'pprotect_hud', function()
+	showOwner()
+	DrawNote()
+end)
 
 function cl_PProtect.ClientNote(msg, typ)
   if !cl_PProtect.CSettings['notes'] then return end
 
-  local al = 0
-  if Note.alpha > 0 then
-    al = 255
-  end
   Note = {
     msg = msg,
     typ = typ,
     time = SysTime(),
-    alpha = al
+    alpha = 255
   }
 
   if Note.typ == 'info' then
@@ -255,3 +157,92 @@ net.Receive('pprotect_notify', function(len)
   local note = net.ReadTable()
   cl_PProtect.ClientNote(note[1], note[2])
 end)
+
+------------------------
+--  PHYSGUN BEAM FIX  --
+------------------------
+
+hook.Add('PhysgunPickup', 'pprotect_physbeam', function()
+  return false
+end)
+
+----------------------------
+--  ADD BLOCKED PROP/ENT  --
+----------------------------
+
+properties.Add('addblockedprop', {
+  MenuLabel = 'Add to Blocked-List',
+  Order = 2002,
+  MenuIcon = 'icon16/page_white_edit.png',
+  Filter = function(self, ent, ply)
+    local typ = 'prop'
+    if ent:GetClass() != 'prop_physics' then
+      typ = 'ent'
+    end
+    if !cl_PProtect.Settings.Antispam['enabled'] or !cl_PProtect.Settings.Antispam[typ .. 'block'] or !LocalPlayer():IsSuperAdmin() or !ent:IsValid() or ent:IsPlayer() then
+      return false
+    end
+    return true
+  end,
+  Action = function(self, ent)
+    net.Start('pprotect_save_cent')
+    if ent:GetClass() == 'prop_physics' then
+      net.WriteTable({
+        typ = 'props',
+        name = ent:GetModel(),
+        model = ent:GetModel()
+      })
+    else
+      net.WriteTable({
+        typ = 'ents',
+        name = ent:GetClass(),
+        model = ent:GetModel()
+      })
+    end
+    net.SendToServer()
+  end
+})
+
+---------------------
+--  SHARED ENTITY  --
+---------------------
+--[[
+properties.Add('shareentity', {
+  MenuLabel = 'Share entity',
+  Order = 2003,
+  MenuIcon = 'icon16/group.png',
+  Filter = function(self, ent, ply)
+    if !ent:IsValid() or !cl_PProtect.Settings.Propprotection['enabled'] or ent:IsPlayer() then
+      return false
+    end
+    if LocalPlayer():IsSuperAdmin() or Owner == LocalPlayer() then
+      return true
+    else
+      return false
+    end
+  end,
+  Action = function(self, ent)
+    local shared_info = {}
+    table.foreach({'phys', 'tool', 'use', 'dmg'}, function(k, v)
+      shared_info[v] = ent:GetNWBool('pprotect_shared_' .. v)
+    end)
+
+    -- Frame
+    local frm = cl_PProtect.addfrm(180, 165, 'share prop:', false)
+
+    -- Checkboxes
+    frm:addchk('Physgun', nil, shared_info['phys'], function(c)
+      ent:SetNWBool('pprotect_shared_phys', c)
+    end)
+    frm:addchk('Toolgun', nil, shared_info['tool'], function(c)
+      ent:SetNWBool('pprotect_shared_tool', c)
+    end)
+    frm:addchk('Use', nil, shared_info['use'], function(c)
+      ent:SetNWBool('pprotect_shared_use', c)
+    end)
+    frm:addchk('Damage', nil, shared_info['dmg'], function(c)
+      ent:SetNWBool('pprotect_shared_dmg', c)
+    end)
+  end
+})
+--]]
