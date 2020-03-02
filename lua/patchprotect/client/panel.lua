@@ -414,14 +414,37 @@ function cl_PProtect.UpdateMenus(p_type, panel)
   -- load Panel
   table.foreach(pans, function(t, p)
     if t == 'as' or t == 'pp' then
-      if LocalPlayer():IsSuperAdmin() then
-        RunConsoleCommand('pprotect_request_new_settings', t)
-      else
-        showErrorMessage(pans[t], 'Sorry, you need to be a SuperAdmin to change\nthe settings.')
-      end
+      if LocalPlayer():IsSuperAdmin() then cl_PProtect[t .. '_menu'](pans[t]) else showErrorMessage(pans[t], 'Sorry, you need to be a SuperAdmin to change\nthe settings.') end
     elseif t == 'cu' then
       if LocalPlayer():IsSuperAdmin() or (LocalPlayer():IsAdmin() and cl_PProtect.Settings.Propprotection['adminscleanup']) then
-        RunConsoleCommand('pprotect_request_new_counts')
+        local result = {
+         global = 0,
+         players = {}
+        }
+        table.foreach(ents.GetAll(), function(key, ent)
+          if !ent or !ent:IsValid() then return end
+          local o = sh_PProtect.GetOwner(ent)
+          if sh_PProtect.IsWorld(ent) or !o or isnumber(o) or !o:IsValid() then return end
+
+          -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
+          --if istable(dels) and table.HasValue(dels, ent:EntIndex()) then return end
+
+          -- Global-Count
+          result.global = result.global + 1
+
+          -- Player-Count
+          if !result.players[o] then
+            result.players[o] = 0
+          end
+          result.players[o] = result.players[o] + 1
+        end)
+
+        -- set new Count-Data
+        o_global = result.global
+        o_players = result.players
+
+        -- create new Cleanup-Panel
+        cl_PProtect.cu_menu(pans.cu)
       else
         showErrorMessage(pans[t], 'Sorry, you need to be a Admin/SuperAdmin to\nchange the settings.')
       end
@@ -439,20 +462,4 @@ hook.Add('SpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
 -- RECEIVE NEW SETTINGS
 net.Receive('pprotect_new_settings', function()
   cl_PProtect.Settings = net.ReadTable()
-
-  local typ = net.ReadString()
-  if typ != 'as' and typ != 'pp' then return end
-  cl_PProtect[typ .. '_menu'](pans[typ])
-end)
-
--- RECEIVE NEW PROP-COUNTS
-net.Receive('pprotect_new_counts', function()
-  local counts = net.ReadTable()
-
-  -- set new Count-Data
-  o_global = counts.global
-  o_players = counts.players
-
-  -- create new Cleanup-Panel
-  cl_PProtect.cu_menu(pans.cu)
 end)

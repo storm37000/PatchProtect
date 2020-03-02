@@ -271,12 +271,9 @@ end
 ---------------
 
 -- SEND SETTINGS
-function sv_PProtect.sendSettings(ply, cmd, args)
+function sv_PProtect.sendSettings(ply)
   net.Start('pprotect_new_settings')
   net.WriteTable(sv_PProtect.Settings)
-  if args and args[1] then
-    net.WriteString(args[1])
-  end
   if ply then
     net.Send(ply)
   else
@@ -284,7 +281,6 @@ function sv_PProtect.sendSettings(ply, cmd, args)
   end
 end
 hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sv_PProtect.sendSettings)
-concommand.Add('pprotect_request_new_settings', sv_PProtect.sendSettings)
 
 -- SEND NOTIFICATION
 function sv_PProtect.Notify(ply, text, typ)
@@ -301,3 +297,24 @@ function sv_PProtect.Notify(ply, text, typ)
     net.Send(ply)
   end
 end
+
+net.Receive('pprotect_request_cl_data', function(len, ply)
+  local typ = net.ReadString()
+  if typ == "buddy" then sv_PProtect.sendbuddies(player.GetBySteamID(net.ReadString()), ply) return end
+  if typ == "world" then 
+    local ent = net.ReadEntity()
+    net.Start("pprotect_send_isworld")
+     net.WriteEntity(ent)
+     net.WriteBool(ent.ppworld)
+    net.Send(ply)
+    return
+  end
+  if typ == "owner" then 
+    local ent = net.ReadEntity()
+    net.Start("pprotect_send_owner")
+     net.WriteEntity(ent)
+     net.WriteEntity(ent.ppowner)
+    net.Send(ply)
+    return
+  end
+end)

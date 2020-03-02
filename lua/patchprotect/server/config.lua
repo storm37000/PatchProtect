@@ -8,12 +8,9 @@ util.AddNetworkString('pprotect_save')
 
 -- CLEANUP
 util.AddNetworkString('pprotect_cleanup')
-util.AddNetworkString('pprotect_new_counts')
 
 -- BUDDY
-util.AddNetworkString('pprotect_request_buddies')
 util.AddNetworkString('pprotect_info_buddy')
-util.AddNetworkString('pprotect_send_buddies')
 
 -- BLOCKED PROPS/ENTS
 util.AddNetworkString('pprotect_request_ents')
@@ -28,6 +25,12 @@ util.AddNetworkString('pprotect_save_tools')
 
 -- NOTIFICATIONS
 util.AddNetworkString('pprotect_notify')
+
+-- MISC DATA SYNC
+util.AddNetworkString('pprotect_request_cl_data')
+util.AddNetworkString('pprotect_send_buddies')
+util.AddNetworkString('pprotect_send_isworld')
+util.AddNetworkString('pprotect_send_owner')
 
 ----------------------
 --  DEFAULT CONFIG  --

@@ -1,37 +1,3 @@
--------------------
---  COUNT PROPS  --
--------------------
-
-local function countProps(ply, dels)
-  local result = {
-    global = 0,
-    players = {}
-  }
-
-  table.foreach(ents.GetAll(), function(key, ent)
-    if !ent or !ent:IsValid() then return end
-    local o = sh_PProtect.GetOwner(ent)
-    if ent:GetNWBool('pprotect_world') or !o or isnumber(o) or !o:IsValid() then return end
-
-    -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
-    if istable(dels) and table.HasValue(dels, ent:EntIndex()) then return end
-
-    -- Global-Count
-    result.global = result.global + 1
-
-    -- Player-Count
-    if !result.players[o] then
-      result.players[o] = 0
-    end
-    result.players[o] = result.players[o] + 1
-  end)
-
-  net.Start('pprotect_new_counts')
-  net.WriteTable(result)
-  net.Send(ply)
-end
-concommand.Add('pprotect_request_new_counts', countProps)
-
 ---------------------
 --  CLEANUP PROPS  --
 ---------------------
@@ -43,11 +9,6 @@ local function cleanupMap(typ, ply)
 
   -- set world props
   sv_PProtect.setWorldProps()
-
-  -- count props
-  if typ then
-    countProps(ply)
-  end
 
   -- console exception
   if !ply:IsValid() then
@@ -77,7 +38,7 @@ end
 local function cleanupPly(pl, c, ply)
   local del_ents = {}
   table.foreach(ents.GetAll(), function(key, ent)
-    if ent:GetNWEntity('pprotect_owner') == pl then
+    if sh_PProtect.GetOwner(ent) == pl then
       ent:Remove()
       table.insert(del_ents, ent:EntIndex())
     end
@@ -85,13 +46,12 @@ local function cleanupPly(pl, c, ply)
 
   sv_PProtect.Notify(ply, 'Cleaned ' .. pl:Nick() .. "'s props. (" .. tostring(c) .. ')', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed ' .. tostring(c) .. ' props from ' .. pl:Nick() .. '.')
-  countProps(pl, del_ents)
 end
 
 -- Cleanup Unowned Props
 local function cleanupUnowned(ply)
   table.foreach(ents.GetAll(), function(key, ent)
-    if ent:IsValid() and !sh_PProtect.GetOwner(ent) and !ent:GetNWBool('pprotect_world') and string.find(ent:GetClass(), 'prop_') then
+    if ent:IsValid() and !sh_PProtect.GetOwner(ent) and !sh_PProtect.IsWorld(ent) then
       ent:Remove()
     end
   end)

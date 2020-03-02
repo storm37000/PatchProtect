@@ -29,7 +29,7 @@ if SERVER then
   AddCSLuaFile('patchprotect/client/hud.lua')
   AddCSLuaFile('patchprotect/client/derma.lua')
   AddCSLuaFile('patchprotect/client/panel.lua')
-  AddCSLuaFile('patchprotect/client/buddy.lua')
+  AddCSLuaFile('patchprotect/client/propprotection.lua')
 
   -- Force clients to download all shared files
   AddCSLuaFile('patchprotect/shared/patchprotect.lua')
@@ -49,5 +49,5 @@ else
   include('patchprotect/client/hud.lua')
   include('patchprotect/client/derma.lua')
   include('patchprotect/client/panel.lua')
-  include('patchprotect/client/buddy.lua')
+  include('patchprotect/client/propprotection.lua')
 end

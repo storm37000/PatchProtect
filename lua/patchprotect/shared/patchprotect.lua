@@ -1,7 +1,14 @@
 -- GET OWNER
+-- ent: valid entity to get owner player object.
 function sh_PProtect.GetOwner(ent)
-  if !ent then return end
-  return ent:GetNWEntity('pprotect_owner')
+  if CLIENT and ent.ppowner == nil then
+    net.Start('pprotect_request_cl_data')
+	 net.WriteString("owner")
+	 net.WriteEntity(ent)
+    net.SendToServer()
+    return
+  end
+  return ent.ppowner
 end
 
 -- CHECK SHARED
@@ -15,14 +22,12 @@ function sh_PProtect.IsShared(ent, mode)
   end
 end
 
-
--------------------
---  CHECK BUDDY  --
--------------------
+-- CHECK BUDDY
 function sh_PProtect.IsBuddy(ply, bud, mode)
   if ply == nil or !IsValid(ply) or !ply:IsPlayer() or bud == nil or !bud:IsPlayer() then return false end
   if CLIENT and ply.Buddies == nil then
-    net.Start('pprotect_request_buddies')
+    net.Start('pprotect_request_cl_data')
+	 net.WriteString("buddy")
 	 net.WriteString(ply:SteamID())
     net.SendToServer()
 	return false
@@ -32,4 +37,17 @@ function sh_PProtect.IsBuddy(ply, bud, mode)
     return true
   end
   return false
+end
+
+-- CHECK WORLD
+-- ent: valid entity to check for being world owned.
+function sh_PProtect.IsWorld(ent)
+  if CLIENT and ent.ppworld == nil then
+    net.Start('pprotect_request_cl_data')
+	 net.WriteString("world")
+	 net.WriteEntity(ent)
+    net.SendToServer()
+    return false
+  end
+  return ent.ppworld or ent:IsWorld()
 end

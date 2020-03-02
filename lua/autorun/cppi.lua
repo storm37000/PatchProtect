@@ -58,19 +58,10 @@ function ENTITY:CPPISetOwnerUID(uid)
   return self:CPPISetOwner(player.GetByUniqueID(uid))
 end
 
--- Set entity to no world (true) or not even world (false)
+-- Set entity to world (true) or not even world (false)
 -- It is not officially documented, but some addons seem to require this.
-function ENTITY:CPPISetOwnerless(bool)
-  if !IsValid(self) then return false end
-
-  if bool then
-    self:SetNWBool('pprotect_owner', nil)
-    self:SetNWBool('pprotect_world', true)
-  else
-    self:SetNWBool('pprotect_owner', nil)
-  end
-
-  return true
+function ENTITY:CPPISetOwnerless(bool)  
+  return sv_PProtect.SetOwner(self, nil, bool)
 end
 
 -- Can tool

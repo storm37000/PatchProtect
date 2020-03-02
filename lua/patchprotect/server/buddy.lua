@@ -1,5 +1,5 @@
 -- SEND BUDDIES TO CLIENT
-local function sv_PProtect_sendbuddies(ply, sendto)
+function sv_PProtect.sendbuddies(ply, sendto)
   if ply == nil then return end
   net.Start('pprotect_send_buddies')
    net.WriteEntity(ply)
@@ -11,10 +11,6 @@ local function sv_PProtect_sendbuddies(ply, sendto)
   end
 end
 
-net.Receive('pprotect_request_buddies', function(len, ply)
-	sv_PProtect_sendbuddies(player.GetBySteamID(net.ReadString()), ply)
-end)
-
 -- NOTIFICATION/MODIFICATION
 net.Receive('pprotect_info_buddy', function(len, ply)
   local bud = net.ReadEntity()
@@ -23,7 +19,7 @@ net.Receive('pprotect_info_buddy', function(len, ply)
   if ply.Buddies == nil then ply.Buddies = {} end
   if tbl.bud and ply.Buddies[sid] and tbl.bud == ply.Buddies[sid].bud then
 	ply.Buddies[sid] = tbl
-	sv_PProtect_sendbuddies(ply)
+	sv_PProtect.sendbuddies(ply)
     return 
   end
   if tbl.bud then
@@ -33,5 +29,5 @@ net.Receive('pprotect_info_buddy', function(len, ply)
     ply.Buddies[sid] = nil
     sv_PProtect.Notify(bud, ply:Nick() .. ' removed you as a buddy.', 'normal')
   end
-  sv_PProtect_sendbuddies(ply)
+  sv_PProtect.sendbuddies(ply)
 end)

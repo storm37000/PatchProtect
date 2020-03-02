@@ -23,7 +23,7 @@ local function showOwner()
   if !ent or !ent:IsValid() or ent:IsWorld() or ent:IsPlayer() then return end
 
   if LastID != ent:EntIndex() or (!Owner and !IsWorld) then
-    Owner, IsWorld, IsShared, IsBuddy, LastID = ent:GetNWEntity('pprotect_owner'), ent:GetNWBool('pprotect_world'), sh_PProtect.IsShared(ent), sh_PProtect.IsBuddy(Owner, LocalPlayer()), ent:EntIndex()
+    Owner, IsWorld, IsShared, IsBuddy, LastID = sh_PProtect.GetOwner(ent), sh_PProtect.IsWorld(ent), sh_PProtect.IsShared(ent), sh_PProtect.IsBuddy(Owner, LocalPlayer()), ent:EntIndex()
   end
 
   local txt = nil
@@ -51,9 +51,9 @@ local function showOwner()
 
   -- Set color
   local col
-  if Owner == LocalPlayer() or LocalPlayer():IsAdmin() or LocalPlayer():IsSuperAdmin() or IsBuddy or IsShared or (IsWorld and cl_PProtect.Settings.Propprotection['worldpick']) or txt == 'No Owner' then
+  if Owner == LocalPlayer() or (cl_PProtect.Settings.Propprotection['admins'] and LocalPlayer():IsAdmin()) or (cl_PProtect.Settings.Propprotection['superadmins'] and LocalPlayer():IsSuperAdmin()) or IsBuddy or IsShared then
     col = Color(128, 255, 0, 200)
-  elseif IsWorld and (cl_PProtect.Settings.Propprotection['worlduse'] or cl_PProtect.Settings.Propprotection['worldtool']) then
+  elseif IsWorld and (cl_PProtect.Settings.Propprotection['worldpick'] or cl_PProtect.Settings.Propprotection['worlduse'] or cl_PProtect.Settings.Propprotection['worldtool']) then
     col = Color(0, 161, 222, 200)
   else
     col = Color(176, 0, 0, 200)
