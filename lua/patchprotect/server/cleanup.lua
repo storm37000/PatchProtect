@@ -12,12 +12,13 @@ local function cleanupMap(typ, ply)
 
   -- console exception
   if !ply:IsValid() then
+    sv_PProtect.Notify(nil, 'Removed all props.', 'info')
     print('[PatchProtect - Cleanup] Removed all props.')
     return
   end
 
-  sv_PProtect.Notify(ply, 'Cleaned Map.', 'info')
-  print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed all props.')
+  sv_PProtect.Notify(nil, ply:Nick() .. ' cleaned Map.', 'info')
+  print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' cleaned Map.')
 end
 
 -- Cleanup Disconnected Players Props
@@ -30,7 +31,7 @@ local function cleanupDisc(ply)
     end
   end)
 
-  sv_PProtect.Notify(ply, 'Removed all props from disconnected players.', 'info')
+  sv_PProtect.Notify(nil, ply:Nick() .. ' removed all props from disconnected players.', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed all props from disconnected players.')
 end
 
@@ -44,7 +45,7 @@ local function cleanupPly(pl, c, ply)
     end
   end)
 
-  sv_PProtect.Notify(ply, 'Cleaned ' .. pl:Nick() .. "'s props. (" .. tostring(c) .. ')', 'info')
+  sv_PProtect.Notify(nil, ply:Nick() .. ' cleaned ' .. pl:Nick() .. "'s props. (" .. tostring(c) .. ')', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed ' .. tostring(c) .. ' props from ' .. pl:Nick() .. '.')
 end
 
@@ -56,7 +57,7 @@ local function cleanupUnowned(ply)
     end
   end)
 
-  sv_PProtect.Notify(ply, 'Removed all unowned props.', 'info')
+  sv_PProtect.Notify(nil, ply:Nick() .. ' removed all unowned props.', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed all unowned props.')
 end
 
@@ -123,7 +124,7 @@ local function setCleanup(ply)
         v:Remove()
       end
     end)
-
+    sv_PProtect.Notify(nil, 'Removed ' .. nick .. 's Props. (Reason: Left the Server)', 'info')
     print('[PatchProtect - Cleanup] Removed ' .. nick .. 's Props. (Reason: Left the Server)')
   end)
 end
