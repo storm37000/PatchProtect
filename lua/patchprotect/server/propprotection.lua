@@ -148,25 +148,32 @@ function undo.Finish()
 end
 
 hook.Add("PlayerSpawnedEffect","PlayerSpawnedEffect",function(ply,mdl,ent)
-	sv_PProtect.SetOwner(ent, ply)
+  if CheckBlocked(ent,"spawn") then return false end
+  sv_PProtect.SetOwner(ent, ply)
 end)
 hook.Add("PlayerSpawnedNPC","PlayerSpawnedNPC",function(ply,ent)
-	sv_PProtect.SetOwner(ent, ply)
+  if CheckBlocked(ent,"spawn") then return false end
+  sv_PProtect.SetOwner(ent, ply)
 end)
 hook.Add("PlayerSpawnedProp","PlayerSpawnedProp",function(ply,mdl,ent)
-	sv_PProtect.SetOwner(ent, ply)
+  if CheckBlocked(ent,"spawn") then return false end
+  sv_PProtect.SetOwner(ent, ply)
 end)
 hook.Add("PlayerSpawnedRagdoll","PlayerSpawnedRagdoll",function(ply,mdl,ent)
-	sv_PProtect.SetOwner(ent, ply)
+  if CheckBlocked(ent,"spawn") then return false end
+  sv_PProtect.SetOwner(ent, ply)
 end)
 hook.Add("PlayerSpawnedSENT","PProtect_PlayerSpawnedSENT",function(ply,ent)
-	sv_PProtect.SetOwner(ent, ply)
+  if CheckBlocked(ent,"spawn") then return false end
+  sv_PProtect.SetOwner(ent, ply)
 end)
 hook.Add("PlayerSpawnedSWEP","PProtect_PlayerSpawnedSWEP",function(ply,ent)
-	sv_PProtect.SetOwner(ent, ply)
+  if CheckBlocked(ent,"spawn") then return false end
+  sv_PProtect.SetOwner(ent, ply)
 end)
 hook.Add("PlayerSpawnedVehicle","PProtect_PlayerSpawnedVehicle",function(ply,ent)
-	sv_PProtect.SetOwner(ent, ply)
+  if CheckBlocked(ent,"spawn") then return false end
+  sv_PProtect.SetOwner(ent, ply)
 end)
 
 
@@ -177,6 +184,8 @@ end)
 function sv_PProtect.CanPhysgun(ply, ent)
   -- Check Entity
   if !IsValid(ent) then return false end
+
+  if CheckBlocked(ent,"phys") then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -204,17 +213,19 @@ hook.Add('PhysgunPickup', 'pprotect_touch', sv_PProtect.CanPhysgun)
 ----------------------------
 
 function sv_PProtect.CanTool(ply, ent, tool)
-   -- Check Admin
-   if CheckPPAdmin(ply) then return end
-
-   -- Check Protection
-   if tool == 'creator' and !sv_PProtect.Settings.Propprotection['creator'] then
-     sv_PProtect.Notify(ply, 'You are not allowed to use the creator tool on this server.')
-     return false
-   end
-
   -- Check Entity
   if !IsValid(ent) then return end
+
+  -- Check Admin
+  if CheckPPAdmin(ply) then return end
+
+  -- Check Protection
+  if tool == 'creator' and !sv_PProtect.Settings.Propprotection['creator'] then
+    sv_PProtect.Notify(ply, 'You are not allowed to use the creator tool on this server.')
+    return false
+  end
+  
+  if CheckBlocked(ent,"tool") then return false end
 
   -- Check World
   if CheckWorld(ent, 'tool') then return end
