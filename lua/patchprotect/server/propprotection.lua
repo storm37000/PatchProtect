@@ -396,11 +396,11 @@ function sv_PProtect.CanPhysReload(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['reload'] then return end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
   -- Check Admin
   if CheckPPAdmin(ply) then return end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'pick') then return end
@@ -413,10 +413,7 @@ function sv_PProtect.CanPhysReload(ply, ent)
   return false
 end
 
-function sv_PProtect.PrepareCanPhysReload(weapon, ply)
-  return sv_PProtect.CanPhysReload(ply, ply:GetEyeTrace().Entity)
-end
-hook.Add('OnPhysgunReload', 'pprotect_physreload', sv_PProtect.PreparePhysReload)
+hook.Add('CanPlayerUnfreeze', 'pprotect_physreload', sv_PProtect.CanPhysReload)
 
 -------------------------------
 --  GRAVGUN PUNT PROTECTION  --
