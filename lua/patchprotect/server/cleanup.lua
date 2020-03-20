@@ -124,7 +124,6 @@ local function setCleanup(ply)
         v:Remove()
       end
     end)
-    sv_PProtect.Notify(nil, 'Removed ' .. nick .. 's Props. (Reason: Left the Server)', 'info')
     print('[PatchProtect - Cleanup] Removed ' .. nick .. 's Props. (Reason: Left the Server)')
   end)
 end
