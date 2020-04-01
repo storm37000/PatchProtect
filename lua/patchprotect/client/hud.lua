@@ -16,7 +16,7 @@ local scr_w, scr_h = ScrW(), ScrH()
 ------------------
 
 local function showOwner()
-  if !cl_PProtect.Settings.Propprotection['enabled'] or !cl_PProtect.CSettings['ownerhud'] or !LocalPlayer():Alive() then return end
+  if LocalPlayer():InVehicle() or !cl_PProtect.Settings.Propprotection['enabled'] or !cl_PProtect.CSettings['ownerhud'] then return end
 
   -- Check Entity
   local ent = LocalPlayer():GetEyeTrace().Entity
