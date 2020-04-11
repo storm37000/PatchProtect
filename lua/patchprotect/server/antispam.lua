@@ -69,7 +69,7 @@ function sv_PProtect.CanSpawn(ply, mdl)
   if ply.duplicate then return end
 
   -- Prop/Entity-Block
-  if sv_PProtect.Settings.Antispam['propblock'] and sv_PProtect.Blocked.props[string.lower(mdl)] or string.find(string.lower(mdl), '/../') or sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(mdl)] then
+  if (sv_PProtect.Settings.Antispam['propblock'] and sv_PProtect.Blocked.props[string.lower(mdl)] or string.find(string.lower(mdl), '/../')) or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(mdl)]) then
     sv_PProtect.Notify(ply, 'This object is in the blacklist.')
     return false
   end
