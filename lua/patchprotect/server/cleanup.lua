@@ -96,9 +96,6 @@ function sv_PProtect.Cleanup(typ, ply)
   end
 end
 net.Receive('pprotect_cleanup', sv_PProtect.Cleanup)
-concommand.Add('gmod_admin_cleanup', function(ply, cmd, args)
-  sv_PProtect.Cleanup('all', ply)
-end)
 
 ----------------------------------------
 --  CLEAR DISCONNECTED PLAYERS PROPS  --
