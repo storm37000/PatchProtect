@@ -50,11 +50,11 @@ end
 --  SPAWN ANTI SPAM  --
 -----------------------
 
-function sv_PProtect.CanSpawn(ply, mdl, typ)
+function sv_PProtect.CanSpawn(ply, mdl)
   if sv_PProtect.CheckASAdmin(ply) then return end
 
   -- Prop/Entity-Block
-  if (sv_PProtect.Settings.Antispam['propblock'] and typ !=nil and typ == "prop" and sv_PProtect.Blocked.props[string.lower(mdl)]) or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(mdl)]) then
+  if (sv_PProtect.Settings.Antispam['propblock'] and string.find(string.lower(mdl), '/../') and sv_PProtect.Blocked.props[string.lower(mdl)]) or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(mdl)]) then
     sv_PProtect.Notify(ply, 'This object is in the blacklist.')
     return false
   end
@@ -81,9 +81,7 @@ function sv_PProtect.CanSpawn(ply, mdl, typ)
 	return false
   end
 end
-hook.Add('PlayerSpawnProp', 'pprotect_spawnprop', function(ply,mdl)
-	sv_PProtect.CanSpawn(ply,mdl,"prop")
-end)
+hook.Add('PlayerSpawnProp', 'pprotect_spawnprop', sv_PProtect.CanSpawn)
 hook.Add('PlayerSpawnEffect', 'pprotect_spawneffect', sv_PProtect.CanSpawn)
 hook.Add('PlayerSpawnSENT', 'pprotect_spawnSENT', sv_PProtect.CanSpawn)
 hook.Add('PlayerSpawnRagdoll', 'pprotect_spawnragdoll', sv_PProtect.CanSpawn)

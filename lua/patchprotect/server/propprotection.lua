@@ -93,39 +93,11 @@ function sv_PProtect.SetOwner(ent, ply, world)
   return true
 end
 
--- Set the owner for multiple entites
--- ply: probably invalid player which probably gets the new owner of all ents
--- typ: defines, why given entites are existing
--- ents: table of valid entities which should get the new owner, or nil
-function sv_PProtect.SetOwnerForEnts(ply, typ, ents)
-  if !ents or !IsValid(ply) or !ply:IsPlayer() then return end
-
-  -- if this is a duplication, we need to temporarily disable the AntiSpam feature
-  -- as soon as there is not a duplicated entity, disable the duplication exception
-  if ply.duplicate == true and typ != 'Duplicator' and !string.find(typ, 'AdvDupe') then
-    ply.duplicate = false
-  end
-
-  -- set the new owner for all entites
-  table.foreach(ents, function(k, ent)
-    sv_PProtect.SetOwner(ent, ply)
-
-    -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
-    if ply.duplicate or !sv_PProtect.Settings.Antispam['propinprop'] or CheckPPAdmin(ply) or ent:GetClass() != 'prop_physics' then return end
-
-    -- PropInProp-Protection
-    if ent:GetPhysicsObject():IsPenetrating() then
-      sv_PProtect.Notify(ply, 'You are not allowed to spawn a prop in an other prop.')
-      ent:Remove()
-    end
-  end)
-end
-
 -- GET DATA
 local en, uc, ue, up, uf = nil, undo.Create, undo.AddEntity, undo.SetPlayer, undo.Finish
 function undo.Create(typ)
+  if en != nil then print("tried to create a new undo before the last one was finished! discarding unfinished undo!") end
   en = {
-    t = typ,
     e = {},
     o = nil
   }
@@ -142,7 +114,26 @@ function undo.SetPlayer(ply)
   up(ply)
 end
 function undo.Finish()
-  sv_PProtect.SetOwnerForEnts(en.o, en.t, en.e)
+  if !en.e or !IsValid(en.o) or !en.o:IsPlayer() then return end
+
+  table.foreach(en.e, function(k, ent)
+    --sv_PProtect.SetOwner(ent, en.o)
+
+    -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
+    if en.o.duplicate or !sv_PProtect.Settings.Antispam['propinprop'] or CheckPPAdmin(en.o) or ent:GetClass() != 'prop_physics' then return end
+
+    -- PropInProp-Protection
+    if ent:GetPhysicsObject():IsPenetrating() then
+      sv_PProtect.Notify(en.o, 'You are not allowed to spawn a prop in an other prop.')
+      ent:Remove()
+    end
+  end)
+  
+  -- as soon as there is not a duplicated entity, disable the duplication exception
+  if en.o.duplicate then
+    en.o.duplicate = false
+  end
+
   en = nil
   uf()
 end
