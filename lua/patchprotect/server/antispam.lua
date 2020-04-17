@@ -2,20 +2,6 @@
 --  ANTISPAM SETUP  --
 ----------------------
 
--- SET PLAYER VARS
-hook.Add('PlayerInitialSpawn', 'pprotect_initialspawn', function(ply)
-  -- Props
-  ply.propcooldown = 0
-  ply.props = 0
-
-  -- Tools
-  ply.toolcooldown = 0
-  ply.tools = 0
-
-  -- Duplicate
-  ply.duplicate = false
-end)
-
 -- CHECK ANTISPAM ADMIN
 function sv_PProtect.CheckASAdmin(ply)
   if not IsValid(ply) then return false end
@@ -64,25 +50,26 @@ end
 --  SPAWN ANTI SPAM  --
 -----------------------
 
-function sv_PProtect.CanSpawn(ply, mdl)
+function sv_PProtect.CanSpawn(ply, mdl, typ)
   if sv_PProtect.CheckASAdmin(ply) then return end
-  if ply.duplicate then return end
 
   -- Prop/Entity-Block
-  if (sv_PProtect.Settings.Antispam['propblock'] and sv_PProtect.Blocked.props[string.lower(mdl)] or string.find(string.lower(mdl), '/../')) or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(mdl)]) then
+  if (sv_PProtect.Settings.Antispam['propblock'] and typ !=nil and typ == "prop" and sv_PProtect.Blocked.props[string.lower(mdl)]) or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(mdl)]) then
     sv_PProtect.Notify(ply, 'This object is in the blacklist.')
     return false
   end
 
+  if ply.duplicate then return end
+
   if !sv_PProtect.Settings.Antispam['prop'] then return end
   -- Cooldown
-  if CurTime() > ply.propcooldown then
+  if CurTime() > (ply.propcooldown or 0) then
     ply.props = 0
     ply.propcooldown = CurTime() + sv_PProtect.Settings.Antispam['cooldown']
     return
   end
 
-  ply.props = ply.props + 1
+  ply.props = (ply.props or 0) + 1
   sv_PProtect.Notify(ply, 'Please wait ' .. math.Round(ply.propcooldown - CurTime(), 1) .. ' seconds', 'normal')
 
   -- Spamaction
@@ -94,7 +81,9 @@ function sv_PProtect.CanSpawn(ply, mdl)
 	return false
   end
 end
-hook.Add('PlayerSpawnProp', 'pprotect_spawnprop', sv_PProtect.CanSpawn)
+hook.Add('PlayerSpawnProp', 'pprotect_spawnprop', function(ply,mdl)
+	sv_PProtect.CanSpawn(ply,mdl,"prop")
+end)
 hook.Add('PlayerSpawnEffect', 'pprotect_spawneffect', sv_PProtect.CanSpawn)
 hook.Add('PlayerSpawnSENT', 'pprotect_spawnSENT', sv_PProtect.CanSpawn)
 hook.Add('PlayerSpawnRagdoll', 'pprotect_spawnragdoll', sv_PProtect.CanSpawn)
@@ -108,7 +97,7 @@ hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect.CanSpawn)
 
 hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   -- Check Dupe
-  if tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' then
+  if tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' or string.find(tool,"stacker") then
     ply.duplicate = true
   else
     ply.duplicate = false
@@ -126,13 +115,13 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   if !sv_PProtect.Blocked.atools[tool] then return end
 
   -- Cooldown
-  if CurTime() > ply.toolcooldown then
+  if CurTime() > (ply.toolcooldown or 0) then
     ply.tools = 0
     ply.toolcooldown = CurTime() + sv_PProtect.Settings.Antispam['cooldown']
     return
   end
 
-  ply.tools = ply.tools + 1
+  ply.tools = (ply.tools or 0) + 1
   sv_PProtect.Notify(ply, 'Please wait ' .. math.Round(ply.toolcooldown - CurTime(), 1) .. ' seconds', 'normal')
 
   -- Spamaction
