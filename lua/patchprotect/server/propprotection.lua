@@ -117,7 +117,9 @@ function undo.Finish()
   if !en.e or !IsValid(en.o) or !en.o:IsPlayer() then return end
 
   table.foreach(en.e, function(k, ent)
-    --sv_PProtect.SetOwner(ent, en.o)
+    if not sh_PProtect.GetOwner(ent) then
+      sv_PProtect.SetOwner(ent, en.o)
+    end
 
     -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
     if en.o.duplicate or !sv_PProtect.Settings.Antispam['propinprop'] or CheckPPAdmin(en.o) or ent:GetClass() != 'prop_physics' then return end
