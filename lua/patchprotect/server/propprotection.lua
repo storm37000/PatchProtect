@@ -233,7 +233,6 @@ function sv_PProtect.CanTool(ply, ent, tool)
   sv_PProtect.Notify(ply, 'You are not allowed to use ' .. tool .. ' on this object.')
   return false
 end
-
 hook.Add('CanTool', 'pprotect_propprotection_toolgun', function(ply, trace, tool)
 	return sv_PProtect.CanTool(ply, trace.Entity, tool)
 end)
@@ -386,11 +385,9 @@ function sv_PProtect.CanDamage(ply, ent)
   sv_PProtect.Notify(ply, 'You are not allowed to damage this object.')
   return true
 end
-
-function sv_PProtect.TakeDamage(ent, info)
+hook.Add('EntityTakeDamage', 'pprotect_damage', function(ent, info)
   return sv_PProtect.CanDamage(info:GetAttacker():CPPIGetOwner() or info:GetAttacker(), ent)
-end
-hook.Add('EntityTakeDamage', 'pprotect_damage', sv_PProtect.TakeDamage)
+end)
 
 ---------------------------------
 --  PHYSGUN-RELOAD PROTECTION  --
@@ -416,7 +413,6 @@ function sv_PProtect.CanPhysReload(ply, ent)
   sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
   return false
 end
-
 hook.Add('CanPlayerUnfreeze', 'pprotect_physreload', sv_PProtect.CanPhysReload)
 
 -------------------------------
