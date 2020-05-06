@@ -177,6 +177,8 @@ end)
 function sv_PProtect.CanPhysgun(ply, ent)
   -- Check Entity
   if !IsValid(ent) then return false end
+  
+  if ent:GetClass() == "vc_fuel_nozzle" then return end
 
   if CheckBlocked(ent,"phys") then return false end
 
