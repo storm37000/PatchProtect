@@ -5,6 +5,9 @@
 -- Create shared table
 sh_PProtect = {}
 
+--update version in line with github commit #
+sh_PProtect.version = 459
+
 -- Include shared files
 include('patchprotect/shared/patchprotect.lua')
 

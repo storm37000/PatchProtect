@@ -6,7 +6,8 @@ function sh_PProtect.GetOwner(ent)
 	 net.WriteString("owner")
 	 net.WriteEntity(ent)
     net.SendToServer()
-    return
+    ent.ppowner = "wait"
+    return "wait"
   end
   return ent.ppowner
 end

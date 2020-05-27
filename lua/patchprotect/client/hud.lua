@@ -10,6 +10,18 @@ local Note = {
   alpha = 0
 }
 local scr_w, scr_h = ScrW(), ScrH()
+local t = scr_h * 0.5
+local g = scr_w * 0.5
+local font = cl_PProtect.setFont('roboto', 14, 500, true)
+local fontb = cl_PProtect.setFont('roboto', 18, 500, true)
+local fontc = cl_PProtect.setFont('roboto', 36, 1000, true)
+
+local COL_GREEN = Color(128, 255, 0, 200)
+local COL_BLUE = Color(0, 161, 222, 200)
+local COL_RED = Color(176, 0, 0, 200)
+local COL_GREY = Color(75, 75, 75)
+local COL_GREYTRANS = Color(0, 0, 0, 150)
+local COL_LTGREY = Color(240, 240, 240, 200)
 
 ------------------
 --  PROP OWNER  --
@@ -29,48 +41,48 @@ local function showOwner()
   local txt = nil
   if IsWorld then
     txt = 'World'
-  elseif Owner and Owner:IsValid() and Owner:IsPlayer() then
+  elseif Owner == nil then
+    txt = 'No Owner'
+  elseif Owner == "wait" then
+    txt = 'Waiting for server...'
+  elseif IsValid(Owner) then
     txt = Owner:Nick()
-    if !table.HasValue(player.GetAll(), Owner) then
-      txt = txt .. ' (disconnected)'
-    elseif IsBuddy then
+    if IsBuddy then
       txt = txt .. ' (Buddy)'
     elseif IsShared then
       txt = txt .. ' (Shared)'
     end
   else
-    txt = 'No Owner'
+    txt = 'Disconnected'
   end
 
   -- Set Variables
-  surface.SetFont(cl_PProtect.setFont('roboto', 14, 500, true))
-  local w = surface.GetTextSize(txt)
-  w = w + 10
+  surface.SetFont(font)
+  local w = surface.GetTextSize(txt) + 10
   local l = scr_w - w - 20
-  local t = scr_h * 0.5
 
   -- Set color
   local col
   if Owner == LocalPlayer() or (cl_PProtect.Settings.Propprotection['admins'] and LocalPlayer():IsAdmin()) or (cl_PProtect.Settings.Propprotection['superadmins'] and LocalPlayer():IsSuperAdmin()) or IsBuddy or IsShared then
-    col = Color(128, 255, 0, 200)
+    col = COL_GREEN
   elseif IsWorld and (cl_PProtect.Settings.Propprotection['worldpick'] or cl_PProtect.Settings.Propprotection['worlduse'] or cl_PProtect.Settings.Propprotection['worldtool']) then
-    col = Color(0, 161, 222, 200)
+    col = COL_BLUE
   else
-    col = Color(176, 0, 0, 200)
+    col = COL_RED
   end
 
   -- Check Draw-Mode (FPP-Mode or not)
   if !cl_PProtect.CSettings['fppmode'] then
     -- Background
     draw.RoundedBoxEx(4, l - 5, t - 12, 5, 24, col, true, false, true, false)
-    draw.RoundedBoxEx(4, l, t - 12, w, 24, Color(240, 240, 240, 200), false, true, false, true)
+    draw.RoundedBoxEx(4, l, t - 12, w, 24, COL_LTGREY, false, true, false, true)
     -- Text
-    draw.SimpleText(txt, cl_PProtect.setFont('roboto', 14, 500, true), l + 5, t - 6, Color(75, 75, 75))
+    draw.SimpleText(txt, font, l + 5, t - 6, COL_GREY)
   else
     -- Background
-    draw.RoundedBox(4, scr_w * 0.5 - (w * 0.5), t + 16, w, 20, Color(0, 0, 0, 150))
+    draw.RoundedBox(4, g - (w * 0.5), t + 16, w, 20, COL_GREYTRANS)
     -- Text
-    draw.SimpleText(txt, cl_PProtect.setFont('roboto', 14, 500, true), scr_w * 0.5, t + 20, col, TEXT_ALIGN_CENTER, 0)
+    draw.SimpleText(txt, font, g, t + 20, col, TEXT_ALIGN_CENTER, 0)
   end
 end
 
@@ -90,7 +102,7 @@ local function DrawNote()
     Note.alpha = math.Clamp(Note.alpha - 10, 0, 255)
   end
 
-  surface.SetFont(cl_PProtect.setFont('roboto', 18, 500, true))
+  surface.SetFont(fontb)
   local tw, th = surface.GetTextSize(Note.msg)
   local w = tw + 20
   local h = th + 20
@@ -107,7 +119,7 @@ local function DrawNote()
   end
   draw.RoundedBox(0, x - h, y, h, h, bcol)
   draw.RoundedBox(0, x, y, w, h, Color(240, 240, 240, alpha))
-  draw.SimpleText('i', cl_PProtect.setFont('roboto', 36, 1000, true), x - 23, y + 2, Color(255, 255, 255, alpha))
+  draw.SimpleText('i', fontc, x - 23, y + 2, Color(255, 255, 255, alpha))
 
   local tri = {{
     x = x,
@@ -124,7 +136,7 @@ local function DrawNote()
   surface.DrawPoly(tri)
 
   -- Text
-  draw.SimpleText(Note.msg, cl_PProtect.setFont('roboto', 18, 500, true), x + 10, y + 10, Color(75, 75, 75, alpha))
+  draw.SimpleText(Note.msg, fontb, x + 10, y + 10, Color(75, 75, 75, alpha))
 end
 hook.Add('HUDPaint', 'pprotect_hud', function()
 	showOwner()
