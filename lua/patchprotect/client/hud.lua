@@ -1,8 +1,3 @@
-local Owner
-local IsWorld
-local IsShared
-local IsBuddy
-local LastID
 local Note = {
   msg = '',
   typ = '',
@@ -34,15 +29,13 @@ local function showOwner()
   local ent = LocalPlayer():GetEyeTrace().Entity
   if !ent or !ent:IsValid() or ent:IsWorld() or ent:IsPlayer() then return end
 
-  if LastID != ent:EntIndex() or (!Owner and !IsWorld) then
-    Owner, IsWorld, IsShared, IsBuddy, LastID = sh_PProtect.GetOwner(ent), sh_PProtect.IsWorld(ent), sh_PProtect.IsShared(ent), sh_PProtect.IsBuddy(Owner, LocalPlayer()), ent:EntIndex()
-  end
+  local Owner, IsShared, IsBuddy = sh_PProtect.GetOwner(ent), sh_PProtect.IsShared(ent), sh_PProtect.IsBuddy(Owner, LocalPlayer())
 
   local txt = nil
-  if IsWorld then
-    txt = 'World'
-  elseif Owner == nil then
+  if Owner == nil then
     txt = 'No Owner'
+  elseif Owner == game.GetWorld() then
+    txt = 'World'
   elseif Owner == "wait" then
     txt = 'Waiting for server...'
   elseif IsValid(Owner) then
@@ -65,7 +58,7 @@ local function showOwner()
   local col
   if Owner == LocalPlayer() or (cl_PProtect.Settings.Propprotection['admins'] and LocalPlayer():IsAdmin()) or (cl_PProtect.Settings.Propprotection['superadmins'] and LocalPlayer():IsSuperAdmin()) or IsBuddy or IsShared then
     col = COL_GREEN
-  elseif IsWorld and (cl_PProtect.Settings.Propprotection['worldpick'] or cl_PProtect.Settings.Propprotection['worlduse'] or cl_PProtect.Settings.Propprotection['worldtool']) then
+  elseif Owner == "world" and (cl_PProtect.Settings.Propprotection['worldpick'] or cl_PProtect.Settings.Propprotection['worlduse'] or cl_PProtect.Settings.Propprotection['worldtool']) then
     col = COL_BLUE
   else
     col = COL_RED

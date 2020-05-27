@@ -6,7 +6,7 @@
 sh_PProtect = {}
 
 --update version in line with github commit #
-sh_PProtect.version = 459
+sh_PProtect.version = 460
 
 -- Include shared files
 include('patchprotect/shared/patchprotect.lua')

@@ -48,47 +48,35 @@ end
 -- Set the owner for an entity
 -- ent: valid entity which probably gets a new owner
 -- ply: valid player which probably gets the new owner of ent
-function sv_PProtect.SetOwner(ent, ply, world)
+function sv_PProtect.SetOwner(ent, ply)
   -- Check if another addon may want to block the owner assignment
   if ply == nil then
     if hook.Run('CPPIAssignOwnership', ply, ent) == false then return false end
-    ent.ppworld = world
-    net.Start("pprotect_send_isworld")
+    ent.ppowner = game.GetWorld()
+    net.Start("pprotect_send_owner")
      net.WriteEntity(ent)
-     net.WriteBool(world)
+     net.WriteEntity(ent.ppowner)
     net.Broadcast()
   else
     if hook.Run('CPPIAssignOwnership', ply, ent, ply:UniqueID()) == false then return false end
-  end
-
-  ent.ppowner = ply
-
-  net.Start("pprotect_send_owner")
-   net.WriteEntity(ent)
-   net.WriteEntity(ply)
-  net.Broadcast()
-
-  -- get all contrained entitis and do the same for them
-  table.foreach(constraint.GetAllConstrainedEntities(ent), function(_, cent)
-    -- if there is already an owner on a constrained entity set, don't overwrite it
-    if sh_PProtect.GetOwner(cent) then return end
-
-    cent.ppowner = ply
-	
+    ent.ppowner = ply
     net.Start("pprotect_send_owner")
-     net.WriteEntity(cent)
+     net.WriteEntity(ent)
      net.WriteEntity(ply)
     net.Broadcast()
+  end
+  -- get all contrained entitis and do the same for them
+--  table.foreach(constraint.GetAllConstrainedEntities(ent), function(_, cent)
+    -- if there is already an owner on a constrained entity set, don't overwrite it
+--    if cent.ppowner then return end
 
-    if ply == nil then
-      ent.ppworld = world
-
-      net.Start("pprotect_send_isworld")
-       net.WriteEntity(ent)
-       net.WriteBool(world)
-      net.Broadcast()
-    end
-  end)
+--    cent.ppowner = ply
+	
+--    net.Start("pprotect_send_owner")
+--     net.WriteEntity(cent)
+--     net.WriteEntity(ply)
+--    net.Broadcast()
+--  end)
 
   return true
 end
@@ -117,7 +105,7 @@ function undo.Finish()
   if !en.e or !IsValid(en.o) or !en.o:IsPlayer() then return end
 
   table.foreach(en.e, function(k, ent)
-    if not sh_PProtect.GetOwner(ent) then
+    if not ent.ppowner then
       sv_PProtect.SetOwner(ent, en.o)
     end
 
@@ -472,7 +460,7 @@ hook.Add('GravGunOnPickedUp', 'pprotect_gravpickup', sv_PProtect.CanGravPickup)
 function sv_PProtect.setWorldProps()
   table.foreach(ents:GetAll(), function(id, ent)
     if string.find(ent:GetClass(), 'func_') or string.find(ent:GetClass(), 'prop_') then
-	  ent.ppworld = true
+      ent.ppowner = game.GetWorld()
     end
   end)
 end

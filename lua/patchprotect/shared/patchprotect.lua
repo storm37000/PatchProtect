@@ -16,16 +16,21 @@ end
 -- ent: valid entity to check for shared state
 -- mode: string value for the mode to check for
 function sh_PProtect.IsShared(ent, mode)
-  if mode == nil then
-    return ent:GetNWBool('pprotect_shared_phys') or ent:GetNWBool('pprotect_shared_tool') or ent:GetNWBool('pprotect_shared_use') or ent:GetNWBool('pprotect_shared_dmg')
-  else
-    return ent:GetNWBool('pprotect_shared_' .. mode)
-  end
+--  if mode == nil then
+--    return ent:GetNWBool('pprotect_shared_phys') or ent:GetNWBool('pprotect_shared_tool') or ent:GetNWBool('pprotect_shared_use') or ent:GetNWBool('pprotect_shared_dmg')
+--  else
+--    return ent:GetNWBool('pprotect_shared_' .. mode)
+--  end
+  return false
 end
 
 -- CHECK BUDDY
 function sh_PProtect.IsBuddy(ply, bud, mode)
-  if ply == nil or !IsValid(ply) or !ply:IsPlayer() or bud == nil or !bud:IsPlayer() then return false end
+  if ply == nil or bud == nil then return false end
+  if ply == bud then return false end
+  if ply == game.GetWorld() then return false end
+  if ply == "wait" or bud == "wait" then return false end
+  if !IsValid(ply) or !IsValid(bud) then return false end
   if CLIENT and ply.Buddies == nil then
     net.Start('pprotect_request_cl_data')
 	 net.WriteString("buddy")
@@ -43,12 +48,5 @@ end
 -- CHECK WORLD
 -- ent: valid entity to check for being world owned.
 function sh_PProtect.IsWorld(ent)
-  if CLIENT and ent.ppworld == nil then
-    net.Start('pprotect_request_cl_data')
-	 net.WriteString("world")
-	 net.WriteEntity(ent)
-    net.SendToServer()
-    return false
-  end
-  return ent.ppworld or ent:IsWorld()
+  return ent.ppowner == game.GetWorld() or ent:IsWorld()
 end
