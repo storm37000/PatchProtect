@@ -339,7 +339,11 @@ function cl_PProtect.cu_menu(p)
   if o_global == 0 then return end
   p:addlbl("\nCleanup player's props:", true)
   table.foreach(o_players, function(pl, c)
-    p:addbtn('Cleanup ' .. pl:Nick() .. ' (' .. tostring(c) .. ' props)', 'pprotect_cleanup', {'ply', pl, tostring(c)})
+    if isstring(pl) then
+      p:addlbl('\n' .. pl, true)
+    else
+      p:addbtn('Cleanup ' .. pl:Nick() .. ' (' .. tostring(c) .. ' props)', 'pprotect_cleanup', {'ply', pl, tostring(c)})
+    end
   end)
 end
 
@@ -423,8 +427,11 @@ function cl_PProtect.UpdateMenus(p_type, panel)
         }
         table.foreach(ents.GetAll(), function(key, ent)
           if !ent or !ent:IsValid() then return end
+          if sh_PProtect.IsWorld(ent) then return end
           local o = sh_PProtect.GetOwner(ent)
-          if sh_PProtect.IsWorld(ent) or !o or isnumber(o) or !o:IsValid() then return end
+          if !o then return end
+          if o == "wait" then o = "Loading, re-open menu to see if its done." end
+          if !isstring(o) then if !o:IsValid() then return end end
 
           -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
           --if istable(dels) and table.HasValue(dels, ent:EntIndex()) then return end
