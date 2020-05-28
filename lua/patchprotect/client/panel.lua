@@ -431,7 +431,7 @@ function cl_PProtect.UpdateMenus(p_type, panel)
           local o = sh_PProtect.GetOwner(ent)
           if !o then return end
           if o == "wait" then o = "Loading, re-open menu to see if its done." end
-          if !isstring(o) then if !o:IsValid() then return end end
+          if !isstring(o) then if !o:IsValid() or sh_PProtect.IsWorld(o) then return end end
 
           -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
           --if istable(dels) and table.HasValue(dels, ent:EntIndex()) then return end
