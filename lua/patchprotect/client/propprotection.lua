@@ -10,6 +10,8 @@ hook.Add('InitPostEntity', 'pprotect_load_buddies', function()
       if isbool(v) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') continue end
       cl_PProtect.setBuddy(player.GetBySteamID(k), v.bud)
     end
+  else
+    LocalPlayer().Buddies = {}
   end
 end)
 
@@ -20,10 +22,8 @@ end
 
 -- Reset Buddies
 concommand.Add('pprotect_reset_buddies', function()
-  if LocalPlayer().Buddies then
-    for k, v in pairs( LocalPlayer().Buddies ) do
-      cl_PProtect.setBuddy(player.GetBySteamID(k), false)
-    end
+  for k, v in pairs( LocalPlayer().Buddies ) do
+    cl_PProtect.setBuddy(player.GetBySteamID(k), false)
   end
   LocalPlayer().Buddies = {}
   saveBuddies()

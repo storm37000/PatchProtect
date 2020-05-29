@@ -261,13 +261,12 @@ function cl_PProtect.b_menu(p)
   p:addlbl('Click on name -> change permissions.', false)
   p:addlbl('Change right box -> add/remove buddy.', false)
 
+  if LocalPlayer().Buddies == nil then return end
+
   table.foreach(player.GetAll(), function(key, ply)
     if ply == LocalPlayer() then return end
-    local chk = false
+    local chk = sh_PProtect.IsBuddy(ply, LocalPlayer())
     local id = ply:SteamID()
-    if LocalPlayer().Buddies != nil and istable(LocalPlayer().Buddies[id]) then
-      chk = LocalPlayer().Buddies[id].bud
-    end
 
     p:addplp(
       ply,
