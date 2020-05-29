@@ -265,7 +265,7 @@ function cl_PProtect.b_menu(p)
     if ply == LocalPlayer() then return end
     local chk = false
     local id = ply:SteamID()
-    if istable(LocalPlayer().Buddies[id]) then
+    if LocalPlayer().Buddies != nil and istable(LocalPlayer().Buddies[id]) then
       chk = LocalPlayer().Buddies[id].bud
     end
 

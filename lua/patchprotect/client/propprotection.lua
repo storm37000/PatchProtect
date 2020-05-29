@@ -20,8 +20,10 @@ end
 
 -- Reset Buddies
 concommand.Add('pprotect_reset_buddies', function()
-  for k, v in pairs( LocalPlayer().Buddies ) do
-    cl_PProtect.setBuddy(player.GetBySteamID(k), false)
+  if LocalPlayer().Buddies then
+    for k, v in pairs( LocalPlayer().Buddies ) do
+      cl_PProtect.setBuddy(player.GetBySteamID(k), false)
+    end
   end
   LocalPlayer().Buddies = {}
   saveBuddies()
