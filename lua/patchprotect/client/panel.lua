@@ -327,7 +327,7 @@ function cl_PProtect.cu_menu(p)
   p:ClearControls()
 
   p:addlbl('Cleanup everything:', true)
-  p:addbtn('Cleanup everything (' .. tostring(o_global) .. ' Props)', 'pprotect_cleanup', {'all'})
+  p:addbtn('Cleanup everything (' .. tostring(o_global) .. ' entities)', 'pprotect_cleanup', {'all'})
 
   p:addlbl('\nCleanup props from disconnected players:', true)
   p:addbtn('Cleanup all props from disc. players', 'pprotect_cleanup', {'disc'})
@@ -335,14 +335,9 @@ function cl_PProtect.cu_menu(p)
   p:addlbl('\nCleanup unowned props:', true)
   p:addbtn('Cleanup all unowned props', 'pprotect_cleanup', {'unowned'})
 
-  if o_global == 0 then return end
   p:addlbl("\nCleanup player's props:", true)
   table.foreach(o_players, function(pl, c)
-    if isstring(pl) then
-      p:addlbl('\n' .. pl, true)
-    else
-      p:addbtn('Cleanup ' .. pl:Nick() .. ' (' .. tostring(c) .. ' props)', 'pprotect_cleanup', {'ply', pl, tostring(c)})
-    end
+    p:addbtn('Cleanup ' .. pl:Nick() .. ' (' .. tostring(c) .. ' entities)', 'pprotect_cleanup', {'ply', pl, tostring(c)})
   end)
 end
 
@@ -415,7 +410,7 @@ function cl_PProtect.UpdateMenus(p_type, panel)
   end
 
   -- load Panel
-  table.foreach(pans, function(t, p)
+  for t, p in pairs( pans ) do
     if t == 'as' or t == 'pp' then
       if LocalPlayer():IsSuperAdmin() then cl_PProtect[t .. '_menu'](pans[t]) else showErrorMessage(pans[t], 'Sorry, you need to be a SuperAdmin to change\nthe settings.') end
     elseif t == 'cu' then
@@ -424,13 +419,10 @@ function cl_PProtect.UpdateMenus(p_type, panel)
          global = 0,
          players = {}
         }
-        table.foreach(ents.GetAll(), function(key, ent)
-          if !ent or !ent:IsValid() then return end
-          if sh_PProtect.IsWorld(ent) then return end
+        for key, ent in pairs( ents.GetAll() ) do
+          if ent:IsWorld() then continue end
           local o = sh_PProtect.GetOwner(ent)
-          if !o then return end
-          if o == "wait" then o = "Loading, re-open menu to see if its done." end
-          if !isstring(o) then if !o:IsValid() or sh_PProtect.IsWorld(o) then return end end
+          if !o then continue end
 
           -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
           --if istable(dels) and table.HasValue(dels, ent:EntIndex()) then return end
@@ -438,13 +430,18 @@ function cl_PProtect.UpdateMenus(p_type, panel)
           -- Global-Count
           result.global = result.global + 1
 
+          if !isstring(o) then
+            if !o:IsValid() then continue end
+          else
+            continue
+          end
+
           -- Player-Count
           if !result.players[o] then
             result.players[o] = 0
           end
           result.players[o] = result.players[o] + 1
-        end)
-
+        end
         -- set new Count-Data
         o_global = result.global
         o_players = result.players
@@ -457,7 +454,7 @@ function cl_PProtect.UpdateMenus(p_type, panel)
     else
       cl_PProtect[t .. '_menu'](pans[t])
     end
-  end)
+  end
 end
 hook.Add('SpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
 
