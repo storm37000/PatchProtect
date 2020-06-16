@@ -3,7 +3,7 @@ function sv_PProtect.sendbuddies(ply, sendto)
   if ply == nil then return end
   net.Start('pprotect_send_buddies')
    net.WriteEntity(ply)
-   net.WriteTable(ply.Buddies or {})
+   net.WriteTable(ply.Buddies)
   if sendto == nil then
     net.Broadcast()
   else
