@@ -297,7 +297,12 @@ end
 
 net.Receive('pprotect_request_cl_data', function(len, ply)
   local typ = net.ReadString()
-  if typ == "buddy" then sv_PProtect.sendbuddies(player.GetBySteamID(net.ReadString()), ply) return end
+  if typ == "buddy" then
+    local sid = player.GetBySteamID(net.ReadString())
+    if sid == false then return end
+    sv_PProtect.sendbuddies(sid, ply)
+    return
+  end
   if typ == "owner" then
     local ent = net.ReadEntity()
     net.Start("pprotect_send_owner")

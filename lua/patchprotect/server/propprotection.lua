@@ -14,11 +14,6 @@ end
 -- ent: valid entity to check
 -- sett: PatchProtect setting to use to check for world-premissions
 local function CheckWorld(ent, sett)
-  -- if an entity has no owner, then set that entity as a world entity
-  --if !sh_PProtect.GetOwner(ent) and !sh_PProtect.IsWorld(ent) then
-  --  ent:SetNWBool('pprotect_world', true)
-  --end
-
   if sv_PProtect.Settings.Propprotection['world' .. sett] and sh_PProtect.IsWorld(ent) then return true end
 
   return false
