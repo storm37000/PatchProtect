@@ -220,7 +220,7 @@ function cl_PProtect.pp_menu(p)
       p:addchk("Keep admin's props", nil, cl_PProtect.Settings.Propprotection['adminsprops'], function(c)
         cl_PProtect.Settings.Propprotection['adminsprops'] = c
       end)
-      p:addsld(5, 300, 'Delay (sec.)', cl_PProtect.Settings.Propprotection['delay'], 'Propprotection', 'delay', 0)
+      p:addsld(0, 300, 'Delay (sec.)', cl_PProtect.Settings.Propprotection['delay'], 'Propprotection', 'delay', 0)
     end
   end
 

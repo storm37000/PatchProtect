@@ -14,6 +14,7 @@ end
 -- NOTIFICATION/MODIFICATION
 net.Receive('pprotect_info_buddy', function(len, ply)
   local bud = net.ReadEntity()
+  if not IsValid(bud) then return end
   local tbl = net.ReadTable()
   local sid = bud:SteamID()
   if ply.Buddies == nil then ply.Buddies = {} end

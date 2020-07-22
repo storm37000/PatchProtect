@@ -168,9 +168,6 @@ function sv_PProtect.CanPhysgun(ply, ent)
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 
-  -- Check Entity 2
-  if ent:IsPlayer() then return false end
-
   -- Check World
   if CheckWorld(ent, 'pick') then return end
 
@@ -230,11 +227,11 @@ function sv_PProtect.CanUse(ply, ent)
   -- Check Protection and GameMode
   if !sv_PProtect.Settings.Propprotection['use'] or engine.ActiveGamemode() == 'prop_hunt' then return end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
   -- Check Admin
   if CheckPPAdmin(ply) then return end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'use') then return end
@@ -259,11 +256,11 @@ function sv_PProtect.CanPickup(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['proppickup'] then return end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
   -- Check Admin
   if CheckPPAdmin(ply) then return end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'use') then return end
