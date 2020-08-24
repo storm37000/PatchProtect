@@ -25,6 +25,7 @@ end
 
 -- Get name of player from UID
 function CPPI:GetNameFromUID(uid)
+  if !uid then return end
   local ply = player.GetByUniqueID(uid)
   if !ply then return end
   return ply:Nick()
@@ -45,7 +46,7 @@ function ENTITY:CPPIGetOwner()
   if ply == nil or ply == game.GetWorld() then return nil,nil end
   if ply == "wait" then return CPPI.CPPI_DEFER,CPPI.CPPI_DEFER end
   if !IsValid(ply) then return nil, nil end
-  return ply, ply:UniqueID()
+  return ply, CPPI.CPPI_NOTIMPLEMENTED
 end
 
 if CLIENT then return end
