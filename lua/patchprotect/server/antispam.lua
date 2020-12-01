@@ -111,6 +111,7 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
 
   if !sv_PProtect.Settings.Antispam['tool'] then return end
   if !sv_PProtect.Blocked.atools[tool] then return end
+  if trace.HitNormal == vector_origin then return end
 
   -- Cooldown
   if CurTime() > (ply.toolcooldown or 0) then
