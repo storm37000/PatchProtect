@@ -22,10 +22,10 @@ local function cleanupMap(typ, ply)
 end
 
 -- Cleanup Disconnected Players Props
-local function cleanupDisc(ply)
+local function cleanupDisc()
   local del_ents = {}
   table.foreach(ents.GetAll(), function(key, ent)
-    if ent.pprotect_cleanup != nil then
+    if ent.pprotect_cleanup != nil and !sh_PProtect.IsWorld(ent) then
       ent:Remove()
       table.insert(del_ents, ent:EntIndex())
     end
@@ -50,7 +50,7 @@ local function cleanupPly(pl, c, ply)
 end
 
 -- Cleanup Unowned Props
-local function cleanupUnowned(ply)
+local function cleanupUnowned()
   table.foreach(ents.GetAll(), function(key, ent)
     if ent:IsValid() and !sh_PProtect.GetOwner(ent) and !sh_PProtect.IsWorld(ent) then
       ent:Remove()
@@ -82,7 +82,7 @@ function sv_PProtect.Cleanup(typ, ply)
   end
 
   if typ == 'disc' then
-    cleanupDisc(ply)
+    cleanupDisc()
     return
   end
 
@@ -92,7 +92,7 @@ function sv_PProtect.Cleanup(typ, ply)
   end
 
   if typ == 'unowned' then
-    cleanupUnowned(ply)
+    cleanupUnowned()
   end
 end
 net.Receive('pprotect_cleanup', sv_PProtect.Cleanup)
