@@ -109,7 +109,7 @@ local function setCleanup(ply)
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' left the server. Props will be deleted in ' .. tostring(sv_PProtect.Settings.Propprotection['delay']) .. ' seconds.')
 
   table.foreach(ents.GetAll(), function(k, v)
-    if v:CPPIGetOwner() and v:CPPIGetOwner():UniqueID() == ply:UniqueID() then
+    if !sh_PProtect.IsWorld(v) and v:CPPIGetOwner() and v:CPPIGetOwner() == ply then
       v.pprotect_cleanup = ply:Nick()
     end
   end)
