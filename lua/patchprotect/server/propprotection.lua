@@ -34,6 +34,7 @@ local function CheckBlocked(ent,typ)
   if class == "func_physbox" and (typ == "phys" or typ == "spawn") then return true end
   if class == "prop_dynamic" and (typ == "phys" or typ == "spawn") then return true end
   if class == "func_wall_toggle" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
+  if class == "func_movelinear" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
 end
 
 -----------------
@@ -164,6 +165,9 @@ end)
 hook.Add("PlayerSpawnedVehicle","PProtect_PlayerSpawnedVehicle",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
   sv_PProtect.SetOwner(ent, ply)
+end)
+hook.Add("PlayerInitialSpawn","PProtect_PlayerSpawnedSelf"function(ply)
+  ply.ppowner = game.GetWorld()
 end)
 
 

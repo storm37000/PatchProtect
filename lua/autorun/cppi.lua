@@ -43,9 +43,8 @@ end
 -- Get the owner of an entity
 function ENTITY:CPPIGetOwner()
   local ply = sh_PProtect.GetOwner(self)
-  if ply == nil or ply == game.GetWorld() then return nil,nil end
+  if ply == nil then return nil,nil end
   if ply == "wait" then return CPPI.CPPI_DEFER,CPPI.CPPI_DEFER end
-  if !IsValid(ply) then return nil, nil end
   return ply, CPPI.CPPI_NOTIMPLEMENTED
 end
 
