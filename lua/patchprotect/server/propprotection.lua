@@ -25,7 +25,7 @@ end
 local function CheckBlocked(ent,typ)
   local class = ent:GetClass()
   if class == "func_door_rotating" and sh_PProtect.IsWorld(ent) and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
-  if class == "func_breakable_surf" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
+  if class == "func_breakable_surf" and (typ == "phys" or typ == "spawn") then return true end
   if class == "func_door" and sh_PProtect.IsWorld(ent) and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
   if class == "player" and (typ == "tool" or typ == "spawn") then return true end
   if class == "func_button" and (typ == "phys" or typ == "spawn") then return true end
@@ -202,19 +202,19 @@ hook.Add('PhysgunPickup', 'pprotect_touch', sv_PProtect.CanPhysgun)
 ----------------------------
 
 function sv_PProtect.CanTool(ply, ent, tool)
-  -- Check Entity
-  if !IsValid(ent) then return end
-
-  -- Check Admin
-  if CheckPPAdmin(ply) then return end
-
   -- Check Protection
   if tool == 'creator' and !sv_PProtect.Settings.Propprotection['creator'] then
     sv_PProtect.Notify(ply, 'You are not allowed to use the creator tool on this server.')
     return false
   end
-  
+
+  -- Check Entity
+  if !IsValid(ent) then return end
+
   if CheckBlocked(ent,"tool") then return false end
+
+  -- Check Admin
+  if CheckPPAdmin(ply) then return end
 
   -- Check World
   if CheckWorld(ent, 'tool') then return end
