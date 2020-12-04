@@ -166,7 +166,7 @@ hook.Add("PlayerSpawnedVehicle","PProtect_PlayerSpawnedVehicle",function(ply,ent
   if CheckBlocked(ent,"spawn") then return false end
   sv_PProtect.SetOwner(ent, ply)
 end)
-hook.Add("PlayerInitialSpawn","PProtect_PlayerSpawnedSelf"function(ply)
+hook.Add("PlayerInitialSpawn","PProtect_PlayerSpawnedSelf",function(ply)
   ply.ppowner = game.GetWorld()
 end)
 
