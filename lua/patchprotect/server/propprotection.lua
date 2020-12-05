@@ -140,6 +140,9 @@ function sv_PProtect.CanPhysgun(ply, ent)
 
   if CheckBlocked(ent,"phys") then return false end
 
+  -- Check Entity
+  if !IsValid(ply) then return false end
+
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 
@@ -170,9 +173,11 @@ function sv_PProtect.CanTool(ply, ent, tool)
   end
 
   -- Check Entity
-  if !IsValid(ent) then return end
+  if !IsValid(ent) then return false end
 
   if CheckBlocked(ent,"tool") then return false end
+
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -201,6 +206,8 @@ end)
 function sv_PProtect.CanUse(ply, ent)
   -- Check Protection and GameMode
   if !sv_PProtect.Settings.Propprotection['use'] or engine.ActiveGamemode() == 'prop_hunt' then return end
+
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -231,6 +238,8 @@ function sv_PProtect.CanPickup(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['proppickup'] then return end
 
+  if !IsValid(ply) then return false end
+
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 
@@ -257,8 +266,8 @@ hook.Add('AllowPlayerPickup', 'pprotect_proppickup', sv_PProtect.CanPickup)
 --------------------------------
 
 function sv_PProtect.CanProperty(ply, property, ent)
-  -- Check Entity
-  if !IsValid(ent) then return false end
+
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -268,6 +277,9 @@ function sv_PProtect.CanProperty(ply, property, ent)
     sv_PProtect.Notify(ply, 'You are not allowed to persist this object.')
     return false
   end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'pick') then return end
@@ -285,8 +297,8 @@ hook.Add('CanEditVariable','pprotect_editvariable', function(ent,ply,key)
 end)
 
 function sv_PProtect.CanDrive(ply, ent)
-  -- Check Entity
-  if !IsValid(ent) then return false end
+
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -296,6 +308,9 @@ function sv_PProtect.CanDrive(ply, ent)
     sv_PProtect.Notify(ply, 'Driving objects is not allowed on this server.')
     return false
   end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'pick') then return end
@@ -317,8 +332,7 @@ function sv_PProtect.CanDamage(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['damage'] then return end
 
-  -- Check Entity
-  if !IsValid(ent) or !ply:IsPlayer() then return false end
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -328,6 +342,9 @@ function sv_PProtect.CanDamage(ply, ent)
     sv_PProtect.Notify(ply, 'You are not allowed to damage other players while sitting in a vehicle.')
     return true
   end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'pick') then return end
@@ -353,6 +370,8 @@ end)
 function sv_PProtect.CanPhysReload(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['reload'] then return end
+
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -380,11 +399,13 @@ function sv_PProtect.CanGravPunt(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['gravgun'] then return end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'pick') then return end
@@ -402,11 +423,13 @@ function sv_PProtect.CanGravPickup(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['gravgun'] then return end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'grav') then return end
