@@ -52,4 +52,5 @@ function sh_PProtect.IsWorld(ent)
     return ent.ppowner == "world" or ent:IsWorld()
   else
     return ent.ppowner == nil or ent:IsWorld()
+  end
 end
