@@ -7,9 +7,6 @@ local function cleanupMap(typ, ply)
   -- cleanup map
   game.CleanUpMap()
 
-  -- set world props
-  sv_PProtect.setWorldProps()
-
   -- console exception
   if !ply:IsValid() then
     sv_PProtect.Notify(nil, 'Removed all props.', 'info')
@@ -23,13 +20,11 @@ end
 
 -- Cleanup Disconnected Players Props
 local function cleanupDisc()
-  local del_ents = {}
-  table.foreach(ents.GetAll(), function(key, ent)
-    if ent.pprotect_cleanup != nil and !sh_PProtect.IsWorld(ent) then
+  for _, ent in ipairs( ents.GetAll() ) do
+    if ent.pprotect_cleanup != nil and ent.ppowner != nil and !ent:IsWorld() then
       ent:Remove()
-      table.insert(del_ents, ent:EntIndex())
     end
-  end)
+  end
 
   sv_PProtect.Notify(nil, ply:Nick() .. ' removed all props from disconnected players.', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed all props from disconnected players.')
@@ -37,13 +32,11 @@ end
 
 -- Cleanup Players Props
 local function cleanupPly(pl, c, ply)
-  local del_ents = {}
-  table.foreach(ents.GetAll(), function(key, ent)
+  for _, ent in ipairs( ents.GetAll() ) do
     if sh_PProtect.GetOwner(ent) == pl then
       ent:Remove()
-      table.insert(del_ents, ent:EntIndex())
     end
-  end)
+  end
 
   sv_PProtect.Notify(nil, ply:Nick() .. ' cleaned ' .. pl:Nick() .. "'s props. (" .. tostring(c) .. ')', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed ' .. tostring(c) .. ' props from ' .. pl:Nick() .. '.')
@@ -51,11 +44,11 @@ end
 
 -- Cleanup Unowned Props
 local function cleanupUnowned()
-  table.foreach(ents.GetAll(), function(key, ent)
-    if ent:IsValid() and !sh_PProtect.GetOwner(ent) and !sh_PProtect.IsWorld(ent) then
+  for _, ent in ipairs( ents.GetAll() ) do
+    if !sh_PProtect.GetOwner(ent) and !sh_PProtect.IsWorld(ent) then
       ent:Remove()
     end
-  end)
+  end
 
   sv_PProtect.Notify(nil, ply:Nick() .. ' removed all unowned props.', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed all unowned props.')
@@ -108,19 +101,19 @@ local function setCleanup(ply)
 
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' left the server. Props will be deleted in ' .. tostring(sv_PProtect.Settings.Propprotection['delay']) .. ' seconds.')
 
-  table.foreach(ents.GetAll(), function(k, v)
+  for _, v in ipairs( ents.GetAll() ) do
     if !sh_PProtect.IsWorld(v) and v:CPPIGetOwner() and v:CPPIGetOwner() == ply then
       v.pprotect_cleanup = ply:Nick()
     end
-  end)
+  end
 
   local nick = ply:Nick()
   timer.Create('pprotect_cleanup_' .. nick, sv_PProtect.Settings.Propprotection['delay'], 1, function()
-    table.foreach(ents.GetAll(), function(k, v)
+    for _, v in ipairs( ents.GetAll() ) do
       if v.pprotect_cleanup == nick then
         v:Remove()
       end
-    end)
+    end
     print('[PatchProtect - Cleanup] Removed ' .. nick .. 's Props. (Reason: Left the Server)')
   end)
 end
@@ -133,11 +126,11 @@ local function abortCleanup(ply)
   print('[PatchProtect - Cleanup] Abort Cleanup. ' .. ply:Nick() .. ' came back.')
   timer.Destroy('pprotect_cleanup_' .. ply:Nick())
 
-  table.foreach(ents.GetAll(), function(k, v)
+  for _, v in ipairs( ents.GetAll() ) do
     if v:CPPIGetOwner() and v:CPPIGetOwner():UniqueID() == ply:UniqueID() then
       v.pprotect_cleanup = nil
       v:CPPISetOwner(ply)
     end
-  end)
+  end
 end
 hook.Add('PlayerSpawn', 'pprotect_abortcleanup', abortCleanup)

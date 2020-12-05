@@ -23,7 +23,7 @@ local COL_LTGREY = Color(240, 240, 240, 200)
 ------------------
 
 local function showOwner()
-  if LocalPlayer():InVehicle() or !cl_PProtect.Settings.Propprotection['enabled'] or !cl_PProtect.CSettings['ownerhud'] then return end
+  if !cl_PProtect.Settings.Propprotection['enabled'] or !cl_PProtect.CSettings['ownerhud'] or LocalPlayer():InVehicle() then return end
 
   -- Check Entity
   local ent = LocalPlayer():GetEyeTrace().Entity
@@ -33,13 +33,11 @@ local function showOwner()
 
   local txt = nil
   if Owner == nil then
-    txt = 'No Owner'
-  elseif Owner == game.GetWorld() then
     txt = 'World'
   elseif Owner == "wait" then
     txt = 'Waiting for server...'
   elseif IsValid(Owner) then
-    txt = Owner:Nick()
+    txt = Owner:Nick() .. " <" .. Owner:SteamID() .. ">"
     if IsBuddy then
       txt = txt .. ' (Buddy)'
     elseif IsShared then

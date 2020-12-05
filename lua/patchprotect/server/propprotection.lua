@@ -462,16 +462,3 @@ function sv_PProtect.CanGravPickup(ply, ent)
   return false
 end
 hook.Add('GravGunOnPickedUp', 'pprotect_gravpickup', sv_PProtect.CanGravPickup)
-
------------------------
---  SET WORLD PROPS  --
------------------------
-
-function sv_PProtect.setWorldProps()
-  table.foreach(ents:GetAll(), function(id, ent)
-    if string.find(ent:GetClass(), 'func_') or string.find(ent:GetClass(), 'prop_') then
-      ent.ppowner = game.GetWorld()
-    end
-  end)
-end
-hook.Add('PersistenceLoad', 'pprotect_worldprops', sv_PProtect.setWorldProps)

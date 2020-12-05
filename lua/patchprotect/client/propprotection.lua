@@ -92,5 +92,5 @@ end
 --  PP DATA SYNC FUNCTIONS
 --------------------------
 net.Receive('pprotect_send_owner', function(len)
-  net.ReadEntity().ppowner = net.ReadEntity()
+  net.ReadEntity().ppowner = net.ReadEntity() or "world"
 end)
