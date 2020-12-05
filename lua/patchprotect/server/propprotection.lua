@@ -37,46 +37,6 @@ local function CheckBlocked(ent,typ)
   if class == "func_movelinear" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
 end
 
------------------
---  OWNERSHIP  --
------------------
-
--- Set the owner for an entity
--- ent: valid entity which probably gets a new owner
--- ply: valid player which probably gets the new owner of ent
-function sv_PProtect.SetOwner(ent, ply)
-  -- Check if another addon may want to block the owner assignment
-  if ply == nil then
-    if hook.Run('CPPIAssignOwnership', ply, ent) == false then return false end
-    ent.ppowner = game.GetWorld()
-    net.Start("pprotect_send_owner")
-     net.WriteEntity(ent)
-     net.WriteEntity(ent.ppowner)
-    net.Broadcast()
-  else
-    if hook.Run('CPPIAssignOwnership', ply, ent, ply:UniqueID()) == false then return false end
-    ent.ppowner = ply
-    net.Start("pprotect_send_owner")
-     net.WriteEntity(ent)
-     net.WriteEntity(ply)
-    net.Broadcast()
-  end
-  -- get all contrained entitis and do the same for them
---  table.foreach(constraint.GetAllConstrainedEntities(ent), function(_, cent)
-    -- if there is already an owner on a constrained entity set, don't overwrite it
---    if cent.ppowner then return end
-
---    cent.ppowner = ply
-	
---    net.Start("pprotect_send_owner")
---     net.WriteEntity(cent)
---     net.WriteEntity(ply)
---    net.Broadcast()
---  end)
-
-  return true
-end
-
 -- GET DATA
 local en, uc, ue, up, uf = nil, undo.Create, undo.AddEntity, undo.SetPlayer, undo.Finish
 function undo.Create(typ)
@@ -116,7 +76,7 @@ function undo.Finish()
     if IsValid(en.o) and en.o:IsPlayer() then
       for _, ent in ipairs( en.e ) do
         if not ent.ppowner then
-          sv_PProtect.SetOwner(ent, en.o)
+          ent:CPPISetOwner(en.o)
         end
         -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
         if en.o.duplicate or !sv_PProtect.Settings.Antispam['propinprop'] or CheckPPAdmin(en.o) or ent:GetClass() != 'prop_physics' then continue end
@@ -140,34 +100,31 @@ end
 
 hook.Add("PlayerSpawnedEffect","PlayerSpawnedEffect",function(ply,mdl,ent)
   if CheckBlocked(ent,"spawn") then return false end
-  sv_PProtect.SetOwner(ent, ply)
+  ent:CPPISetOwner(ply)
 end)
 hook.Add("PlayerSpawnedNPC","PlayerSpawnedNPC",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
-  sv_PProtect.SetOwner(ent, ply)
+  ent:CPPISetOwner(ply)
 end)
 hook.Add("PlayerSpawnedProp","PlayerSpawnedProp",function(ply,mdl,ent)
   if CheckBlocked(ent,"spawn") then return false end
-  sv_PProtect.SetOwner(ent, ply)
+  ent:CPPISetOwner(ply)
 end)
 hook.Add("PlayerSpawnedRagdoll","PlayerSpawnedRagdoll",function(ply,mdl,ent)
   if CheckBlocked(ent,"spawn") then return false end
-  sv_PProtect.SetOwner(ent, ply)
+  ent:CPPISetOwner(ply)
 end)
 hook.Add("PlayerSpawnedSENT","PProtect_PlayerSpawnedSENT",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
-  sv_PProtect.SetOwner(ent, ply)
+  ent:CPPISetOwner(ply)
 end)
 hook.Add("PlayerSpawnedSWEP","PProtect_PlayerSpawnedSWEP",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
-  sv_PProtect.SetOwner(ent, ply)
+  ent:CPPISetOwner(ply)
 end)
 hook.Add("PlayerSpawnedVehicle","PProtect_PlayerSpawnedVehicle",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
-  sv_PProtect.SetOwner(ent, ply)
-end)
-hook.Add("PlayerInitialSpawn","PProtect_PlayerSpawnedSelf",function(ply)
-  ply.ppowner = game.GetWorld()
+  ent:CPPISetOwner(ply)
 end)
 
 

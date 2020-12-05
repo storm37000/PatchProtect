@@ -52,12 +52,21 @@ if CLIENT then return end
 
 -- Set owner of an entity
 function ENTITY:CPPISetOwner(ply)
-  return sv_PProtect.SetOwner(self, ply)
+  if hook.Run('CPPIAssignOwnership', ply, self, CPPI.CPPI_NOTIMPLEMENTED) == false then return false end
+    self.ppowner = ply
+    net.Start("pprotect_send_owner")
+     net.WriteEntity(self)
+     net.WriteEntity(self.ppowner)
+    net.Broadcast()
+  return true
 end
 
 -- Set owner of an entity by UID
 function ENTITY:CPPISetOwnerUID(uid)
-  return self:CPPISetOwner(player.GetByUniqueID(uid))
+  if uid == nil then return self:CPPISetOwner(nil) end
+  ply = player.GetByUniqueID(uid)
+  if not ply then return false end
+  return self:CPPISetOwner(ply)
 end
 
 -- Set entity to world (true) or not even world (false)

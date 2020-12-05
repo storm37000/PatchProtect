@@ -48,5 +48,8 @@ end
 -- CHECK WORLD
 -- ent: valid entity to check for being world owned.
 function sh_PProtect.IsWorld(ent)
-  return ent.ppowner == nil or ent:IsWorld()
+  if CLIENT then
+    return ent.ppowner == "world" or ent:IsWorld()
+  else
+    return ent.ppowner == nil or ent:IsWorld()
 end
