@@ -307,7 +307,11 @@ net.Receive('pprotect_request_cl_data', function(len, ply)
     local ent = net.ReadEntity()
     net.Start("pprotect_send_owner")
      net.WriteEntity(ent)
-     net.WriteEntity(ent.ppowner)
+     if ent.ppowner == nil then
+      net.WriteEntity(game.GetWorld())
+     else
+      net.WriteEntity(ent.ppowner)
+     end
     net.Send(ply)
     return
   end

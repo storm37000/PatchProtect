@@ -96,6 +96,6 @@ end
 net.Receive('pprotect_send_owner', function(len)
   local ent = net.ReadEntity()
   local owner = net.ReadEntity()
-  if owner == nil then owner = "world" end
+  if owner == game.GetWorld() then owner = "world" end
   ent.ppowner = owner
 end)
