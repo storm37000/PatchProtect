@@ -13,11 +13,13 @@ hook.Add('InitPostEntity', 'pprotect_load_buddies', function()
   else
     LocalPlayer().Buddies = {}
   end
+  hook.Run('CPPIFriendsChanged', ply, LocalPlayer().Buddies)
 end)
 
 -- Save Buddies
 local function saveBuddies()
   file.Write('pprotect_buddies.txt', util.TableToJSON(LocalPlayer().Buddies))
+  hook.Run('CPPIFriendsChanged', ply, LocalPlayer().Buddies)
 end
 
 -- Reset Buddies
@@ -92,5 +94,8 @@ end
 --  PP DATA SYNC FUNCTIONS
 --------------------------
 net.Receive('pprotect_send_owner', function(len)
-  net.ReadEntity().ppowner = net.ReadEntity() or "world"
+  local ent = net.ReadEntity()
+  local owner = net.ReadEntity()
+  if owner == nil then owner = "world" end
+  ent.ppowner = owner
 end)
