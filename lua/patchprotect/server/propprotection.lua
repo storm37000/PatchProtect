@@ -173,7 +173,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
   end
 
   -- Check Entity
-  if !IsValid(ent) then return false end
+  if !IsValid(ent) then return end
 
   if CheckBlocked(ent,"tool") then return false end
 
