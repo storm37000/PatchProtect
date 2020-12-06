@@ -19,7 +19,7 @@ local function cleanupMap(typ, ply)
 end
 
 -- Cleanup Disconnected Players Props
-local function cleanupDisc()
+local function cleanupDisc(ply)
   for _, ent in ipairs( ents.GetAll() ) do
     if ent.pprotect_cleanup != nil and ent.ppowner != nil and !ent:IsWorld() then
       ent:Remove()
@@ -43,7 +43,7 @@ local function cleanupPly(pl, c, ply)
 end
 
 -- Cleanup Unowned Props
-local function cleanupUnowned()
+local function cleanupUnowned(ply)
   for _, ent in ipairs( ents.GetAll() ) do
     if !sh_PProtect.GetOwner(ent) and !sh_PProtect.IsWorld(ent) then
       ent:Remove()
@@ -75,7 +75,7 @@ function sv_PProtect.Cleanup(typ, ply)
   end
 
   if typ == 'disc' then
-    cleanupDisc()
+    cleanupDisc(ply)
     return
   end
 
@@ -85,7 +85,7 @@ function sv_PProtect.Cleanup(typ, ply)
   end
 
   if typ == 'unowned' then
-    cleanupUnowned()
+    cleanupUnowned(ply)
   end
 end
 net.Receive('pprotect_cleanup', sv_PProtect.Cleanup)
