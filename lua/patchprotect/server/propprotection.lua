@@ -140,8 +140,7 @@ function sv_PProtect.CanPhysgun(ply, ent)
 
   if CheckBlocked(ent,"phys") then return false end
 
-  -- Check Entity
-  if !IsValid(ply) then return false end
+  ----if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -177,7 +176,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
 
   if CheckBlocked(ent,"tool") then return false end
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -207,7 +206,7 @@ function sv_PProtect.CanUse(ply, ent)
   -- Check Protection and GameMode
   if !sv_PProtect.Settings.Propprotection['use'] or engine.ActiveGamemode() == 'prop_hunt' then return end
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -238,7 +237,7 @@ function sv_PProtect.CanPickup(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['proppickup'] then return end
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -267,7 +266,7 @@ hook.Add('AllowPlayerPickup', 'pprotect_proppickup', sv_PProtect.CanPickup)
 
 function sv_PProtect.CanProperty(ply, property, ent)
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -298,7 +297,7 @@ end)
 
 function sv_PProtect.CanDrive(ply, ent)
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -332,7 +331,7 @@ function sv_PProtect.CanDamage(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['damage'] then return end
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -371,7 +370,7 @@ function sv_PProtect.CanPhysReload(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['reload'] then return end
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -399,7 +398,7 @@ function sv_PProtect.CanGravPunt(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['gravgun'] then return end
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
@@ -423,7 +422,7 @@ function sv_PProtect.CanGravPickup(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['gravgun'] then return end
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
