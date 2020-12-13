@@ -37,7 +37,7 @@ local function showOwner()
   elseif Owner == "wait" then
     txt = 'Waiting for server...'
   elseif IsValid(Owner) then
-    txt = Owner:Nick() .. " <" .. Owner:SteamID() .. ">"
+    txt = Owner:Nick() .. " | " .. Owner:SteamID()
     if IsBuddy then
       txt = txt .. ' (Buddy)'
     elseif IsShared then
