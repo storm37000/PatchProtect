@@ -50,7 +50,7 @@ end
 function undo.AddEntity(ent)
   if en == nil then
     print("tried to add an entity to a nonexistant undo! Please DONT run undo.AddEntity before undo.Create")
-    en = {e = {},o = nil}
+    undo.Create("something")
   end
   if IsValid(ent) and ent:GetClass() != 'phys_constraint' then
     table.insert(en.e, ent)
@@ -60,16 +60,19 @@ end
 function undo.SetPlayer(ply)
   if en == nil then
     print("tried to add a player owner to a nonexistant undo! Please DONT run undo.SetPlayer before undo.Create")
-    en = {e = {},o = nil}
+    undo.Create("something")
   end
   en.o = ply
   up(ply)
 end
 function undo.Finish()
   if en == nil then print("tried to finish a nonexistant undo! Please DONT run undo.Finish before undo.Create")
-    en = {e = {},o = nil}
+    undo.Create("something")
   end
-  if !en.e then en.e = {} end
+  if !en.e then
+    en.e = {}
+    print("tried to finish an undo without any entities! Please DONT run undo.Finish before undo.AddEntity")
+  end
   if !en.o then
     print("tried to finish an undo without any owner player! Please DONT run undo.Finish before undo.SetPlayer")
   else
