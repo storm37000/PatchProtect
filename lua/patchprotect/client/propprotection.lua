@@ -6,6 +6,7 @@
 hook.Add('InitPostEntity', 'pprotect_load_buddies', function()
   if file.Exists('pprotect_buddies.txt', 'DATA') then
     LocalPlayer().Buddies = util.JSONToTable(file.Read('pprotect_buddies.txt', 'DATA'))
+    if LocalPlayer().Buddies == nil then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') end
     for k, v in pairs( LocalPlayer().Buddies ) do
       if isbool(v) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') continue end
       cl_PProtect.setBuddy(player.GetBySteamID(k), v.bud)
