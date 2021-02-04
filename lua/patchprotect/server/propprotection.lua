@@ -373,7 +373,7 @@ function sv_PProtect.CanPhysReload(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['reload'] then return end
 
-  --if !IsValid(ply) then return false end
+  if !IsValid(ply) then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
