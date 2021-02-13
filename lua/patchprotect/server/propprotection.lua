@@ -23,7 +23,13 @@ end
 -- ent: valid entity to check
 -- typ: type of interaction(phys, tool, spawn)
 local function CheckBlocked(ent,typ)
-  local class = ent:GetClass()
+  local class
+  local par = ent:GetParent()
+  if (IsValid(par) then
+    class = par:GetClass()
+  else
+    class = ent:GetClass()
+  end
   if class == "func_door_rotating" and sh_PProtect.IsWorld(ent) and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
   if class == "func_breakable_surf" and (typ == "phys" or typ == "spawn") then return true end
   if class == "func_door" and sh_PProtect.IsWorld(ent) and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
