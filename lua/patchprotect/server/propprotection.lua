@@ -25,7 +25,7 @@ end
 local function CheckBlocked(ent,typ)
   local class
   local par = ent:GetParent()
-  if (IsValid(par) then
+  if IsValid(par) then
     class = par:GetClass()
   else
     class = ent:GetClass()
