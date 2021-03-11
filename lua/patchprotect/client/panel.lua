@@ -3,6 +3,8 @@
 ---------------------
 
 function cl_PProtect.as_menu(p)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
   -- clear Panel
   p:ClearControls()
 
@@ -143,6 +145,8 @@ end)
 ---------------------------
 
 function cl_PProtect.pp_menu(p)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
   -- clear Panel
   p:ClearControls()
 
@@ -253,6 +257,8 @@ local function edit_perm(ply, data)
 end
 
 function cl_PProtect.b_menu(p)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
   -- clear Panel
   p:ClearControls()
 
@@ -323,6 +329,8 @@ end
 
 local o_global, o_players = 0, {}
 function cl_PProtect.cu_menu(p)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
   -- clear Panel
   p:ClearControls()
 
@@ -346,6 +354,8 @@ end
 ----------------------------
 
 function cl_PProtect.cs_menu(p)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
   -- clear Panel
   p:ClearControls()
 
@@ -398,6 +408,8 @@ hook.Add('PopulateToolMenu', 'pprotect_make_menus', CreateMenus)
 --------------------
 
 local function showErrorMessage(p, msg)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
   p:ClearControls()
   p:addlbl(msg)
 end
