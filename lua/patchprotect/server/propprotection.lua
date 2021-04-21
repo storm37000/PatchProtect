@@ -5,7 +5,7 @@
 -- CHECK FOR PROP PROTECTION ADMIN CONDITIONS
 local function CheckPPAdmin(ply)
   -- allow if PatchProtect is disabled or for SuperAdmins (if enabled) or for Admins (if enabled)
-  if !ply.ppadminbypass then return false  end
+  if !ply.ppadminbypass then return false end
   if !sv_PProtect.Settings.Propprotection['enabled'] or (sv_PProtect.Settings.Propprotection['superadmins'] and ply:IsSuperAdmin()) or (sv_PProtect.Settings.Propprotection['admins'] and ply:IsAdmin()) then return true end
 
   return false
