@@ -263,6 +263,13 @@ function sv_PProtect.saveBlockedTools(typ, data)
   end)
 end
 
+  
+-- Receive admin bypass setting
+net.Receive('pprotect_setadminbypass', function(len,pl) 
+  local bool = net.ReadBool()
+  pl.ppadminbypass = bool
+end)
+
 ---------------
 --  NETWORK  --
 ---------------

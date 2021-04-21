@@ -5,6 +5,7 @@
 -- CHECK FOR PROP PROTECTION ADMIN CONDITIONS
 local function CheckPPAdmin(ply)
   -- allow if PatchProtect is disabled or for SuperAdmins (if enabled) or for Admins (if enabled)
+  if !ply.ppadminbypass then return false  end
   if !sv_PProtect.Settings.Propprotection['enabled'] or (sv_PProtect.Settings.Propprotection['superadmins'] and ply:IsSuperAdmin()) or (sv_PProtect.Settings.Propprotection['admins'] and ply:IsAdmin()) then return true end
 
   return false
@@ -86,6 +87,7 @@ function undo.Finish()
       for _, ent in ipairs( en.e ) do
         if not ent.ppowner then
           ent:CPPISetOwner(en.o)
+          ent.PPOwnerID = en.o:SteamID()
         end
         -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
         if en.o.duplicate or !sv_PProtect.Settings.Antispam['propinprop'] or CheckPPAdmin(en.o) or ent:GetClass() != 'prop_physics' then continue end
@@ -110,30 +112,37 @@ end
 hook.Add("PlayerSpawnedEffect","PlayerSpawnedEffect",function(ply,mdl,ent)
   if CheckBlocked(ent,"spawn") then return false end
   ent:CPPISetOwner(ply)
+  ent.PPOwnerID = ply:SteamID()
 end)
 hook.Add("PlayerSpawnedNPC","PlayerSpawnedNPC",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
   ent:CPPISetOwner(ply)
+  ent.PPOwnerID = ply:SteamID()
 end)
 hook.Add("PlayerSpawnedProp","PlayerSpawnedProp",function(ply,mdl,ent)
   if CheckBlocked(ent,"spawn") then return false end
   ent:CPPISetOwner(ply)
+  ent.PPOwnerID = ply:SteamID()
 end)
 hook.Add("PlayerSpawnedRagdoll","PlayerSpawnedRagdoll",function(ply,mdl,ent)
   if CheckBlocked(ent,"spawn") then return false end
   ent:CPPISetOwner(ply)
+  ent.PPOwnerID = ply:SteamID()
 end)
 hook.Add("PlayerSpawnedSENT","PProtect_PlayerSpawnedSENT",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
   ent:CPPISetOwner(ply)
+  ent.PPOwnerID = ply:SteamID()
 end)
 hook.Add("PlayerSpawnedSWEP","PProtect_PlayerSpawnedSWEP",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
   ent:CPPISetOwner(ply)
+  ent.PPOwnerID = ply:SteamID()
 end)
 hook.Add("PlayerSpawnedVehicle","PProtect_PlayerSpawnedVehicle",function(ply,ent)
   if CheckBlocked(ent,"spawn") then return false end
   ent:CPPISetOwner(ply)
+  ent.PPOwnerID = ply:SteamID()
 end)
 
 
@@ -164,7 +173,7 @@ function sv_PProtect.CanPhysgun(ply, ent)
   local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to hold this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to hold this object.')
   return false
 end
 hook.Add('PhysgunPickup', 'pprotect_touch', sv_PProtect.CanPhysgun)
@@ -200,7 +209,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
   local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'tool') then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to use ' .. tool .. ' on this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to use ' .. tool .. ' on this object.')
   return false
 end
 hook.Add('CanTool', 'pprotect_propprotection_toolgun', function(ply, trace, tool)
@@ -233,7 +242,7 @@ function sv_PProtect.CanUse(ply, ent)
   local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'use') then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to use this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to use this object.')
   return false
 end
 hook.Add('PlayerUse', 'pprotect_use', sv_PProtect.CanUse)
@@ -264,7 +273,7 @@ function sv_PProtect.CanPickup(ply, ent)
   local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'use') then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to pick up this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to pick up this object.')
   return false
 end
 hook.Add('AllowPlayerPickup', 'pprotect_proppickup', sv_PProtect.CanPickup)
@@ -296,7 +305,7 @@ function sv_PProtect.CanProperty(ply, property, ent)
   local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'prop') then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to change the properties on this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to change the properties on this object.')
   return false
 end
 hook.Add('CanProperty', 'pprotect_property', sv_PProtect.CanProperty)
@@ -341,7 +350,9 @@ function sv_PProtect.CanDamage(ply, ent)
   if !sv_PProtect.Settings.Propprotection['damage'] then return end
 
   --if !IsValid(ply) then return false end
+  if ent:IsPlayer() then return end
 
+  if ply:IsWorld() then return end
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 
@@ -364,7 +375,7 @@ function sv_PProtect.CanDamage(ply, ent)
   local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'dmg') or ent:IsPlayer() then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to damage this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to damage this object.')
   return true
 end
 hook.Add('EntityTakeDamage', 'pprotect_damage', function(ent, info)
@@ -394,7 +405,7 @@ function sv_PProtect.CanPhysReload(ply, ent)
   local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
   return false
 end
 hook.Add('CanPlayerUnfreeze', 'pprotect_physreload', sv_PProtect.CanPhysReload)
@@ -422,7 +433,7 @@ function sv_PProtect.CanGravPunt(ply, ent)
   -- Check Owner
   if ply == sh_PProtect.GetOwner(ent) then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to punt this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to punt this object.')
   return false
 end
 hook.Add('GravGunPunt', 'pprotect_gravpunt', sv_PProtect.CanGravPunt)
@@ -445,7 +456,7 @@ function sv_PProtect.CanGravPickup(ply, ent)
   -- Check Owner
   if ply == sh_PProtect.GetOwner(ent) then return end
 
-  sv_PProtect.Notify(ply, 'You are not allowed to use the Grav-Gun on this object.')
+  //sv_PProtect.Notify(ply, 'You are not allowed to use the Grav-Gun on this object.')
   ply:DropObject()
   return false
 end

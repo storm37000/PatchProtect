@@ -127,10 +127,10 @@ local function abortCleanup(ply)
   timer.Destroy('pprotect_cleanup_' .. ply:Nick())
 
   for _, v in ipairs( ents.GetAll() ) do
-    if v:CPPIGetOwner() and v:CPPIGetOwner():UniqueID() == ply:UniqueID() then
-      v.pprotect_cleanup = nil
-      v:CPPISetOwner(ply)
-    end
+      if v.PPOwnerID == ply:SteamID() then
+          v.pprotect_cleanup = nil
+          v:CPPISetOwner(ply)
+      end
   end
 end
 hook.Add('PlayerSpawn', 'pprotect_abortcleanup', abortCleanup)

@@ -5,6 +5,7 @@
 -- SETTINGS
 util.AddNetworkString('pprotect_new_settings')
 util.AddNetworkString('pprotect_save')
+util.AddNetworkString('pprotect_setadminbypass')
 
 -- CLEANUP
 util.AddNetworkString('pprotect_cleanup')
@@ -31,6 +32,7 @@ util.AddNetworkString('pprotect_request_cl_data')
 util.AddNetworkString('pprotect_send_buddies')
 util.AddNetworkString('pprotect_send_isworld')
 util.AddNetworkString('pprotect_send_owner')
+
 
 ----------------------
 --  DEFAULT CONFIG  --

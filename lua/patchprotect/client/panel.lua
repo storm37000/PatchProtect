@@ -369,6 +369,9 @@ function cl_PProtect.cs_menu(p)
   p:addchk('Use Notifications', 'Allows you to see incoming notifications. (right-bottom).', cl_PProtect.CSettings['notes'], function(c)
     cl_PProtect.update_csetting('notes', c)
   end)
+  p:addchk('Admin Bypass', 'If you are an admin this will toggle your ability to bypass restrictions( If allowed by the server ofcourse )', cl_PProtect.CSettings['adminbypass'], function(c)
+    cl_PProtect.update_csetting('adminbypass', c)
+  end)
 end
 
 --------------------

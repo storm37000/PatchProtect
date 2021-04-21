@@ -6,7 +6,8 @@
 local csettings_default = {
   ownerhud = true,
   fppmode = false,
-  notes = true
+  notes = true,
+  adminbypass = true,
 }
 
 -- Load/Create CSettings
@@ -15,7 +16,9 @@ function cl_PProtect.load_csettings()
   if sql.QueryValue("SELECT value FROM pprotect_csettings WHERE setting = 'OwnerHUD'") == '1' then
     sql.Query('DROP TABLE pprotect_csettings')
   end
-
+  if sql.QueryValue("SELECT value FROM pprotect_csettings WHERE setting = 'AdminBypass'") == '1' then
+    sql.Query('DROP TABLE pprotect_csettings')
+  end
   -- Create SQL-CSettings-Table
   if !sql.TableExists('pprotect_csettings') then
     sql.Query('CREATE TABLE IF NOT EXISTS pprotect_csettings (setting TEXT, value TEXT)')
@@ -37,6 +40,7 @@ end
 function cl_PProtect.update_csetting(setting, value)
   sql.Query("UPDATE pprotect_csettings SET value = '" .. tostring(value) .. "' WHERE setting = '" .. setting .. "'")
   cl_PProtect.CSettings[setting] = value
+  cl_PProtect.setAdminBypass()
 end
 
 cl_PProtect.load_csettings()
@@ -46,4 +50,17 @@ concommand.Add('pprotect_reset_csettings', function(ply, cmd, args)
   sql.Query('DROP TABLE pprotect_csettings')
   cl_PProtect.load_csettings()
   print('[PProtect-CSettings] Successfully reset all Client Settings.')
+  cl_PProtect.setAdminBypass()
+end)
+
+-- Admin pickup
+function cl_PProtect.setAdminBypass()
+  net.Start("pprotect_setadminbypass")
+    net.WriteBool(cl_PProtect.CSettings["adminbypass"])
+  net.SendToServer()
+end
+
+hook.Add( "InitPostEntity", "Setppadminbypass", function()
+  cl_PProtect.setAdminBypass()
+  hook.Remove("InitPostEntity","Setppadminbypass") -- just in case
 end)
