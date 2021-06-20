@@ -149,6 +149,8 @@ function sv_PProtect.CanPhysgun(ply, ent)
 
   if CheckBlocked(ent,"phys") then return false end
 
+  if ply == ent then return end
+
   ----if !IsValid(ply) then return false end
 
   -- Check Admin
