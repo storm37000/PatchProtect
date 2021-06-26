@@ -13,10 +13,7 @@ include('patchprotect/shared/patchprotect.lua')
 
 if SERVER then
   -- Create server table
-  sv_PProtect = {
-    Settings = {}
-  }
-
+  sv_PProtect = {}
   -- Include server files
   include('patchprotect/server/config.lua')
   include('patchprotect/server/antispam.lua')
