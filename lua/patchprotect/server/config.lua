@@ -121,7 +121,7 @@ concommand.Add('pprotect_reset', resetSettings)
 ---------------------
 
 -- ANTISPAM AND PROP PROTECTION
-function sv_PProtect.loadSettings(name)
+local function loadSettings(name)
   local sqltable = 'pprotect_' .. string.lower(name)
   sql.Query('CREATE TABLE IF NOT EXISTS ' .. sqltable .. ' (setting TEXT, value TEXT)')
 
@@ -150,7 +150,7 @@ function sv_PProtect.loadSettings(name)
 end
 
 -- BLOCKED ENTS
-function sv_PProtect.loadBlockedEnts(typ)
+local function loadBlockedEnts(typ)
   if !sql.TableExists('pprotect_blocked_' .. typ) or !sql.Query('SELECT * FROM pprotect_blocked_' .. typ) then
     return {}
   end
@@ -164,7 +164,7 @@ function sv_PProtect.loadBlockedEnts(typ)
 end
 
 -- ANTISPAMMED/BLOCKED TOOLS
-function sv_PProtect.loadBlockedTools(typ)
+local function loadBlockedTools(typ)
   if !sql.TableExists('pprotect_' .. typ .. '_tools') or !sql.Query('SELECT * FROM pprotect_' .. typ .. '_tools') then
     return {}
   end
@@ -187,16 +187,27 @@ if !sql.TableExists('pprotect_version') or sql.QueryValue('SELECT * FROM pprotec
   MsgC(Color(255, 0, 0), '\n[PatchProtect-Reset]', Color(255, 255, 255), " Reset all sql-settings due a new sql-table-version, sry.\nYou don't need to resetart the server, but please check all settings. Thanks.\n")
 end
 sv_PProtect.Settings = {
-  Antispam = sv_PProtect.loadSettings('Antispam'),
-  Propprotection = sv_PProtect.loadSettings('Propprotection')
+  Antispam = loadSettings('Antispam'),
+  Propprotection = loadSettings('Propprotection')
 }
 sv_PProtect.Blocked = {
-  props = sv_PProtect.loadBlockedEnts('props'),
-  ents = sv_PProtect.loadBlockedEnts('ents'),
-  atools = sv_PProtect.loadBlockedTools('antispam'),
-  btools = sv_PProtect.loadBlockedTools('blocked')
+  props = loadBlockedEnts('props'),
+  ents = loadBlockedEnts('ents'),
+  atools = loadBlockedTools('antispam'),
+  btools = loadBlockedTools('blocked')
 }
 MsgC(Color(255, 255, 0), '\n[PatchProtect]', Color(255, 255, 255), ' Successfully loaded.\n\n')
+
+
+local function sendSettings(ply)
+  net.Start('pprotect_new_settings')
+  net.WriteTable(sv_PProtect.Settings)
+  if ply then
+    net.Send(ply)
+  else
+    net.Broadcast()
+  end
+end
 
 ---------------------
 --  SAVE SETTINGS  --
@@ -208,7 +219,7 @@ net.Receive('pprotect_save', function(len, pl)
 
   local data = net.ReadTable()
   sv_PProtect.Settings[data[1]] = data[2]
-  sv_PProtect.sendSettings()
+  sendSettings()
 
   -- SAVE TO SQL TABLES
   table.foreach(sv_PProtect.Settings[data[1]], function(setting, value)
@@ -298,6 +309,16 @@ end)
 --  ANTISPAMED/BLOCKED TOOLS  --
 --------------------------------
 
+-- SAVE ANTISPAMED/BLOCKED TOOLS
+local function saveBlockedTools(typ, data)
+  sql.Query('DROP TABLE pprotect_' .. typ .. '_tools')
+  sql.Query('CREATE TABLE IF NOT EXISTS pprotect_' .. typ .. '_tools (tool TEXT, bool TEXT)')
+
+  table.foreach(data, function(tool, bool)
+    sql.Query('INSERT INTO pprotect_' .. typ .. "_tools (tool, bool) VALUES ('" .. tool .. "', '" .. tostring(bool) .. "')")
+  end)
+end
+
 -- SEND ANTISPAMED/BLOCKED TOOLS TABLE
 net.Receive('pprotect_request_tools', function(len, pl)
   if !pl:IsSuperAdmin() then return end
@@ -330,51 +351,17 @@ net.Receive('pprotect_save_tools', function(len, pl)
   local t1, t2, k, c = d[1], d[2], d[3], d[4]
 
   sv_PProtect.Blocked[t1][k] = c
-  sv_PProtect.saveBlockedTools(t2, sv_PProtect.Blocked[t1])
+  saveBlockedTools(t2, sv_PProtect.Blocked[t1])
 
   print('[PatchProtect - AntiSpam] ' .. pl:Nick() .. ' set "' .. k .. '" from ' .. t2 .. '-tools-list to "' .. tostring(c) .. '".')
 end)
-
--- SAVE ANTISPAMED/BLOCKED TOOLS
-function sv_PProtect.saveBlockedTools(typ, data)
-  sql.Query('DROP TABLE pprotect_' .. typ .. '_tools')
-  sql.Query('CREATE TABLE IF NOT EXISTS pprotect_' .. typ .. '_tools (tool TEXT, bool TEXT)')
-
-  table.foreach(data, function(tool, bool)
-    sql.Query('INSERT INTO pprotect_' .. typ .. "_tools (tool, bool) VALUES ('" .. tool .. "', '" .. tostring(bool) .. "')")
-  end)
-end
 
 ---------------
 --  NETWORK  --
 ---------------
 
 -- SEND SETTINGS
-hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', function(ply)
-  net.Start('pprotect_new_settings')
-  net.WriteTable(sv_PProtect.Settings)
-  if ply then
-    net.Send(ply)
-  else
-    net.Broadcast()
-  end
-end)
-
--- SEND NOTIFICATION
-function sv_PProtect.Notify(ply, text, typ)
-  if ply == nil then
-    for _, v in pairs( player.GetAll() ) do
-      if typ == 'admin' and !v:IsAdmin() then continue end
-      net.Start('pprotect_notify')
-       net.WriteTable({text, typ})
-      net.Send(v)
-    end
-  else
-    net.Start('pprotect_notify')
-     net.WriteTable({text, typ})
-    net.Send(ply)
-  end
-end
+hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendsettings)
 
 net.Receive('pprotect_request_cl_data', function(len, ply)
   local typ = net.ReadString()
@@ -402,3 +389,19 @@ end)
 net.Receive('pprotect_setadminbypass', function(len,pl)
   pl.ppadminbypass = net.ReadBool()
 end)
+
+-- SEND NOTIFICATION
+function sv_PProtect.Notify(ply, text, typ)
+  if ply == nil then
+    for _, v in pairs( player.GetAll() ) do
+      if typ == 'admin' and !v:IsAdmin() then continue end
+      net.Start('pprotect_notify')
+       net.WriteTable({text, typ})
+      net.Send(v)
+    end
+  else
+    net.Start('pprotect_notify')
+     net.WriteTable({text, typ})
+    net.Send(ply)
+  end
+end
