@@ -5,6 +5,7 @@
 -- CHECK ANTISPAM ADMIN
 local function sv_PProtect_CheckASAdmin(ply)
   if !sv_PProtect.Settings.Antispam['enabled'] then return true end
+  if !ply.ppadminbypass then return false end
   if !(ply.IsSuperAdmin and ply.IsAdmin) then return false end
   if ply:IsSuperAdmin() and sv_PProtect.Settings.Antispam['superadmins'] then return true end
   if ply:IsAdmin() and sv_PProtect.Settings.Antispam['admins'] then return true end
