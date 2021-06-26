@@ -292,7 +292,10 @@ function sv_PProtect.CanProperty(ply, property, ent)
   if !IsValid(ent) then return false end
 
   -- Check World
-  if CheckWorld(ent, 'pick') then return end
+  if CheckWorld(ent, 'tool') then return end
+
+  -- Check Shared
+  if sh_PProtect.IsShared(ent, 'tool') then return end
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
@@ -324,6 +327,9 @@ function sv_PProtect.CanDrive(ply, ent)
 
   -- Check World
   if CheckWorld(ent, 'pick') then return end
+  
+  -- Check Shared
+  if sh_PProtect.IsShared(ent, 'phys') then return end
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
@@ -342,32 +348,34 @@ function sv_PProtect.CanDamage(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['damage'] then return end
 
-  --if !IsValid(ply) then return false end
-
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 
   -- Check Damage from Player in Vehicle
-  if ply:InVehicle() and sv_PProtect.Settings.Propprotection['damageinvehicle'] then
+  if sv_PProtect.Settings.Propprotection['damageinvehicle'] and ply:InVehicle() then
     sv_PProtect.Notify(ply, 'You are not allowed to damage other players while sitting in a vehicle.')
-    return true
+    return false
   end
+
+  if ply:IsWorld() then return end
 
   -- Check Entity
   if !IsValid(ent) then return false end
 
+  if ent:IsPlayer() then return end
+
   -- Check World
-  if CheckWorld(ent, 'pick') then return end
+  if CheckWorld(ent, 'dmg') then return end
 
   -- Check Shared
   if sh_PProtect.IsShared(ent, 'dmg') then return end
 
   -- Check Owner and Buddy
   local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'dmg') or ent:IsPlayer() then return end
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'dmg') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to damage this object.')
-  return true
+  return false
 end
 hook.Add('EntityTakeDamage', 'pprotect_damage', function(ent, info)
   return sv_PProtect.CanDamage(info:GetAttacker():CPPIGetOwner() or info:GetAttacker(), ent)
@@ -421,8 +429,9 @@ function sv_PProtect.CanGravPunt(ply, ent)
   if CheckWorld(ent, 'pick') then return end
   -- I assume people don't want to allow both grabing and throwing props using gravity gun
 
-  -- Check Owner
-  if ply == sh_PProtect.GetOwner(ent) then return end
+  -- Check Owner and Buddy
+  local owner = sh_PProtect.GetOwner(ent)
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to punt this object.')
   return false
@@ -439,13 +448,14 @@ function sv_PProtect.CanGravPickup(ply, ent)
   if CheckPPAdmin(ply) then return end
 
   -- Check Entity
-  if !IsValid(ent) then return false end
+  if !IsValid(ent) then ply:DropObject() return false end
 
   -- Check World
   if CheckWorld(ent, 'grav') then return end
 
-  -- Check Owner
-  if ply == sh_PProtect.GetOwner(ent) then return end
+  --- Check Owner and Buddy
+  local owner = sh_PProtect.GetOwner(ent)
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to use the Grav-Gun on this object.')
   ply:DropObject()

@@ -191,6 +191,9 @@ function cl_PProtect.pp_menu(p)
       p:addchk('In-Vehicle-Damage-Protection', 'Restrict players to kill other players, while sitting in a vehicle', cl_PProtect.Settings.Propprotection['damageinvehicle'], function(c)
         cl_PProtect.Settings.Propprotection['damageinvehicle'] = c
       end)
+      p:addchk('Allow World Damage', 'Allow users to damage world props', cl_PProtect.Settings.Propprotection['worlddmg'], function(c)
+        cl_PProtect.Settings.Propprotection['worlddmg'] = c
+      end)
     end
 
     -- Restrictions

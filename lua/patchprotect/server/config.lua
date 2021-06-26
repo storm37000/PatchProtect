@@ -74,6 +74,7 @@ sv_PProtect.Config.Propprotection = {
   worlduse = true,
   worldtool = false,
   worldgrav = true,
+  worlddmg = true,
   propdelete = true,
   adminprops = false,
   delay = 120
