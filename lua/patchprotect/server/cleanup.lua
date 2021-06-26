@@ -96,41 +96,68 @@ net.Receive('pprotect_cleanup', sv_PProtect.Cleanup)
 
 -- PLAYER LEFT SERVER
 local function setCleanup(ply)
-  if !sv_PProtect.Settings.Propprotection['enabled'] or !sv_PProtect.Settings.Propprotection['propdelete'] then return end
+  if !sv_PProtect.Settings.Propprotection['enabled'] then return end
   if sv_PProtect.Settings.Propprotection['adminprops'] and (ply:IsSuperAdmin() or ply:IsAdmin()) then return end
 
-  print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' left the server. Props will be deleted in ' .. tostring(sv_PProtect.Settings.Propprotection['delay']) .. ' seconds.')
+  if sv_PProtect.Settings.Propprotection['propdelete'] then print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' left the server. Props will be deleted in ' .. sv_PProtect.Settings.Propprotection['delay'] .. ' seconds.') end
 
   for _, v in ipairs( ents.GetAll() ) do
     if !sh_PProtect.IsWorld(v) and v:CPPIGetOwner() and v:CPPIGetOwner() == ply then
-      v.pprotect_cleanup = ply:Nick()
+      if sv_PProtect.Settings.Propprotection['delay'] ~= 0 then
+        v.pprotect_cleanup = ply:SteamID()
+      elseif sv_PProtect.Settings.Propprotection['propdelete'] then
+        v:Remove()
+        print('[PatchProtect - Cleanup] Removed ' .. ply:Nick() .. 's Props. (Reason: Left the Server)')
+      end
     end
   end
 
-  local nick = ply:Nick()
-  timer.Create('pprotect_cleanup_' .. nick, sv_PProtect.Settings.Propprotection['delay'], 1, function()
-    for _, v in ipairs( ents.GetAll() ) do
-      if v.pprotect_cleanup == nick then
-        v:Remove()
+  if sv_PProtect.Settings.Propprotection['propdelete'] and sv_PProtect.Settings.Propprotection['delay'] ~= 0 then
+    timer.Create('pprotect_cleanup_' .. ply:SteamID(), sv_PProtect.Settings.Propprotection['delay'], 1, function()
+      for _, v in ipairs( ents.GetAll() ) do
+        if v.pprotect_cleanup and v.pprotect_cleanup == ply:SteamID() then
+          v:Remove()
+        end
       end
-    end
-    print('[PatchProtect - Cleanup] Removed ' .. nick .. 's Props. (Reason: Left the Server)')
-  end)
+      print('[PatchProtect - Cleanup] Removed ' .. ply:Nick() .. 's Props. (Reason: Left the Server)')
+    end)
+  end
 end
 hook.Add('PlayerDisconnected', 'pprotect_playerdisconnected', setCleanup)
 
+local aborting = {}
+
+if sv_PProtect.Settings.Propprotection['propdelete'] then
+  gameevent.Listen( "player_disconnect" )
+  hook.Add( "player_disconnect", "pprotect_playerdisconnectedcancel", function( data )
+    local name = data.name	--Same as Player:Nick()
+    local steamid = data.networkid --Same as Player:SteamID()
+    if not aborting[steamid] then return end
+
+    for _, v in ipairs( ents.GetAll() ) do
+      if v.pprotect_cleanup and v.pprotect_cleanup == steamid then
+        v:Remove()
+      end
+    end
+    print('[PatchProtect - Cleanup] Removed ' .. name .. 's Props. (Reason: Left the Server)')
+  end )
+end
+
 -- PLAYER CAME BACK
-local function abortCleanup(ply)
-  if !timer.Exists('pprotect_cleanup_' .. ply:Nick()) then return end
+hook.Add('NetworkIDValidated', 'pprotect_abortcleanup', function(name,sid)
+  aborting[sid] = true
+  if !timer.Exists('pprotect_cleanup_' .. sid) then return end
+  timer.Destroy('pprotect_cleanup_' .. sid)
+  print('[PatchProtect - Cleanup] Abort Cleanup. ' .. name .. ' came back.')
+end)
 
-  print('[PatchProtect - Cleanup] Abort Cleanup. ' .. ply:Nick() .. ' came back.')
-  timer.Destroy('pprotect_cleanup_' .. ply:Nick())
-
+hook.Add('PlayerInitialSpawn', 'pprotect_abortcleanupgetply', function(ply)
+  if not aborting[ply:SteamID()] then return end
   for _, v in ipairs( ents.GetAll() ) do
-    if v:CPPIGetOwner() and v:CPPIGetOwner():UniqueID() == ply:UniqueID() then
+    if v.pprotect_cleanup and v.pprotect_cleanup == ply:SteamID() then
       v.pprotect_cleanup = nil
+      aborting[ply:SteamID()] = nil
       v:CPPISetOwner(ply)
     end
   end
-end
-hook.Add('PlayerSpawn', 'pprotect_abortcleanup', abortCleanup)
+end)
