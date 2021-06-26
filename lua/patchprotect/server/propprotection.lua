@@ -352,7 +352,7 @@ function sv_PProtect.CanDamage(ply, ent)
   if CheckPPAdmin(ply) then return end
 
   -- Check Damage from Player in Vehicle
-  if sv_PProtect.Settings.Propprotection['damageinvehicle'] and ply:InVehicle() then
+  if sv_PProtect.Settings.Propprotection['damageinvehicle'] and ply.InVehicle and ply:InVehicle() then
     sv_PProtect.Notify(ply, 'You are not allowed to damage other players while sitting in a vehicle.')
     return false
   end
