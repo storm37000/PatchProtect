@@ -44,7 +44,7 @@ local function showOwner()
       txt = txt .. ' (Shared)'
     end
   else
-    txt = 'Disconnected | ' .. ent.pprotect_cleanup
+    txt = '(Disconnected)'
   end
 
   -- Set Variables
