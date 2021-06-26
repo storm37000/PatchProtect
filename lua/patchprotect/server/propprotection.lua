@@ -6,9 +6,8 @@
 local function CheckPPAdmin(ply)
   if !sv_PProtect.Settings.Propprotection['enabled'] then return true end
   if !(ply.IsSuperAdmin and ply.IsAdmin) then return false end
-  -- allow if PatchProtect is disabled or for SuperAdmins (if enabled) or for Admins (if enabled)
-  if (sv_PProtect.Settings.Propprotection['superadmins'] and ply:IsSuperAdmin()) or (sv_PProtect.Settings.Propprotection['admins'] and ply:IsAdmin()) then return true end
-
+  if ply:IsSuperAdmin() and sv_PProtect.Settings.Propprotection['superadmins'] then return true end
+  if ply:IsAdmin() and sv_PProtect.Settings.Propprotection['admins'] then return true end
   return false
 end
 
@@ -90,19 +89,17 @@ function undo.Finish()
           ent:CPPISetOwner(en.o)
         end
         -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
-        if en.o.duplicate or !sv_PProtect.Settings.Antispam['propinprop'] or CheckPPAdmin(en.o) or ent:GetClass() != 'prop_physics' then continue end
-        local phys = ent:GetPhysicsObject()
-        -- PropInProp-Protection
-        if IsValid(phys) and phys:IsPenetrating() then
-          sv_PProtect.Notify(en.o, 'You are not allowed to spawn a prop inside another object.')
-          ent:Remove()
+        if sv_PProtect.Settings.Antispam['propinprop'] and !CheckPPAdmin(en.o) then
+          local phys = ent:GetPhysicsObject()
+          -- PropInProp-Protection
+          if IsValid(phys) and phys:IsPenetrating() then
+            sv_PProtect.Notify(en.o, 'You are not allowed to spawn a prop inside another object.')
+            ent:Remove()
+          end
         end
       end
-      
       -- as soon as there is not a duplicated entity, disable the duplication exception
-      if en.o.duplicate then
-        en.o.duplicate = false
-      end
+      en.o.duplicate = nil
     end
   end
   en = nil

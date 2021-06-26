@@ -3,9 +3,9 @@
 ----------------------
 
 -- CHECK ANTISPAM ADMIN
-function sv_PProtect.CheckASAdmin(ply)
-  if not IsValid(ply) then return false end
+local function sv_PProtect_CheckASAdmin(ply)
   if !sv_PProtect.Settings.Antispam['enabled'] then return true end
+  if !(ply.IsSuperAdmin and ply.IsAdmin) then return false end
   if ply:IsSuperAdmin() and sv_PProtect.Settings.Antispam['superadmins'] then return true end
   if ply:IsAdmin() and sv_PProtect.Settings.Antispam['admins'] then return true end
   return false
@@ -15,7 +15,7 @@ end
 --  SPAM ACTION  --
 -------------------
 
-function sv_PProtect.spamaction(ply)
+local function sv_PProtect_spamaction(ply)
   local action = sv_PProtect.Settings.Antispam['spamaction']
   local name = ply:Nick()
 
@@ -50,8 +50,8 @@ end
 --  SPAWN ANTI SPAM  --
 -----------------------
 
-function sv_PProtect.CanSpawn(ply, mdl)
-  if sv_PProtect.CheckASAdmin(ply) then return end
+local function sv_PProtect_CanSpawn(ply, mdl)
+  if sv_PProtect_CheckASAdmin(ply) then return end
 
   -- Prop/Entity-Block
   if (sv_PProtect.Settings.Antispam['propblock'] and string.find(string.lower(mdl), '/../') and sv_PProtect.Blocked.props[string.lower(mdl)]) or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(mdl)]) then
@@ -75,7 +75,7 @@ function sv_PProtect.CanSpawn(ply, mdl)
   -- Spamaction
   if ply.props >= sv_PProtect.Settings.Antispam['spam'] then
     ply.props = 0
-    sv_PProtect.spamaction(ply)
+    sv_PProtect_spamaction(ply)
     sv_PProtect.Notify(nil, ply:Nick() .. ' is spamming.', 'admin')
     print('[PatchProtect - AntiSpam] ' .. ply:Nick() .. ' is spamming.')
 	return false
@@ -98,10 +98,10 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   if tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' or string.find(tool,"stacker") then
     ply.duplicate = true
   else
-    ply.duplicate = false
+    ply.duplicate = nil
   end
 
-  if sv_PProtect.CheckASAdmin(ply) then return end
+  if sv_PProtect_CheckASAdmin(ply) then return end
 
   -- Blocked Tool
   if sv_PProtect.Settings.Antispam['toolblock'] and sv_PProtect.Blocked.btools[tool] then
@@ -126,7 +126,7 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   -- Spamaction
   if ply.tools >= sv_PProtect.Settings.Antispam['spam'] then
     ply.tools = 0
-    sv_PProtect.spamaction(ply)
+    sv_PProtect_spamaction(ply)
     sv_PProtect.Notify(nil, ply:Nick() .. ' is spamming with ' .. tostring(tool) .. 's.', 'admin')
     print('PatchProtect - AntiSpam] ' .. ply:Nick() .. ' is spamming with ' .. tostring(tool) .. 's.')
 	return false
