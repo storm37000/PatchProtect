@@ -360,6 +360,22 @@ end)
 --  NETWORK  --
 ---------------
 
+-- SEND NOTIFICATION
+function sv_PProtect.Notify(ply, text, typ)
+  if ply == nil then
+    for _, v in pairs( player.GetAll() ) do
+      if typ == 'admin' and !v:IsAdmin() then continue end
+      net.Start('pprotect_notify')
+       net.WriteTable({text, typ})
+      net.Send(v)
+    end
+  else
+    net.Start('pprotect_notify')
+     net.WriteTable({text, typ})
+    net.Send(ply)
+  end
+end
+
 -- SEND SETTINGS
 hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendsettings)
 
@@ -389,19 +405,3 @@ end)
 net.Receive('pprotect_setadminbypass', function(len,pl)
   pl.ppadminbypass = net.ReadBool()
 end)
-
--- SEND NOTIFICATION
-function sv_PProtect.Notify(ply, text, typ)
-  if ply == nil then
-    for _, v in pairs( player.GetAll() ) do
-      if typ == 'admin' and !v:IsAdmin() then continue end
-      net.Start('pprotect_notify')
-       net.WriteTable({text, typ})
-      net.Send(v)
-    end
-  else
-    net.Start('pprotect_notify')
-     net.WriteTable({text, typ})
-    net.Send(ply)
-  end
-end
