@@ -19,7 +19,6 @@ if SERVER then
 
   -- Include server files
   include('patchprotect/server/config.lua')
-  include('patchprotect/server/settings.lua')
   include('patchprotect/server/antispam.lua')
   include('patchprotect/server/propprotection.lua')
   include('patchprotect/server/cleanup.lua')
