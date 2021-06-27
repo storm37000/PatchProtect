@@ -127,26 +127,25 @@ hook.Add('PlayerDisconnected', 'pprotect_playerdisconnected', setCleanup)
 
 local aborting = {}
 
-if sv_PProtect.Settings.Propprotection['propdelete'] then
-  gameevent.Listen( "player_disconnect" )
-  hook.Add( "player_disconnect", "pprotect_playerdisconnectedcancel", function( data )
-    local name = data.name	--Same as Player:Nick()
-    local steamid = data.networkid --Same as Player:SteamID()
-    if not aborting[steamid] then return end
-
-    for _, v in ipairs( ents.GetAll() ) do
-      if v.pprotect_cleanup and v.pprotect_cleanup == steamid then
-        v:Remove()
-      end
+gameevent.Listen( "player_disconnect" )
+hook.Add( "player_disconnect", "pprotect_playerdisconnectedcancel", function( data )
+  if !sv_PProtect.Settings.Propprotection['propdelete'] then return end
+  local name = data.name	--Same as Player:Nick()
+  local steamid = data.networkid --Same as Player:SteamID()
+  if not aborting[steamid] then return end
+  aborting[steamid] = nil
+  for _, v in ipairs( ents.GetAll() ) do
+    if v.pprotect_cleanup and v.pprotect_cleanup == steamid then
+      v:Remove()
     end
-    print('[PatchProtect - Cleanup] Removed ' .. name .. 's Props. (Reason: Left the Server)')
-  end )
-end
+  end
+  print('[PatchProtect - Cleanup] Removed ' .. name .. 's Props. (Reason: Left the Server)')
+end)
 
 -- PLAYER CAME BACK
 hook.Add('NetworkIDValidated', 'pprotect_abortcleanup', function(name,sid)
-  aborting[sid] = true
   if !timer.Exists('pprotect_cleanup_' .. sid) then return end
+  aborting[sid] = true
   timer.Destroy('pprotect_cleanup_' .. sid)
   print('[PatchProtect - Cleanup] Abort Cleanup. ' .. name .. ' came back.')
 end)
