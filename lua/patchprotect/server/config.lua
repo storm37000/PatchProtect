@@ -377,7 +377,7 @@ function sv_PProtect.Notify(ply, text, typ)
 end
 
 -- SEND SETTINGS
-hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendsettings)
+hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendSettings)
 
 net.Receive('pprotect_request_cl_data', function(len, ply)
   local typ = net.ReadString()
