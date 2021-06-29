@@ -107,7 +107,6 @@ local function setCleanup(ply)
         v.pprotect_cleanup = ply:SteamID()
       elseif sv_PProtect.Settings.Propprotection['propdelete'] then
         v:Remove()
-        print('[PatchProtect - Cleanup] Removed ' .. ply:Nick() .. 's Props. (Reason: Left the Server)')
       end
     end
   end
