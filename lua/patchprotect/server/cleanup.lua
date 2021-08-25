@@ -99,12 +99,16 @@ local function setCleanup(ply)
   if !sv_PProtect.Settings.Propprotection['enabled'] then return end
   if sv_PProtect.Settings.Propprotection['adminprops'] and (ply:IsSuperAdmin() or ply:IsAdmin()) then return end
 
-  if sv_PProtect.Settings.Propprotection['propdelete'] then print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' left the server. Props will be deleted in ' .. sv_PProtect.Settings.Propprotection['delay'] .. ' seconds.') end
+  local nick = ply:Nick()
+
+  if sv_PProtect.Settings.Propprotection['propdelete'] then print('[PatchProtect - Cleanup] ' .. nick .. ' left the server. Props will be deleted in ' .. sv_PProtect.Settings.Propprotection['delay'] .. ' seconds.') end
+
+  local sid = ply:SteamID()
 
   for _, v in ipairs( ents.GetAll() ) do
     if !sh_PProtect.IsWorld(v) and v:CPPIGetOwner() and v:CPPIGetOwner() == ply then
       if sv_PProtect.Settings.Propprotection['delay'] ~= 0 then
-        v.pprotect_cleanup = ply:SteamID()
+        v.pprotect_cleanup = sid
       elseif sv_PProtect.Settings.Propprotection['propdelete'] then
         v:Remove()
       end
@@ -112,13 +116,13 @@ local function setCleanup(ply)
   end
 
   if sv_PProtect.Settings.Propprotection['propdelete'] and sv_PProtect.Settings.Propprotection['delay'] ~= 0 then
-    timer.Create('pprotect_cleanup_' .. ply:SteamID(), sv_PProtect.Settings.Propprotection['delay'], 1, function()
+    timer.Create('pprotect_cleanup_' .. sid, sv_PProtect.Settings.Propprotection['delay'], 1, function()
       for _, v in ipairs( ents.GetAll() ) do
-        if v.pprotect_cleanup and v.pprotect_cleanup == ply:SteamID() then
+        if v.pprotect_cleanup and v.pprotect_cleanup == sid then
           v:Remove()
         end
       end
-      print('[PatchProtect - Cleanup] Removed ' .. ply:Nick() .. 's Props. (Reason: Left the Server)')
+      print('[PatchProtect - Cleanup] Removed ' .. nick .. 's Props. (Reason: Left the Server)')
     end)
   end
 end
