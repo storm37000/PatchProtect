@@ -43,6 +43,7 @@ local function CheckBlocked(ent,typ)
   if class == "prop_dynamic" and (typ == "phys" or typ == "spawn") then return true end
   if class == "func_wall_toggle" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
   if class == "func_movelinear" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
+  if class == "lua_run" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
 end
 
 -- GET DATA
