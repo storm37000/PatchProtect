@@ -61,7 +61,9 @@ function undo.Finish()
   else
     if IsValid(en.o) and en.o:IsPlayer() then
       for _, ent in ipairs( en.e ) do
-        ent:CPPISetOwner(en.o)
+        if not ent.ppowner then
+          ent:CPPISetOwner(en.o)
+        end
         -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
         if sv_PProtect.Settings.Antispam['propinprop'] and (not en.o.duplicate) and (not CheckPPAdmin(en.o)) then
           local phys = ent:GetPhysicsObject()
@@ -78,6 +80,28 @@ function undo.Finish()
     en = nil
   end
 end
+
+hook.Add("PlayerSpawnedEffect","pprotection_setowner",function(ply,mdl,ent)
+  ent:CPPISetOwner(ply)
+end)
+hook.Add("PlayerSpawnedNPC","pprotection_setowner",function(ply,ent)
+  ent:CPPISetOwner(ply)
+end)
+hook.Add("PlayerSpawnedProp","pprotection_setowner",function(ply,mdl,ent)
+  ent:CPPISetOwner(ply)
+end)
+hook.Add("PlayerSpawnedRagdoll","pprotection_setowner",function(ply,mdl,ent)
+  ent:CPPISetOwner(ply)
+end)
+hook.Add("PlayerSpawnedSENT","pprotection_setowner",function(ply,ent)
+  ent:CPPISetOwner(ply)
+end)
+hook.Add("PlayerSpawnedSWEP","pprotection_setowner",function(ply,ent)
+  ent:CPPISetOwner(ply)
+end)
+hook.Add("PlayerSpawnedVehicle","pprotection_setowner",function(ply,ent)
+  ent:CPPISetOwner(ply)
+end)
 
 -------------------------------
 --  PHYSGUN PROP PROTECTION  --
