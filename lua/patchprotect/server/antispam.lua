@@ -51,25 +51,38 @@ end
 --  SPAWN ANTI SPAM  --
 -----------------------
 
-local function sv_PProtect_CanSpawn(ply, mdl)
-  if sv_PProtect_CheckASAdmin(ply) then return end
-
-  -- Prop/Entity-Block
-  if (sv_PProtect.Settings.Antispam['propblock'] and string.find(string.lower(mdl), '/../') and sv_PProtect.Blocked.props[string.lower(mdl)]) or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(mdl)]) then
+local function sv_PProtect_ModelBlacklist(ply, mdl)
+  if sv_PProtect.Settings.Antispam['propblock'] and sv_PProtect.Blocked.props[string.lower(mdl)] then
     sv_PProtect.Notify(ply, 'This object is in the blacklist.')
-    return false
+    return true
+  end
+end
+
+local function sv_PProtect_EntityBlacklist(ply, class)
+  if sh_PProtect.CheckBlockedClass(class,"spawn") or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(class)]) then
+    sv_PProtect.Notify(ply, 'This object is in the blacklist.')
+    return true
+  end
+end
+
+function sv_PProtect_CanSpawn(ply, object)
+  -- Prop/Entity-Block
+  if string.find( object, "models/", nil, true ) then
+    if sv_PProtect_ModelBlacklist(ply, object) then return false end
+  else
+    if sv_PProtect_EntityBlacklist(ply, object) then return false end
   end
 
+  if sv_PProtect_CheckASAdmin(ply) then return end
   if ply.duplicate then return end
-
   if !sv_PProtect.Settings.Antispam['prop'] then return end
+
   -- Cooldown
   if CurTime() > (ply.propcooldown or 0) then
     ply.props = 0
     ply.propcooldown = CurTime() + sv_PProtect.Settings.Antispam['cooldown']
     return
   end
-
   ply.props = (ply.props or 0) + 1
   sv_PProtect.Notify(ply, 'Please wait ' .. math.Round(ply.propcooldown - CurTime(), 1) .. ' seconds', 'normal')
 
@@ -82,13 +95,14 @@ local function sv_PProtect_CanSpawn(ply, mdl)
 	return false
   end
 end
-hook.Add('PlayerSpawnProp', 'pprotect_spawnprop', sv_PProtect.CanSpawn)
-hook.Add('PlayerSpawnEffect', 'pprotect_spawneffect', sv_PProtect.CanSpawn)
-hook.Add('PlayerSpawnSENT', 'pprotect_spawnSENT', sv_PProtect.CanSpawn)
-hook.Add('PlayerSpawnRagdoll', 'pprotect_spawnragdoll', sv_PProtect.CanSpawn)
-hook.Add('PlayerSpawnVehicle', 'pprotect_spawnvehicle', sv_PProtect.CanSpawn)
-hook.Add('PlayerSpawnNPC', 'pprotect_spawnNPC', sv_PProtect.CanSpawn)
-hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect.CanSpawn)
+
+hook.Add('PlayerSpawnProp', 'pprotect_spawnprop', sv_PProtect_CanSpawn)
+hook.Add('PlayerSpawnEffect', 'pprotect_spawneffect', sv_PProtect_CanSpawn)
+hook.Add('PlayerSpawnSENT', 'pprotect_spawnSENT', sv_PProtect_CanSpawn)
+hook.Add('PlayerSpawnRagdoll', 'pprotect_spawnragdoll', sv_PProtect_CanSpawn)
+hook.Add('PlayerSpawnVehicle', 'pprotect_spawnvehicle', sv_PProtect_CanSpawn)
+hook.Add('PlayerSpawnNPC', 'pprotect_spawnNPC', sv_PProtect_CanSpawn)
+hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect_CanSpawn)
 
 ----------------------
 --  TOOL ANTI SPAM  --
@@ -130,6 +144,6 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
     sv_PProtect_spamaction(ply)
     sv_PProtect.Notify(nil, ply:Nick() .. ' is spamming with ' .. tostring(tool) .. 's.', 'admin')
     print('PatchProtect - AntiSpam] ' .. ply:Nick() .. ' is spamming with ' .. tostring(tool) .. 's.')
-	return false
+	  return false
   end
 end)

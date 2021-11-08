@@ -35,28 +35,34 @@ end)
 
 -- Receive Others' Buddies
 net.Receive('pprotect_send_buddies', function(len)
-  net.ReadEntity().Buddies = net.ReadTable()
+  local ply = net.ReadEntity()
+  ply.Buddies = net.ReadTable()
+  hook.Run('CPPIFriendsChanged', ply, ply:CPPIGetFriends())
 end)
 
 -- Set Buddy
 function cl_PProtect.setBuddy(budent, c)
   if !budent then return end
-  if !isbool( c ) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') return end
+  if !budent:IsPlayer() then return end
   local id = budent:SteamID()
+  if c == nil then
+    if LocalPlayer().Buddies[id] then
+      return LocalPlayer().Buddies[id].bud
+    end
+    return false
+  end
+  if !isbool( c ) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') return end
+  
   if !LocalPlayer().Buddies[id] then
     LocalPlayer().Buddies[id] = {
-      bud = false,
-      perm = {
-        phys = false,
-        tool = false,
-        use = false,
-        prop = false,
-        dmg = false
-      }
+      bud = c,
+      perm = sh_PProtect.budyperms
     }
+  else
+    LocalPlayer().Buddies[id].bud = c
   end
 
-  LocalPlayer().Buddies[id].bud = c
+  saveBuddies()
 
   -- Send message to buddy
   net.Start('pprotect_info_buddy')
@@ -64,23 +70,28 @@ function cl_PProtect.setBuddy(budent, c)
   net.WriteTable(LocalPlayer().Buddies[id])
   net.SendToServer()
 
-  if c then
-    cl_PProtect.ClientNote('Added ' .. budent:Nick() .. ' to the Buddy-List.', 'info')
-  else
-    cl_PProtect.ClientNote('Removed ' .. budent:Nick() .. ' from the Buddy-List.', 'info')
-  end
-
-  saveBuddies()
+  return c
 end
 
 -- Set Buddy
 function cl_PProtect.setBuddyPerm(budent, p, c)
   if !budent then return end
-  if !isbool( c ) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') return end
+  if !budent:IsPlayer() then return end
   local id = budent:SteamID()
-  if !LocalPlayer().Buddies[id] then cl_PProtect.setBuddy(budent, c) end
+  if c == nil then
+    if LocalPlayer().Buddies[id] then
+      return LocalPlayer().Buddies[id].perm[p]
+    end
+    return false
+  end
+  if !isbool( c ) then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') return end
 
-  LocalPlayer().Buddies[id].perm[p] = c
+  if !LocalPlayer().Buddies[id] then
+    cl_PProtect.setBuddy(budent, false)
+  else
+    LocalPlayer().Buddies[id].perm[p] = c
+  end
+  saveBuddies()
 
   -- Send message to buddy
   net.Start('pprotect_info_buddy')
@@ -88,7 +99,7 @@ function cl_PProtect.setBuddyPerm(budent, p, c)
   net.WriteTable(LocalPlayer().Buddies[id])
   net.SendToServer()
 
-  saveBuddies()
+  return c
 end
 
 --------------------------

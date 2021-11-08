@@ -17,81 +17,53 @@ end
 -- sett: PatchProtect setting to use to check for world-premissions
 local function CheckWorld(ent, sett)
   if sv_PProtect.Settings.Propprotection['world' .. sett] and sh_PProtect.IsWorld(ent) then return true end
-
   return false
-end
-
--- Checks if the given entity is a world object that should never be touched.
--- ent: valid entity to check
--- typ: type of interaction(phys, tool, spawn)
-local function CheckBlocked(ent,typ)
-  local class
-  local par = ent:GetParent()
-  if IsValid(par) then
-    class = par:GetClass()
-  else
-    class = ent:GetClass()
-  end
-  if class == "func_door_rotating" and sh_PProtect.IsWorld(ent) and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
-  if class == "func_breakable_surf" and (typ == "phys" or typ == "spawn") then return true end
-  if class == "func_door" and sh_PProtect.IsWorld(ent) and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
-  if class == "player" and (typ == "tool" or typ == "spawn") then return true end
-  if class == "func_button" and (typ == "phys" or typ == "spawn") then return true end
-  if class == "func_brush" and (typ == "phys" or typ == "spawn") then return true end
-  if class == "func_breakable" and (typ == "phys" or typ == "spawn") then return true end
-  if class == "func_physbox" and (typ == "phys" or typ == "spawn") then return true end
-  if class == "prop_dynamic" and (typ == "phys" or typ == "spawn") then return true end
-  if class == "func_wall_toggle" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
-  if class == "func_movelinear" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
-  if class == "lua_run" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
 end
 
 -- GET DATA
 local en, uc, ue, up, uf = nil, undo.Create, undo.AddEntity, undo.SetPlayer, undo.Finish
 function undo.Create(typ)
-  if en != nil then print("tried to create a new undo before the last one was finished! discarding unfinished undo!") end
+  uc(typ)
+  if en != nil then ErrorNoHaltWithStack("tried to create a new undo before the last one was finished! discarding unfinished undo!") end
   en = {
     e = {},
     o = nil
   }
-  uc(typ)
 end
 function undo.AddEntity(ent)
+  ue(ent)
   if en == nil then
-    print("tried to add an entity to a nonexistant undo! Please DONT run undo.AddEntity before undo.Create")
+    ErrorNoHaltWithStack("tried to add an entity to a nonexistant undo! Please run undo.Create first!")
     undo.Create("something")
-  end
-  if IsValid(ent) and ent:GetClass() != 'phys_constraint' then
+    undo.AddEntity(ent)
+  else
     table.insert(en.e, ent)
   end
-  ue(ent)
 end
 function undo.SetPlayer(ply)
-  if en == nil then
-    print("tried to add a player owner to a nonexistant undo! Please DONT run undo.SetPlayer before undo.Create")
-    undo.Create("something")
-  end
-  en.o = ply
   up(ply)
+  if en == nil then
+    ErrorNoHaltWithStack("tried to add a player owner to a nonexistant undo! Please run undo.Create first!")
+    undo.Create("something")
+    undo.SetPlayer(ply)
+  else
+    en.o = ply
+  end
 end
 function undo.Finish()
-  if en == nil then print("tried to finish a nonexistant undo! Please DONT run undo.Finish before undo.Create")
-    undo.Create("something")
+  uf()
+  if en == nil then
+    ErrorNoHaltWithStack("tried to finish a nonexistant undo! Please run undo.Create first")
+    return
   end
-  if !en.e then
-    en.e = {}
-    print("tried to finish an undo without any entities! Please DONT run undo.Finish before undo.AddEntity")
-  end
-  if !en.o then
-    print("tried to finish an undo without any owner player! Please DONT run undo.Finish before undo.SetPlayer")
+  if en.o == nil then
+    ErrorNoHaltWithStack("tried to finish an undo without any owner player! Please run undo.SetPlayer first")
   else
     if IsValid(en.o) and en.o:IsPlayer() then
       for _, ent in ipairs( en.e ) do
-        if not ent.ppowner then
-          ent:CPPISetOwner(en.o)
-        end
+        ent:CPPISetOwner(en.o)
         -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
-        if sv_PProtect.Settings.Antispam['propinprop'] and !CheckPPAdmin(en.o) then
+        if sv_PProtect.Settings.Antispam['propinprop'] and (not en.o.duplicate) and (not CheckPPAdmin(en.o)) then
           local phys = ent:GetPhysicsObject()
           -- PropInProp-Protection
           if IsValid(phys) and phys:IsPenetrating() then
@@ -103,40 +75,9 @@ function undo.Finish()
       -- as soon as there is not a duplicated entity, disable the duplication exception
       en.o.duplicate = nil
     end
+    en = nil
   end
-  en = nil
-  uf()
 end
-
-hook.Add("PlayerSpawnedEffect","PlayerSpawnedEffect",function(ply,mdl,ent)
-  if CheckBlocked(ent,"spawn") then return false end
-  ent:CPPISetOwner(ply)
-end)
-hook.Add("PlayerSpawnedNPC","PlayerSpawnedNPC",function(ply,ent)
-  if CheckBlocked(ent,"spawn") then return false end
-  ent:CPPISetOwner(ply)
-end)
-hook.Add("PlayerSpawnedProp","PlayerSpawnedProp",function(ply,mdl,ent)
-  if CheckBlocked(ent,"spawn") then return false end
-  ent:CPPISetOwner(ply)
-end)
-hook.Add("PlayerSpawnedRagdoll","PlayerSpawnedRagdoll",function(ply,mdl,ent)
-  if CheckBlocked(ent,"spawn") then return false end
-  ent:CPPISetOwner(ply)
-end)
-hook.Add("PlayerSpawnedSENT","PProtect_PlayerSpawnedSENT",function(ply,ent)
-  if CheckBlocked(ent,"spawn") then return false end
-  ent:CPPISetOwner(ply)
-end)
-hook.Add("PlayerSpawnedSWEP","PProtect_PlayerSpawnedSWEP",function(ply,ent)
-  if CheckBlocked(ent,"spawn") then return false end
-  ent:CPPISetOwner(ply)
-end)
-hook.Add("PlayerSpawnedVehicle","PProtect_PlayerSpawnedVehicle",function(ply,ent)
-  if CheckBlocked(ent,"spawn") then return false end
-  ent:CPPISetOwner(ply)
-end)
-
 
 -------------------------------
 --  PHYSGUN PROP PROTECTION  --
@@ -148,7 +89,7 @@ function sv_PProtect.CanPhysgun(ply, ent)
   
   if ent:GetClass() == "vc_fuel_nozzle" then return end
 
-  if CheckBlocked(ent,"phys") then return false end
+  if sh_PProtect.CheckBlocked(ent,"phys") then return false end
 
   if ply == ent then return end
 
@@ -186,7 +127,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
   -- Check Entity
   if !IsValid(ent) then return end
 
-  if CheckBlocked(ent,"tool") then return false end
+  if sh_PProtect.CheckBlocked(ent,"tool") then return false end
 
   --if !IsValid(ply) then return false end
 

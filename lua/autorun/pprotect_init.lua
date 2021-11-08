@@ -19,7 +19,6 @@ if SERVER then
   include('patchprotect/server/antispam.lua')
   include('patchprotect/server/propprotection.lua')
   include('patchprotect/server/cleanup.lua')
-  include('patchprotect/server/buddy.lua')
 
   -- Force clients to download all client files
   AddCSLuaFile()

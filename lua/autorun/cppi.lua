@@ -34,8 +34,10 @@ end
 -- Get friends from a player
 function PLAYER:CPPIGetFriends()
   local plist = {}
-  for k,_ in pairs( self.Buddies or {} ) do
-    table.insert(plist,player.GetBySteamID(k))
+  for _,ply in ipairs( player.GetAll() ) do
+    if sh_PProtect.IsBuddy(self, ply) then
+      table.insert(plist,ply)
+    end
   end
   return plist
 end

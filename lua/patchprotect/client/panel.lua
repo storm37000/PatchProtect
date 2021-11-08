@@ -37,13 +37,13 @@ function cl_PProtect.as_menu(p)
     p:addchk('Tool-Block', nil, cl_PProtect.Settings.Antispam['toolblock'], function(c)
       cl_PProtect.Settings.Antispam['toolblock'] = c
     end)
-    p:addchk('Prop-Block', nil, cl_PProtect.Settings.Antispam['propblock'], function(c)
+    p:addchk('Model-Block', nil, cl_PProtect.Settings.Antispam['propblock'], function(c)
       cl_PProtect.Settings.Antispam['propblock'] = c
     end)
     p:addchk('Entity-Block', nil, cl_PProtect.Settings.Antispam['entblock'], function(c)
       cl_PProtect.Settings.Antispam['entblock'] = c
     end)
-    p:addchk('Prop-In-Prop', nil, cl_PProtect.Settings.Antispam['propinprop'], function(c)
+    p:addchk('Prop-In-Prop (buggy, dont use)', nil, cl_PProtect.Settings.Antispam['propinprop'], function(c)
       cl_PProtect.Settings.Antispam['propinprop'] = c
     end)
 
@@ -59,12 +59,12 @@ function cl_PProtect.as_menu(p)
 
     -- Prop Block
     if cl_PProtect.Settings.Antispam['propblock'] then
-      p:addbtn('Set blocked Props', 'pprotect_request_ents', {'props'})
+      p:addbtn('View blocked Models', 'pprotect_request_ents', {'props'})
     end
 
     -- Ent Block
     if cl_PProtect.Settings.Antispam['entblock'] then
-      p:addbtn('Set blocked Entities', 'pprotect_request_ents', {'ents'})
+      p:addbtn('View blocked Entities', 'pprotect_request_ents', {'ents'})
     end
 
     -- Cooldown
@@ -239,25 +239,7 @@ end
 --  BUDDY MENU  --
 ------------------
 
-local txt, perms, sply =
-  '',
-  {
-    phys = false,
-    tool = false,
-    use = false,
-    prop = false,
-    dmg = false
-  },
-  nil
-local function edit_perm(ply, data)
-  txt:SetText('Permissions (' .. ply:Nick() .. '):')
-  txt:SetVisible(true)
-
-  table.foreach(data, function(key, perm)
-    perms[key]:SetChecked(perm)
-    perms[key]:SetVisible(true)
-  end)
-end
+local perms, sply, txt = {}, nil, nil
 
 function cl_PProtect.b_menu(p)
   if p == nil then return end
@@ -274,7 +256,7 @@ function cl_PProtect.b_menu(p)
 
   table.foreach(player.GetAll(), function(key, ply)
     if ply == LocalPlayer() then return end
-    local chk = sh_PProtect.IsBuddy(ply, LocalPlayer())
+    local chk = cl_PProtect.setBuddy(ply)
     local id = ply:SteamID()
 
     p:addplp(
@@ -282,17 +264,13 @@ function cl_PProtect.b_menu(p)
       chk,
       function()
         sply = ply
-        local ps = {
-          phys = false,
-          tool = false,
-          use = false,
-          prop = false,
-          dmg = false
-        }
-        if LocalPlayer().Buddies[id] then
-          ps = LocalPlayer().Buddies[id].perm
-        end
-        edit_perm(ply, ps)
+        local ps = sh_PProtect.budyperms
+        if chk then ps = LocalPlayer().Buddies[id].perm end
+        txt:SetText('Permissions (' .. ply:Nick() .. '):')
+        txt:SetVisible(!txt:IsVisible())
+        table.foreach(ps, function(key, perm)
+          perms[key]:SetVisible(!perms[key]:IsVisible())
+        end)
       end,
       function(c)
         cl_PProtect.setBuddy(ply, c)
@@ -301,24 +279,25 @@ function cl_PProtect.b_menu(p)
   end)
 
   -- add permissions
-  txt = p:addlbl('THIS IS JUST A PLACEHOLDER TO KEEP THE LABEL LONG', true)
-  perms.phys = p:addchk('Physgun', nil, false, function(c)
+  txt = p:addlbl('', true)
+  txt:SetVisible(false)
+
+  perms.phys = p:addchk('Physgun', nil, cl_PProtect.setBuddyPerm(sply, 'phys'), function(c)
     cl_PProtect.setBuddyPerm(sply, 'phys', c)
   end)
-  perms.tool = p:addchk('Tool', nil, false, function(c)
+  perms.tool = p:addchk('Tool', nil, cl_PProtect.setBuddyPerm(sply, 'tool'), function(c)
     cl_PProtect.setBuddyPerm(sply, 'tool', c)
   end)
-  perms.use = p:addchk('Use', nil, false, function(c)
+  perms.use = p:addchk('Use', nil, cl_PProtect.setBuddyPerm(sply, 'use'), function(c)
     cl_PProtect.setBuddyPerm(sply, 'use', c)
   end)
-  perms.prop = p:addchk('Property', nil, false, function(c)
+  perms.prop = p:addchk('Property', nil, cl_PProtect.setBuddyPerm(sply, 'prop'), function(c)
     cl_PProtect.setBuddyPerm(sply, 'prop', c)
   end)
-  perms.dmg = p:addchk('Damage', nil, false, function(c)
+  perms.dmg = p:addchk('Damage', nil, cl_PProtect.setBuddyPerm(sply, 'dmg'), function(c)
     cl_PProtect.setBuddyPerm(sply, 'dmg', c)
   end)
 
-  txt:SetVisible(false)
   perms.phys:SetVisible(false)
   perms.tool:SetVisible(false)
   perms.use:SetVisible(false)

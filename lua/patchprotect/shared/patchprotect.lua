@@ -3,8 +3,8 @@
 function sh_PProtect.GetOwner(ent)
   if CLIENT and ent.ppowner == nil then
     net.Start('pprotect_request_cl_data')
-	 net.WriteString("owner")
-	 net.WriteEntity(ent)
+	    net.WriteString("owner")
+	    net.WriteEntity(ent)
     net.SendToServer()
     ent.ppowner = "wait"
     return "wait"
@@ -28,15 +28,14 @@ end
 -- CHECK BUDDY
 function sh_PProtect.IsBuddy(ply, bud, mode)
   if ply == nil or bud == nil then return false end
-  if ply == bud then return false end
   if ply == "wait" or bud == "wait" then return false end
-  if !IsValid(ply) or !IsValid(bud) then return false end
-  if CLIENT and ply.Buddies == nil then
+  if ply == bud then return true end
+  if CLIENT and ply != LocalPlayer() and ply.Buddies == nil then
     net.Start('pprotect_request_cl_data')
-	 net.WriteString("buddy")
-	 net.WriteString(ply:SteamID())
+	    net.WriteString("buddy")
+	    net.WriteEntity(ply)
     net.SendToServer()
-	return false
+	  return false
   end
   if ply.Buddies == nil or !ply.Buddies[bud:SteamID()] or !ply.Buddies[bud:SteamID()].bud then return false end
   if (!mode and ply.Buddies[bud:SteamID()].bud == true) or (ply.Buddies[bud:SteamID()].bud == true and ply.Buddies[bud:SteamID()].perm[mode] == true) then
@@ -54,3 +53,37 @@ function sh_PProtect.IsWorld(ent)
     return ent.ppowner == nil or ent:IsWorld()
   end
 end
+
+-- Checks if the given entity is an object that should never be touched.
+-- ent: valid entity to check
+-- typ: type of interaction(phys, tool, spawn)
+function sh_PProtect.CheckBlocked(ent,typ)
+  local class = ent:GetClass()
+  if class == "func_breakable_surf" and sh_PProtect.IsWorld(ent) and (typ == "phys") then return true end
+  if class == "func_door_rotating" and sh_PProtect.IsWorld(ent) and (typ == "phys") then return true end
+  if class == "func_door" and sh_PProtect.IsWorld(ent) and (typ == "phys") then return true end
+  sh_PProtect.CheckBlockedClass(class,typ)
+end
+
+-- Checks if the given entity class is an object that should never be touched.
+-- class: entity class to check
+-- typ: type of interaction(phys, tool, spawn)
+function sh_PProtect.CheckBlockedClass(class,typ)
+  if class == "player" and (typ == "tool" or typ == "spawn") then return true end
+  if class == "func_button" and (typ == "phys" or typ == "spawn") then return true end
+  if class == "func_brush" and (typ == "phys" or typ == "spawn") then return true end
+  if class == "func_breakable" and (typ == "phys" or typ == "spawn") then return true end
+  if class == "func_wall_toggle" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
+  if class == "func_movelinear" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
+  if class == "lua_run" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
+  if class == "info_player_start" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
+  if class == "func_areaportal" and (typ == "phys" or typ == "tool" or typ == "spawn") then return true end
+end
+
+sh_PProtect.budyperms = {
+  phys = false,
+  tool = false,
+  use = false,
+  prop = false,
+  dmg = false
+}

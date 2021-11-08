@@ -376,15 +376,41 @@ function sv_PProtect.Notify(ply, text, typ)
   end
 end
 
--- SEND SETTINGS
-hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendSettings)
+-- SEND BUDDIES TO CLIENT
+local function sv_PProtect_sendbuddies(ply, sendto)
+  if ply == nil or ply.Buddies == nil then return end
+  net.Start('pprotect_send_buddies')
+   net.WriteEntity(ply)
+   net.WriteTable(ply.Buddies)
+  if sendto == nil then
+    net.Broadcast()
+  else
+    net.Send(sendto)
+  end
+end
+
+-- NOTIFICATION/MODIFICATION OF BUDDY DATA
+net.Receive('pprotect_info_buddy', function(len, ply)
+  local bud = net.ReadEntity()
+  local tbl = net.ReadTable()
+  local sid = bud:SteamID()
+  if ply.Buddies == nil then ply.Buddies = {} end
+  if tbl.bud != nil and ply.Buddies[sid] != nil and tbl.bud == ply.Buddies[sid].bud then return end
+  if tbl.bud then
+    sv_PProtect.Notify(bud, ply:Nick() .. ' added you as a buddy.', 'info')
+    sv_PProtect.Notify(ply, 'Added ' .. bud:Nick() .. ' to the Buddy-List.', 'info')
+  else
+    sv_PProtect.Notify(bud, ply:Nick() .. ' removed you as a buddy.', 'info')
+    sv_PProtect.Notify(ply, 'Removed ' .. bud:Nick() .. ' from the Buddy-List.', 'info')
+  end
+  ply.Buddies[sid] = tbl
+  hook.Run('CPPIFriendsChanged', ply, ply:CPPIGetFriends())
+end)
 
 net.Receive('pprotect_request_cl_data', function(len, ply)
   local typ = net.ReadString()
   if typ == "buddy" then
-    local sid = player.GetBySteamID(net.ReadString())
-    if sid == false then return end
-    sv_PProtect.sendbuddies(sid, ply)
+    sv_PProtect_sendbuddies(net.ReadEntity(), ply)
     return
   end
   if typ == "owner" then
@@ -400,6 +426,10 @@ net.Receive('pprotect_request_cl_data', function(len, ply)
     return
   end
 end)
+
+
+-- SEND SETTINGS
+hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendSettings)
 
 -- Receive admin bypass setting
 net.Receive('pprotect_setadminbypass', function(len,pl)
