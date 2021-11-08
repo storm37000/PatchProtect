@@ -389,13 +389,14 @@ local function sv_PProtect_sendbuddies(ply, sendto)
   end
 end
 
--- NOTIFICATION/MODIFICATION OF BUDDY DATA
+-- NOTIFICATION/MODIFICATION OF BUDDY DTAA
 net.Receive('pprotect_info_buddy', function(len, ply)
   local bud = net.ReadEntity()
   local tbl = net.ReadTable()
+  if tbl.bud == nil or tbl.perm == nil then return end
   local sid = bud:SteamID()
   if ply.Buddies == nil then ply.Buddies = {} end
-  if tbl.bud != nil and ply.Buddies[sid] != nil and tbl.bud == ply.Buddies[sid].bud then return end
+  if ply.Buddies[sid] != nil and tbl.bud == ply.Buddies[sid].bud then return end
   if tbl.bud then
     sv_PProtect.Notify(bud, ply:Nick() .. ' added you as a buddy.', 'info')
     sv_PProtect.Notify(ply, 'Added ' .. bud:Nick() .. ' to the Buddy-List.', 'info')
