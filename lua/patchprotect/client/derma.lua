@@ -71,7 +71,7 @@ end
 --  LABEL  --
 -------------
 
-function pan:addlbl(text, header)
+function pan:addlbl(text, header, color)
   if header then
     header = 750
   else
@@ -79,9 +79,10 @@ function pan:addlbl(text, header)
   end
   local lbl = vgui.Create('DLabel')
   lbl:SetText(text)
-  lbl:SetDark(true)
+  if header then lbl:SetDark(true) end
   lbl:SetFont(cl_PProtect.setFont('roboto', 14, header, true))
   lbl:SizeToContents()
+  if color then lbl:SetColor(color) end
   self:AddItem(lbl)
 
   return lbl
@@ -255,8 +256,7 @@ end
 ----------------
 --  LISTVIEW  --
 ----------------
-local pressed = {}
-function pan:addplp(ply, bud, cb, cb2)
+function pan:addplp(ply, bud, open, cb, cb2)
   local plp = vgui.Create('DPanel')
   plp:SetHeight(40)
   plp:SetCursor('hand')
@@ -280,14 +280,13 @@ function pan:addplp(ply, bud, cb, cb2)
 
   function plp:OnMousePressed()
     cb(ply)
-    pressed = {plp, ply}
   end
   function plp.chk:OnChange(c)
     cb2(c)
   end
 
   function plp:Paint(w, h)
-    if pressed[1] == plp then
+    if open then
       draw.RoundedBox(4, 0, 0, w, h, Color(255, 150, 0))
     else
       draw.RoundedBox(4, 0, 0, w, h, Color(230, 230, 230))

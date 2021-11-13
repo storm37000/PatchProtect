@@ -389,20 +389,26 @@ local function sv_PProtect_sendbuddies(ply, sendto)
   end
 end
 
--- NOTIFICATION/MODIFICATION OF BUDDY DTAA
+-- NOTIFICATION/MODIFICATION OF BUDDY DATA
 net.Receive('pprotect_info_buddy', function(len, ply)
-  local bud = net.ReadEntity()
+  local sid = net.ReadString()
   local tbl = net.ReadTable()
-  if tbl.bud == nil or tbl.perm == nil then return end
-  local sid = bud:SteamID()
   if ply.Buddies == nil then ply.Buddies = {} end
-  if ply.Buddies[sid] != nil and tbl.bud == ply.Buddies[sid].bud then return end
-  if tbl.bud then
-    sv_PProtect.Notify(bud, ply:Nick() .. ' added you as a buddy.', 'info')
-    sv_PProtect.Notify(ply, 'Added ' .. bud:Nick() .. ' to the Buddy-List.', 'info')
-  else
-    sv_PProtect.Notify(bud, ply:Nick() .. ' removed you as a buddy.', 'info')
-    sv_PProtect.Notify(ply, 'Removed ' .. bud:Nick() .. ' from the Buddy-List.', 'info')
+  if #tbl == 0 or ply.Buddies[sid] == nil or (tbl.bud != nil and ply.Buddies[sid] != nil and tbl.bud != ply.Buddies[sid].bud) then
+    local budent = false
+    for _,v in ipairs( player.GetAll() ) do
+      if v:SteamID() == "BOT" and sid == v:Nick() then budent = v break end
+      if v:SteamID() == sid then budent = v break end
+    end
+    if budent != false then
+      if tbl.bud then
+        sv_PProtect.Notify(budent, ply:Nick() .. ' added you as a buddy.', 'info')
+        sv_PProtect.Notify(ply, 'Added ' .. budent:Nick() .. ' to the Buddy-List.', 'info')
+      else
+        sv_PProtect.Notify(budent, ply:Nick() .. ' removed you as a buddy.', 'info')
+        sv_PProtect.Notify(ply, 'Removed ' .. budent:Nick() .. ' from the Buddy-List.', 'info')
+      end
+    end
   end
   ply.Buddies[sid] = tbl
   hook.Run('CPPIFriendsChanged', ply, ply:CPPIGetFriends())

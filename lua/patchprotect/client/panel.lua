@@ -93,7 +93,7 @@ end
 --  FRAMES  --
 --------------
 
-cl_PProtect.Blocked = {
+local cl_PProtect_Blocked = {
   props = {},
   ents = {},
   atools = {},
@@ -107,15 +107,15 @@ net.Receive('pprotect_send_tools', function()
   if t == 'btools' then
     typ = 'blocked'
   end
-  cl_PProtect.Blocked[t] = net.ReadTable()
+  cl_PProtect_Blocked[t] = net.ReadTable()
   local frm = cl_PProtect.addfrm(250, 350, typ .. ' tools:', false)
 
-  for key, value in SortedPairs(cl_PProtect.Blocked[t]) do
-    frm:addchk(key, nil, cl_PProtect.Blocked[t][key], function(c)
+  for key, value in SortedPairs(cl_PProtect_Blocked[t]) do
+    frm:addchk(key, nil, cl_PProtect_Blocked[t][key], function(c)
       net.Start('pprotect_save_tools')
       net.WriteTable({t, typ, key, c})
       net.SendToServer()
-      cl_PProtect.Blocked[t][key] = c
+      cl_PProtect_Blocked[t][key] = c
     end)
   end
 end)
@@ -123,10 +123,10 @@ end)
 -- BLOCKED PROPS/ENTS
 net.Receive('pprotect_send_ents', function()
   local typ = net.ReadString()
-  cl_PProtect.Blocked[typ] = net.ReadTable()
-  local frm = cl_PProtect.addfrm(800, 600, 'blocked ' .. typ .. ':', true, 'Save ' .. typ, {typ, cl_PProtect.Blocked[typ]}, 'pprotect_save_ents')
+  cl_PProtect_Blocked[typ] = net.ReadTable()
+  local frm = cl_PProtect.addfrm(800, 600, 'blocked ' .. typ .. ':', true, 'Save ' .. typ, {typ, cl_PProtect_Blocked[typ]}, 'pprotect_save_ents')
 
-  table.foreach(cl_PProtect.Blocked[typ], function(name, model)
+  table.foreach(cl_PProtect_Blocked[typ], function(name, model)
     frm:addico(model, name, function(icon)
       local menu = DermaMenu()
       menu:AddOption('Remove from Blocked-List', function()
@@ -239,7 +239,27 @@ end
 --  BUDDY MENU  --
 ------------------
 
-local perms, sply, txt = {}, nil, nil
+local sply,names = nil,{
+  phys = "Physgun",
+  tool = "Toolgun",
+  use = "Use (press E)",
+  prop = "Property (C menu right click)",
+  dmg = "Damage"
+}
+
+local function b_submenu(p,ply)
+  if ply != sply then return end
+  local ps = sh_PProtect.budyperms
+  if chk then ps = LocalPlayer().Buddies[ply:SteamID()].perm end
+  p:addlbl('Permissions (' .. ply:Nick() .. '):', true)
+  for key,_ in pairs(ps) do
+    -- add permissions
+    local uiname = names[key] or key
+    p:addchk(uiname, nil, cl_PProtect.setBuddyPerm(ply, key), function(c)
+      cl_PProtect.setBuddyPerm(ply, key, c)
+    end)
+  end
+end
 
 function cl_PProtect.b_menu(p)
   if p == nil then return end
@@ -249,72 +269,77 @@ function cl_PProtect.b_menu(p)
 
   -- add buddies
   p:addlbl('Buddies:', true)
-  p:addlbl('Click on name -> change permissions.', false)
-  p:addlbl('Change right box -> add/remove buddy.', false)
+  p:addlbl('Click on name -> change permissions.')
+  p:addlbl('Change right box -> add/remove buddy.')
 
-  if LocalPlayer().Buddies == nil then return end
-
-  table.foreach(player.GetAll(), function(key, ply)
-    if ply == LocalPlayer() then return end
+  for _,ply in ipairs( player.GetAll() ) do
+    if ply == LocalPlayer() then continue end
     local chk = cl_PProtect.setBuddy(ply)
-    local id = ply:SteamID()
-
     p:addplp(
       ply,
       chk,
+      ply == sply,
       function()
-        sply = ply
-        local ps = sh_PProtect.budyperms
-        if chk then ps = LocalPlayer().Buddies[id].perm end
-        txt:SetText('Permissions (' .. ply:Nick() .. '):')
-        txt:SetVisible(!txt:IsVisible())
-        table.foreach(ps, function(key, perm)
-          perms[key]:SetVisible(!perms[key]:IsVisible())
-        end)
+        if ply == sply then
+          sply = nil
+          cl_PProtect.b_menu(p)
+        else
+          sply = ply
+          b_submenu(p,ply)
+        end
       end,
       function(c)
         cl_PProtect.setBuddy(ply, c)
       end
    )
-  end)
-
-  -- add permissions
-  txt = p:addlbl('', true)
-  txt:SetVisible(false)
-
-  perms.phys = p:addchk('Physgun', nil, cl_PProtect.setBuddyPerm(sply, 'phys'), function(c)
-    cl_PProtect.setBuddyPerm(sply, 'phys', c)
-  end)
-  perms.tool = p:addchk('Tool', nil, cl_PProtect.setBuddyPerm(sply, 'tool'), function(c)
-    cl_PProtect.setBuddyPerm(sply, 'tool', c)
-  end)
-  perms.use = p:addchk('Use', nil, cl_PProtect.setBuddyPerm(sply, 'use'), function(c)
-    cl_PProtect.setBuddyPerm(sply, 'use', c)
-  end)
-  perms.prop = p:addchk('Property', nil, cl_PProtect.setBuddyPerm(sply, 'prop'), function(c)
-    cl_PProtect.setBuddyPerm(sply, 'prop', c)
-  end)
-  perms.dmg = p:addchk('Damage', nil, cl_PProtect.setBuddyPerm(sply, 'dmg'), function(c)
-    cl_PProtect.setBuddyPerm(sply, 'dmg', c)
-  end)
-
-  perms.phys:SetVisible(false)
-  perms.tool:SetVisible(false)
-  perms.use:SetVisible(false)
-  perms.prop:SetVisible(false)
-  perms.dmg:SetVisible(false)
+   b_submenu(p,ply)
+  end
 end
 
 --------------------
 --  CLEANUP MENU  --
 --------------------
 
-local o_global, o_players = 0, {}
 function cl_PProtect.cu_menu(p)
   if p == nil then return end
   if p.ClearControls == nil then return end
   -- clear Panel
   p:ClearControls()
+
+  local o_global, o_players = 0, {}
+
+  local result = {
+    global = 0,
+    players = {}
+   }
+   for key, ent in pairs( ents.GetAll() ) do
+     if ent:IsWorld() then continue end
+     local o = sh_PProtect.GetOwner(ent)
+     if !o then continue end
+
+     -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
+     --if istable(dels) and table.HasValue(dels, ent:EntIndex()) then return end
+
+     -- Global-Count
+     result.global = result.global + 1
+
+     if !isstring(o) then
+       if !o:IsValid() then continue end
+     else
+       continue
+     end
+
+     -- Player-Count
+     if !result.players[o] then
+       result.players[o] = 0
+     end
+     result.players[o] = result.players[o] + 1
+   end
+   -- set new Count-Data
+   o_global = result.global
+   o_players = result.players
+
+  p:addlbl('NOTE: This menu only updates each time you open your spawn menu!', true)
 
   p:addlbl('Cleanup everything:', true)
   p:addbtn('Cleanup everything (' .. tostring(o_global) .. ' entities)', 'pprotect_cleanup', {'all'})
@@ -360,7 +385,7 @@ end
 --  CREATE MENUS  --
 --------------------
 
-local function CreateMenus()
+hook.Add('PopulateToolMenu', 'pprotect_make_menus', function()
   -- Anti-Spam
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPAntiSpam', 'AntiSpam', '', '', function(p)
     cl_PProtect.UpdateMenus('as', p)
@@ -385,8 +410,7 @@ local function CreateMenus()
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPClientSettings', 'Client Settings', '', '', function(p)
     cl_PProtect.UpdateMenus('cs', p)
   end)
-end
-hook.Add('PopulateToolMenu', 'pprotect_make_menus', CreateMenus)
+end)
 
 --------------------
 --  UPDATE MENUS  --
@@ -396,7 +420,7 @@ local function showErrorMessage(p, msg)
   if p == nil then return end
   if p.ClearControls == nil then return end
   p:ClearControls()
-  p:addlbl(msg)
+  p:addlbl(msg,true,Color(200,0,0))
 end
 
 local pans = {}
@@ -407,53 +431,17 @@ function cl_PProtect.UpdateMenus(p_type, panel)
   end
 
   -- load Panel
-  for t, p in pairs( pans ) do
-    if t == 'as' or t == 'pp' then
-      if LocalPlayer():IsSuperAdmin() then cl_PProtect[t .. '_menu'](pans[t]) else showErrorMessage(pans[t], 'Sorry, you need to be a SuperAdmin to change\nthe settings.') end
-    elseif t == 'cu' then
-      if LocalPlayer():IsSuperAdmin() or (LocalPlayer():IsAdmin() and cl_PProtect.Settings.Propprotection['adminscleanup']) then
-        local result = {
-         global = 0,
-         players = {}
-        }
-        for key, ent in pairs( ents.GetAll() ) do
-          if ent:IsWorld() then continue end
-          local o = sh_PProtect.GetOwner(ent)
-          if !o then continue end
-
-          -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
-          --if istable(dels) and table.HasValue(dels, ent:EntIndex()) then return end
-
-          -- Global-Count
-          result.global = result.global + 1
-
-          if !isstring(o) then
-            if !o:IsValid() then continue end
-          else
-            continue
-          end
-
-          -- Player-Count
-          if !result.players[o] then
-            result.players[o] = 0
-          end
-          result.players[o] = result.players[o] + 1
-        end
-        -- set new Count-Data
-        o_global = result.global
-        o_players = result.players
-
-        -- create new Cleanup-Panel
-        cl_PProtect.cu_menu(pans.cu)
+  for t,p in pairs( pans ) do
+    xpcall(function()
+      if t == 'as' or t == 'pp' then
+        if LocalPlayer():IsSuperAdmin() then cl_PProtect[t .. '_menu'](p) else showErrorMessage(p, 'Sorry, you need to be a SuperAdmin\nto change the settings.') end
       else
-        showErrorMessage(pans[t], 'Sorry, you need to be a Admin/SuperAdmin to\nchange the settings.')
+        cl_PProtect[t .. '_menu'](p)
       end
-    else
-      cl_PProtect[t .. '_menu'](pans[t])
-    end
+    end,function(error) ErrorNoHaltWithStack(error) showErrorMessage(p,"An error occured while building this menu.") end)
   end
 end
-hook.Add('SpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
+hook.Add('OnSpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
 
 ---------------
 --  NETWORK  --

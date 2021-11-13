@@ -30,15 +30,15 @@ function sh_PProtect.IsBuddy(ply, bud, mode)
   if ply == nil or bud == nil then return false end
   if ply == "wait" or bud == "wait" then return false end
   if ply == bud then return true end
-  if CLIENT and ply != LocalPlayer() and ply.Buddies == nil then
+  if ply.Buddies == nil then ply.Buddies = {} end
+  if CLIENT and ply != LocalPlayer() then
     net.Start('pprotect_request_cl_data')
 	    net.WriteString("buddy")
 	    net.WriteEntity(ply)
     net.SendToServer()
-	  return false
   end
-  if ply.Buddies == nil or !ply.Buddies[bud:SteamID()] or !ply.Buddies[bud:SteamID()].bud then return false end
-  if (!mode and ply.Buddies[bud:SteamID()].bud == true) or (ply.Buddies[bud:SteamID()].bud == true and ply.Buddies[bud:SteamID()].perm[mode] == true) then
+  if ply.Buddies[bud:SteamID()] == nil or ply.Buddies[bud:SteamID()].bud == nil then return false end
+  if (mode == nil and ply.Buddies[bud:SteamID()].bud == true) or (mode != nil and ply.Buddies[bud:SteamID()].bud == true and ply.Buddies[bud:SteamID()].perm != nil and ply.Buddies[bud:SteamID()].perm[mode] == true) then
     return true
   end
   return false
