@@ -61,7 +61,7 @@ function undo.Finish()
   else
     if IsValid(en.o) and en.o:IsPlayer() then
       for _, ent in ipairs( en.e ) do
-        if not ent.ppowner then
+        if IsEntity(ent) and not ent.ppowner then
           ent:CPPISetOwner(en.o)
         end
         -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
