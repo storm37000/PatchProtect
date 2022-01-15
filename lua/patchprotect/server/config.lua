@@ -31,7 +31,6 @@ util.AddNetworkString('pprotect_notify')
 util.AddNetworkString('pprotect_request_cl_data')
 util.AddNetworkString('pprotect_send_buddies')
 util.AddNetworkString('pprotect_send_isworld')
-util.AddNetworkString('pprotect_send_owner')
 
 ----------------------
 --  DEFAULT CONFIG  --
@@ -420,18 +419,6 @@ net.Receive('pprotect_request_cl_data', function(len, ply)
     sv_PProtect_sendbuddies(net.ReadEntity(), ply)
     return
   end
-  if typ == "owner" then
-    local ent = net.ReadEntity()
-    net.Start("pprotect_send_owner")
-     net.WriteEntity(ent)
-     if ent.ppowner == nil then
-      net.WriteEntity(game.GetWorld())
-     else
-      net.WriteEntity(ent.ppowner)
-     end
-    net.Send(ply)
-    return
-  end
 end)
 
 
@@ -442,3 +429,5 @@ hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendSettings)
 net.Receive('pprotect_setadminbypass', function(len,pl)
   pl.ppadminbypass = net.ReadBool()
 end)
+
+

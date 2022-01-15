@@ -15,7 +15,10 @@ end
 -- Checks if the given entity is a world prop and if players are allowed to interact with them for the given setting
 -- ent: valid entity to check
 -- sett: PatchProtect setting to use to check for world-premissions
-local function CheckWorld(ent, sett)
+local function CheckWorld(ent, sett, tool)
+  if tool == 'creator' then return false end
+  if tool == 'advdupe2' then return false end
+  if tool == 'weld' then return false end
   if sv_PProtect.Settings.Propprotection['world' .. sett] and sh_PProtect.IsWorld(ent) then return true end
   return false
 end
@@ -102,7 +105,28 @@ end)
 hook.Add("PlayerSpawnedVehicle","pprotection_setowner",function(ply,ent)
   ent:CPPISetOwner(ply)
 end)
+-- This is the only thing that I could get to work. Tried many things. IsWorld() and CreatedByMap() are always false when called On init or postmap cleanup even or if you just have an onEntityCreated()
+local function worldProps(ent)
+  timer.Simple(3, function()
+    if !IsValid(ent) then return end
+    if ent:CreatedByMap() then
+      ent:SetNWBool("ppownerw", true)
+    end
+  end)
+end
 
+hook.Add("OnEntityCreated","pprotection_setowner",worldProps)
+
+hook.Add("PreCleanupMap", "pprotection_cleanmap", function()
+  hook.Add("OnEntityCreated","pprotection_setowner",worldProps)
+  timer.Simple(10, function()
+    hook.Remove("OnEntityCreated", "pprotection_setowner")
+  end)
+end)
+
+timer.Simple(10, function()
+  hook.Remove("OnEntityCreated", "pprotection_setowner")
+end)
 -------------------------------
 --  PHYSGUN PROP PROTECTION  --
 -------------------------------
@@ -159,7 +183,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
   if CheckPPAdmin(ply) then return end
 
   -- Check World
-  if CheckWorld(ent, 'tool') then return end
+  if CheckWorld(ent, 'tool',tool) then return end
 
   -- Check Shared
   if sh_PProtect.IsShared(ent, 'tool') then return end

@@ -159,7 +159,10 @@ hook.Add('PlayerInitialSpawn', 'pprotect_abortcleanupgetply', function(ply)
     if v.pprotect_cleanup and v.pprotect_cleanup == ply:SteamID() then
       v.pprotect_cleanup = nil
       aborting[ply:SteamID()] = nil
-      v:CPPISetOwner(ply)
+      timer.Simple(3, function()
+        if !IsValid(ply) or !IsValid(v) then return end
+        v:CPPISetOwner(ply)
+      end)
     end
   end
 end)
