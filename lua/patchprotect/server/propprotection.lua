@@ -105,28 +105,7 @@ end)
 hook.Add("PlayerSpawnedVehicle","pprotection_setowner",function(ply,ent)
   ent:CPPISetOwner(ply)
 end)
--- This is the only thing that I could get to work. Tried many things. IsWorld() and CreatedByMap() are always false when called On init or postmap cleanup even or if you just have an onEntityCreated()
-local function worldProps(ent)
-  timer.Simple(3, function()
-    if !IsValid(ent) then return end
-    if ent:CreatedByMap() then
-      ent:SetNWBool("ppownerw", true)
-    end
-  end)
-end
 
-hook.Add("OnEntityCreated","pprotection_setowner",worldProps)
-
-hook.Add("PreCleanupMap", "pprotection_cleanmap", function()
-  hook.Add("OnEntityCreated","pprotection_setowner",worldProps)
-  timer.Simple(10, function()
-    hook.Remove("OnEntityCreated", "pprotection_setowner")
-  end)
-end)
-
-timer.Simple(10, function()
-  hook.Remove("OnEntityCreated", "pprotection_setowner")
-end)
 -------------------------------
 --  PHYSGUN PROP PROTECTION  --
 -------------------------------

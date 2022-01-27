@@ -47,7 +47,7 @@ end
 -- CHECK WORLD
 -- ent: valid entity to check for being world owned.
 function sh_PProtect.IsWorld(ent)
-  if ent:GetNWBool("ppownerw") then 
+  if !ent:GetNWString("ppownerid"):find("STEAM") then 
     return true
   else
     return false
