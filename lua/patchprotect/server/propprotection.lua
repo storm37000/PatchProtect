@@ -31,23 +31,27 @@ function undo.Create(typ)
   }
 end
 function undo.AddEntity(ent)
-  ue(ent)
   if en == nil then
     ErrorNoHaltWithStack("tried to add an entity to a nonexistant undo! Please run undo.Create first!")
     undo.Create("something")
-    undo.AddEntity(ent)
-  else
-    table.insert(en.e, ent)
+  end
+  ue(ent)
+  table.insert(en.e, ent)
+  if not ent.ppowner and IsValid(en.o) then
+    ent:CPPISetOwner(en.o)
   end
 end
 function undo.SetPlayer(ply)
-  up(ply)
   if en == nil then
     ErrorNoHaltWithStack("tried to add a player owner to a nonexistant undo! Please run undo.Create first!")
     undo.Create("something")
-    undo.SetPlayer(ply)
-  else
-    en.o = ply
+  end
+  up(ply)
+  en.o = ply
+  for _, ent in ipairs( en.e ) do
+    if not ent.ppowner then
+      ent:CPPISetOwner(en.o)
+    end
   end
 end
 function undo.Finish()
@@ -59,22 +63,21 @@ function undo.Finish()
   if en.o == nil then
     ErrorNoHaltWithStack("tried to finish an undo without any owner player! Please run undo.SetPlayer first")
   else
-    if IsValid(en.o) and en.o:IsPlayer() then
-      for _, ent in ipairs( en.e ) do
-        if IsEntity(ent) and not ent.ppowner then
-          ent:CPPISetOwner(en.o)
-        end
-        -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
-        if sv_PProtect.Settings.Antispam['propinprop'] and (not CheckPPAdmin(en.o)) then
-          local phys = ent:GetPhysicsObject()
-          -- PropInProp-Protection
-          if IsValid(phys) and phys:IsPenetrating() then
-            sv_PProtect.Notify(en.o, 'You are not allowed to spawn a prop inside another object.')
-            ent:Remove()
-          end
+    for _, ent in ipairs( en.e ) do
+      if not ent.ppowner then
+        ent:CPPISetOwner(en.o)
+      end
+      -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
+      if sv_PProtect.Settings.Antispam['propinprop'] and (not CheckPPAdmin(en.o)) then
+        local phys = ent:GetPhysicsObject()
+        -- PropInProp-Protection
+        if IsValid(phys) and phys:IsPenetrating() then
+          sv_PProtect.Notify(en.o, 'You are not allowed to spawn a prop inside another object.')
+          ent:Remove()
         end
       end
     end
+    en.o.duplicate = nil
     en = nil
   end
 end
