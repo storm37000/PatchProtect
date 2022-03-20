@@ -65,7 +65,7 @@ function undo.Finish()
           ent:CPPISetOwner(en.o)
         end
         -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
-        if sv_PProtect.Settings.Antispam['propinprop'] and (not en.o.duplicate) and (not CheckPPAdmin(en.o)) then
+        if sv_PProtect.Settings.Antispam['propinprop'] and (not CheckPPAdmin(en.o)) then
           local phys = ent:GetPhysicsObject()
           -- PropInProp-Protection
           if IsValid(phys) and phys:IsPenetrating() then
@@ -74,8 +74,6 @@ function undo.Finish()
           end
         end
       end
-      -- as soon as there is not a duplicated entity, disable the duplication exception
-      en.o.duplicate = nil
     end
     en = nil
   end

@@ -31,7 +31,7 @@ function cl_PProtect.as_menu(p)
     p:addchk('Tool-AntiSpam', nil, cl_PProtect.Settings.Antispam['tool'], function(c)
       cl_PProtect.Settings.Antispam['tool'] = c
     end)
-    p:addchk('Prop/Entity-AntiSpam', nil, cl_PProtect.Settings.Antispam['prop'], function(c)
+    p:addchk('Prop/Entity-AntiSpam (buggy, dont use)', nil, cl_PProtect.Settings.Antispam['prop'], function(c)
       cl_PProtect.Settings.Antispam['prop'] = c
     end)
     p:addchk('Tool-Block', nil, cl_PProtect.Settings.Antispam['toolblock'], function(c)

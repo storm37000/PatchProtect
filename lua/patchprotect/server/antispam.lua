@@ -66,6 +66,8 @@ local function sv_PProtect_EntityBlacklist(ply, class)
 end
 
 function sv_PProtect_CanSpawn(ply, object)
+  if sv_PProtect_CheckASAdmin(ply) then return end
+
   -- Prop/Entity-Block
   if string.find( object, "models/", nil, true ) then
     if sv_PProtect_ModelBlacklist(ply, object) then return false end
@@ -73,9 +75,8 @@ function sv_PProtect_CanSpawn(ply, object)
     if sv_PProtect_EntityBlacklist(ply, object) then return false end
   end
 
-  if sv_PProtect_CheckASAdmin(ply) then return end
-  if ply.duplicate then return end
   if !sv_PProtect.Settings.Antispam['prop'] then return end
+  if (ply.AdvDupe2 and ply.AdvDupe2.Entities) or (ply.CurrentDupe and ply.CurrentDupe.Entities) or (IsValid(ply:GetActiveWeapon()) and IsValid(ply:GetActiveWeapon():GetToolObject()) and ply:GetActiveWeapon():GetToolObject().Entities) then return end
 
   -- Cooldown
   if CurTime() > (ply.propcooldown or 0) then
@@ -109,13 +110,6 @@ hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect_CanSpawn)
 ----------------------
 
 hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
-  -- Check Dupe
-  if tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' or string.find(tool,"stacker") then
-    ply.duplicate = true
-  else
-    ply.duplicate = nil
-  end
-
   if sv_PProtect_CheckASAdmin(ply) then return end
 
   -- Blocked Tool
