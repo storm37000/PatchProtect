@@ -36,7 +36,7 @@ function undo.AddEntity(ent)
     undo.Create("something")
   end
   ue(ent)
-  if not IsValid(ent) then return end
+  if ent == nil then return end
   table.insert(en.e, ent)
   if not ent.ppowner and IsValid(en.o) then
     ent:CPPISetOwner(en.o)
