@@ -24,7 +24,10 @@ end
 local en, uc, ue, up, uf = nil, undo.Create, undo.AddEntity, undo.SetPlayer, undo.Finish
 function undo.Create(typ)
   uc(typ)
-  if en != nil then ErrorNoHaltWithStack("tried to create a new undo before the last one was finished! discarding unfinished undo!") end
+  if en != nil then
+    ErrorNoHaltWithStack("tried to create a new undo before the last one was finished! finishing unfinished undo...")
+    undo.Finish()
+  end
   en = {
     e = {},
     o = nil
