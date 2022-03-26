@@ -30,7 +30,7 @@ function sh_PProtect.IsBuddy(ply, bud, mode)
   if ply == nil or bud == nil then return false end
   if ply == "wait" or bud == "wait" then return false end
   if ply == bud then return true end
-  if not IsValid(ply) then return false end
+  --if not IsValid(ply) then return false end
   if ply.Buddies == nil then ply.Buddies = {} end
   if CLIENT and ply != LocalPlayer() then
     net.Start('pprotect_request_cl_data')
