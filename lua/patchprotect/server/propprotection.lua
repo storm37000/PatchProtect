@@ -385,6 +385,7 @@ hook.Add('CanPlayerUnfreeze', 'pprotect_physreload', sv_PProtect.CanPhysReload)
 -------------------------------
 
 function sv_PProtect.CanGravPunt(ply, ent)
+  if !sv_PProtect.Settings.Propprotection['gravpunt'] then return false end
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['gravgun'] then return end
 

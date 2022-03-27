@@ -216,6 +216,9 @@ function cl_PProtect.pp_menu(p)
     p:addchk('Allow World-Tooling', 'Allow users to use tools on World-Objects', cl_PProtect.Settings.Propprotection['worldtool'], function(c)
       cl_PProtect.Settings.Propprotection['worldtool'] = c
     end)
+    p:addchk('Allow Gravgun-Punt', 'Allow users to punt with the Gravgun', cl_PProtect.Settings.Propprotection['gravpunt'], function(c)
+      cl_PProtect.Settings.Propprotection['gravpunt'] = c
+    end)
 
     p:addlbl('\nProp-Delete on Disconnect:', true)
     p:addchk('Use Prop-Delete', nil, cl_PProtect.Settings.Propprotection['propdelete'], function(c)
