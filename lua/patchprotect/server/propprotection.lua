@@ -142,6 +142,34 @@ function sv_PProtect.CanPhysgun(ply, ent)
 end
 hook.Add('PhysgunPickup', 'pprotect_touch', sv_PProtect.CanPhysgun)
 
+---------------------------------
+--  PHYSGUN-RELOAD PROTECTION  --
+---------------------------------
+
+function sv_PProtect.CanPhysReload(ply, ent)
+  -- Check Protection
+  if !sv_PProtect.Settings.Propprotection['reload'] then return end
+
+  if !IsValid(ply) then return false end
+
+  -- Check Admin
+  if CheckPPAdmin(ply) then return end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
+
+  -- Check World
+  if CheckWorld(ent, 'pick') then return end
+
+  -- Check Owner and Buddy
+  local owner = sh_PProtect.GetOwner(ent)
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
+
+  sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
+  return false
+end
+hook.Add('CanPlayerUnfreeze', 'pprotect_physreload', sv_PProtect.CanPhysReload)
+
 ----------------------------
 --  TOOL PROP PROTECTION  --
 ----------------------------
@@ -328,8 +356,6 @@ function sv_PProtect.CanDamage(ply, ent)
     return false
   end
 
-  if ply:IsWorld() then return end
-
   -- Check Entity
   if !IsValid(ent) then return false end
 
@@ -348,37 +374,15 @@ function sv_PProtect.CanDamage(ply, ent)
   sv_PProtect.Notify(ply, 'You are not allowed to damage this object.')
   return false
 end
-hook.Add('EntityTakeDamage', 'pprotect_damage', function(ent, info)
-  return sv_PProtect.CanDamage(info:GetAttacker():CPPIGetOwner() or info:GetAttacker(), ent)
+hook.Add('EntityTakeDamage', 'pprotect_damage', function(target,dmg)
+  if dmg:GetDamage() > 0 then
+    local att = dmg:GetAttacker()
+    if IsValid(att) and not att:IsPlayer() then
+      att = att:CPPIGetOwner()
+    end
+    return sv_PProtect.CanDamage(att, target)
+  end
 end)
-
----------------------------------
---  PHYSGUN-RELOAD PROTECTION  --
----------------------------------
-
-function sv_PProtect.CanPhysReload(ply, ent)
-  -- Check Protection
-  if !sv_PProtect.Settings.Propprotection['reload'] then return end
-
-  if !IsValid(ply) then return false end
-
-  -- Check Admin
-  if CheckPPAdmin(ply) then return end
-
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
-  -- Check World
-  if CheckWorld(ent, 'pick') then return end
-
-  -- Check Owner and Buddy
-  local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
-
-  sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
-  return false
-end
-hook.Add('CanPlayerUnfreeze', 'pprotect_physreload', sv_PProtect.CanPhysReload)
 
 -------------------------------
 --  GRAVGUN PUNT PROTECTION  --
@@ -398,7 +402,7 @@ function sv_PProtect.CanGravPunt(ply, ent)
   if !IsValid(ent) then return false end
 
   -- Check World
-  if CheckWorld(ent, 'pick') then return end
+  if CheckWorld(ent, 'grav') then return end
   -- I assume people don't want to allow both grabing and throwing props using gravity gun
 
   -- Check Owner and Buddy

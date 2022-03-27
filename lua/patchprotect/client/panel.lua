@@ -204,7 +204,7 @@ function cl_PProtect.pp_menu(p)
     p:addchk('Allow Prop-Driving', 'Allow users to drive props over the context menu (c-key)', cl_PProtect.Settings.Propprotection['propdriving'], function(c)
       cl_PProtect.Settings.Propprotection['propdriving'] = c
     end)
-    p:addchk('Allow World-Pickup', 'Allow users to pickup world props', cl_PProtect.Settings.Propprotection['worldpick'], function(c)
+    p:addchk('Allow World-PhysPick', 'Allow users to pickup world props with phys gun', cl_PProtect.Settings.Propprotection['worldpick'], function(c)
       cl_PProtect.Settings.Propprotection['worldpick'] = c
     end)
     p:addchk('Allow World-GravPick', 'Allow users to pickup world props using gravity gun', cl_PProtect.Settings.Propprotection['worldgrav'], function(c)
