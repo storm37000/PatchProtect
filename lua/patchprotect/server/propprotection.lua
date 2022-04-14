@@ -27,30 +27,38 @@ end
 local en, uc, ue, up, uf = nil, undo.Create, undo.AddEntity, undo.SetPlayer, undo.Finish
 function undo.Create(typ)
   uc(typ)
-  if en != nil then ErrorNoHaltWithStack("tried to create a new undo before the last one was finished! discarding unfinished undo!") end
+  if en != nil then
+    ErrorNoHaltWithStack("tried to create a new undo before the last one was finished! finishing unfinished undo...")
+    undo.Finish()
+  end
   en = {
     e = {},
     o = nil
   }
 end
 function undo.AddEntity(ent)
-  ue(ent)
   if en == nil then
     ErrorNoHaltWithStack("tried to add an entity to a nonexistant undo! Please run undo.Create first!")
     undo.Create("something")
-    undo.AddEntity(ent)
-  else
-    table.insert(en.e, ent)
+  end
+  ue(ent)
+  if ent == nil then return end
+  table.insert(en.e, ent)
+  if not ent.ppowner and IsValid(en.o) then
+    ent:CPPISetOwner(en.o)
   end
 end
 function undo.SetPlayer(ply)
-  up(ply)
   if en == nil then
     ErrorNoHaltWithStack("tried to add a player owner to a nonexistant undo! Please run undo.Create first!")
     undo.Create("something")
-    undo.SetPlayer(ply)
-  else
-    en.o = ply
+  end
+  up(ply)
+  en.o = ply
+  for _, ent in ipairs( en.e ) do
+    if not ent.ppowner then
+      ent:CPPISetOwner(en.o)
+    end
   end
 end
 function undo.Finish()
@@ -62,24 +70,21 @@ function undo.Finish()
   if en.o == nil then
     ErrorNoHaltWithStack("tried to finish an undo without any owner player! Please run undo.SetPlayer first")
   else
-    if IsValid(en.o) and en.o:IsPlayer() then
-      for _, ent in ipairs( en.e ) do
-        if IsEntity(ent) and not ent.ppowner then
-          ent:CPPISetOwner(en.o)
-        end
-        -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
-        if sv_PProtect.Settings.Antispam['propinprop'] and (not en.o.duplicate) and (not CheckPPAdmin(en.o)) then
-          local phys = ent:GetPhysicsObject()
-          -- PropInProp-Protection
-          if IsValid(phys) and phys:IsPenetrating() then
-            sv_PProtect.Notify(en.o, 'You are not allowed to spawn a prop inside another object.')
-            ent:Remove()
-          end
+    for _, ent in ipairs( en.e ) do
+      if not ent.ppowner then
+        ent:CPPISetOwner(en.o)
+      end
+      -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
+      if sv_PProtect.Settings.Antispam['propinprop'] and (not CheckPPAdmin(en.o)) then
+        local phys = ent:GetPhysicsObject()
+        -- PropInProp-Protection
+        if IsValid(phys) and phys:IsPenetrating() then
+          sv_PProtect.Notify(en.o, 'You are not allowed to spawn a prop inside another object.')
+          ent:Remove()
         end
       end
-      -- as soon as there is not a duplicated entity, disable the duplication exception
-      en.o.duplicate = nil
     end
+    en.o.duplicate = nil
     en = nil
   end
 end
@@ -139,6 +144,34 @@ function sv_PProtect.CanPhysgun(ply, ent)
   return false
 end
 hook.Add('PhysgunPickup', 'pprotect_touch', sv_PProtect.CanPhysgun)
+
+---------------------------------
+--  PHYSGUN-RELOAD PROTECTION  --
+---------------------------------
+
+function sv_PProtect.CanPhysReload(ply, ent)
+  -- Check Protection
+  if !sv_PProtect.Settings.Propprotection['reload'] then return end
+
+  if !IsValid(ply) then return false end
+
+  -- Check Admin
+  if CheckPPAdmin(ply) then return end
+
+  -- Check Entity
+  if !IsValid(ent) then return false end
+
+  -- Check World
+  if CheckWorld(ent, 'pick') then return end
+
+  -- Check Owner and Buddy
+  local owner = sh_PProtect.GetOwner(ent)
+  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
+
+  sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
+  return false
+end
+hook.Add('CanPlayerUnfreeze', 'pprotect_physreload', sv_PProtect.CanPhysReload)
 
 ----------------------------
 --  TOOL PROP PROTECTION  --
@@ -326,8 +359,6 @@ function sv_PProtect.CanDamage(ply, ent)
     return false
   end
 
-  if ply:IsWorld() then return end
-
   -- Check Entity
   if !IsValid(ent) then return false end
 
@@ -346,43 +377,22 @@ function sv_PProtect.CanDamage(ply, ent)
   sv_PProtect.Notify(ply, 'You are not allowed to damage this object.')
   return false
 end
-hook.Add('EntityTakeDamage', 'pprotect_damage', function(ent, info)
-  return sv_PProtect.CanDamage(info:GetAttacker():CPPIGetOwner() or info:GetAttacker(), ent)
+hook.Add('EntityTakeDamage', 'pprotect_damage', function(target,dmg)
+  if dmg:GetDamage() > 0 then
+    local att = dmg:GetAttacker()
+    if IsValid(att) and not att:IsPlayer() then
+      att = att:CPPIGetOwner()
+    end
+    return sv_PProtect.CanDamage(att, target)
+  end
 end)
-
----------------------------------
---  PHYSGUN-RELOAD PROTECTION  --
----------------------------------
-
-function sv_PProtect.CanPhysReload(ply, ent)
-  -- Check Protection
-  if !sv_PProtect.Settings.Propprotection['reload'] then return end
-
-  if !IsValid(ply) then return false end
-
-  -- Check Admin
-  if CheckPPAdmin(ply) then return end
-
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
-  -- Check World
-  if CheckWorld(ent, 'pick') then return end
-
-  -- Check Owner and Buddy
-  local owner = sh_PProtect.GetOwner(ent)
-  if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
-
-  sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
-  return false
-end
-hook.Add('CanPlayerUnfreeze', 'pprotect_physreload', sv_PProtect.CanPhysReload)
 
 -------------------------------
 --  GRAVGUN PUNT PROTECTION  --
 -------------------------------
 
 function sv_PProtect.CanGravPunt(ply, ent)
+  if !sv_PProtect.Settings.Propprotection['gravpunt'] then return false end
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['gravgun'] then return end
 
@@ -395,7 +405,7 @@ function sv_PProtect.CanGravPunt(ply, ent)
   if !IsValid(ent) then return false end
 
   -- Check World
-  if CheckWorld(ent, 'pick') then return end
+  if CheckWorld(ent, 'grav') then return end
   -- I assume people don't want to allow both grabing and throwing props using gravity gun
 
   -- Check Owner and Buddy

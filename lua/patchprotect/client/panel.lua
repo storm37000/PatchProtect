@@ -31,7 +31,7 @@ function cl_PProtect.as_menu(p)
     p:addchk('Tool-AntiSpam', nil, cl_PProtect.Settings.Antispam['tool'], function(c)
       cl_PProtect.Settings.Antispam['tool'] = c
     end)
-    p:addchk('Prop/Entity-AntiSpam', nil, cl_PProtect.Settings.Antispam['prop'], function(c)
+    p:addchk('Prop/Entity-AntiSpam (buggy, dont use)', nil, cl_PProtect.Settings.Antispam['prop'], function(c)
       cl_PProtect.Settings.Antispam['prop'] = c
     end)
     p:addchk('Tool-Block', nil, cl_PProtect.Settings.Antispam['toolblock'], function(c)
@@ -204,7 +204,7 @@ function cl_PProtect.pp_menu(p)
     p:addchk('Allow Prop-Driving', 'Allow users to drive props over the context menu (c-key)', cl_PProtect.Settings.Propprotection['propdriving'], function(c)
       cl_PProtect.Settings.Propprotection['propdriving'] = c
     end)
-    p:addchk('Allow World-Pickup', 'Allow users to pickup world props', cl_PProtect.Settings.Propprotection['worldpick'], function(c)
+    p:addchk('Allow World-PhysPick', 'Allow users to pickup world props with phys gun', cl_PProtect.Settings.Propprotection['worldpick'], function(c)
       cl_PProtect.Settings.Propprotection['worldpick'] = c
     end)
     p:addchk('Allow World-GravPick', 'Allow users to pickup world props using gravity gun', cl_PProtect.Settings.Propprotection['worldgrav'], function(c)
@@ -215,6 +215,9 @@ function cl_PProtect.pp_menu(p)
     end)
     p:addchk('Allow World-Tooling', 'Allow users to use tools on World-Objects', cl_PProtect.Settings.Propprotection['worldtool'], function(c)
       cl_PProtect.Settings.Propprotection['worldtool'] = c
+    end)
+    p:addchk('Allow Gravgun-Punt', 'Allow users to punt with the Gravgun', cl_PProtect.Settings.Propprotection['gravpunt'], function(c)
+      cl_PProtect.Settings.Propprotection['gravpunt'] = c
     end)
 
     p:addlbl('\nProp-Delete on Disconnect:', true)
