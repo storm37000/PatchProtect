@@ -32,7 +32,7 @@ local function showOwner()
   local Owner, IsShared, IsBuddy = sh_PProtect.GetOwner(ent), sh_PProtect.IsShared(ent), sh_PProtect.IsBuddy(Owner, LocalPlayer())
 
   local txt = nil
-  if Owner == nil then
+  if sh_PProtect.IsWorld(ent) then
     txt = 'World'
   elseif Owner == "wait" then
     txt = 'Waiting for server...'

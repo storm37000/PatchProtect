@@ -55,11 +55,9 @@ if CLIENT then return end
 -- Set owner of an entity
 function ENTITY:CPPISetOwner(ply)
   if hook.Run('CPPIAssignOwnership', ply, self, CPPI.CPPI_NOTIMPLEMENTED) == false then return false end
-    self.ppowner = ply
-    net.Start("pprotect_send_owner")
-     net.WriteEntity(self)
-     net.WriteEntity(self.ppowner)
-    net.Broadcast()
+  self:SetNWEntity("ppowner", ply)
+  self:SetNWString("ppownerid", ply:SteamID())
+  self.ppowner = ply
   return true
 end
 

@@ -15,7 +15,10 @@ end
 -- Checks if the given entity is a world prop and if players are allowed to interact with them for the given setting
 -- ent: valid entity to check
 -- sett: PatchProtect setting to use to check for world-premissions
-local function CheckWorld(ent, sett)
+local function CheckWorld(ent, sett, tool)
+  if tool == 'creator' then return false end
+  if tool == 'advdupe2' then return false end
+  if tool == 'weld' then return false end
   if sv_PProtect.Settings.Propprotection['world' .. sett] and sh_PProtect.IsWorld(ent) then return true end
   return false
 end
@@ -192,7 +195,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
   if CheckPPAdmin(ply) then return end
 
   -- Check World
-  if CheckWorld(ent, 'tool') then return end
+  if CheckWorld(ent, 'tool',tool) then return end
 
   -- Check Shared
   if sh_PProtect.IsShared(ent, 'tool') then return end
