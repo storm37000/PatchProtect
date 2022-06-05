@@ -363,30 +363,20 @@ end)
 
 -- SEND NOTIFICATION
 function sv_PProtect.Notify(ply, text, typ)
+  net.Start('pprotect_notify', true)
+    net.WriteTable({text, typ})
   if ply == nil then
-    for _, v in pairs( player.GetAll() ) do
-      if typ == 'admin' and !v:IsAdmin() then continue end
-      net.Start('pprotect_notify')
-       net.WriteTable({text, typ})
-      net.Send(v)
+    if typ == 'admin' then
+      local sendto = {}
+      for _, v in pairs( player.GetHumans() ) do
+        if v:IsAdmin() then table.insert( sendto, v ) end
+      end
+      net.Send(sendto)
+    else
+      net.Broadcast()
     end
   else
-    net.Start('pprotect_notify')
-     net.WriteTable({text, typ})
     net.Send(ply)
-  end
-end
-
--- SEND BUDDIES TO CLIENT
-local function sv_PProtect_sendbuddies(ply, sendto)
-  if ply == nil or ply.Buddies == nil then return end
-  net.Start('pprotect_send_buddies')
-   net.WriteEntity(ply)
-   net.WriteTable(ply.Buddies)
-  if sendto == nil then
-    net.Broadcast()
-  else
-    net.Send(sendto)
   end
 end
 
@@ -417,12 +407,19 @@ end)
 
 net.Receive('pprotect_request_cl_data', function(len, ply)
   local typ = net.ReadString()
-  if typ == "buddy" then
-    sv_PProtect_sendbuddies(net.ReadEntity(), ply)
+  local ent = net.ReadEntity()
+  if typ == "buddy" then -- SEND BUDDIES TO CLIENT
+    if ent == nil or ent.Buddies == nil then return end
+    net.Start('pprotect_send_buddies')
+      net.WriteEntity(ent)
+      net.WriteTable(ent.Buddies)
+    if ply == nil then
+      net.Broadcast()
+    else
+      net.Send(ply)
+    end
     return
-  end
-  if typ == "owner" then
-    local ent = net.ReadEntity()
+  elseif typ == "owner" then -- SEND ENTITY OWNER TO CLIENT
     net.Start("pprotect_send_owner")
      net.WriteEntity(ent)
      if ent.ppowner == nil then
