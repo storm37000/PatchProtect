@@ -3,7 +3,7 @@
 function sh_PProtect.GetOwner(ent)
   if CLIENT and ent.ppowner == nil then
     net.Start('pprotect_request_cl_data')
-	    net.WriteString("owner")
+      net.WriteUInt(1,2) -- type is owner
 	    net.WriteEntity(ent)
     net.SendToServer()
     ent.ppowner = "wait"
@@ -34,7 +34,7 @@ function sh_PProtect.IsBuddy(ply, bud, mode)
   if ply.Buddies == nil then ply.Buddies = {} end
   if CLIENT and ply != LocalPlayer() then
     net.Start('pprotect_request_cl_data')
-	    net.WriteString("buddy")
+      net.WriteUInt(0,2) --type is buddy
 	    net.WriteEntity(ply)
     net.SendToServer()
   end

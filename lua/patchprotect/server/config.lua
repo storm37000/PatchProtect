@@ -340,8 +340,8 @@ net.Receive('pprotect_request_tools', function(len, pl)
   end)
 
   net.Start('pprotect_send_tools')
-  net.WriteString(t)
-  net.WriteTable(tools)
+    net.WriteString(t)
+    net.WriteTable(tools)
   net.Send(pl)
 end)
 
@@ -406,9 +406,9 @@ net.Receive('pprotect_info_buddy', function(len, ply)
 end)
 
 net.Receive('pprotect_request_cl_data', function(len, ply)
-  local typ = net.ReadString()
-  local ent = net.ReadEntity()
-  if typ == "buddy" then -- SEND BUDDIES TO CLIENT
+  local typ = net.ReadUInt(2) -- request type
+  local ent = net.ReadEntity() -- entity being queried about
+  if typ == 0 then -- SEND BUDDIES TO CLIENT
     if ent == nil or ent.Buddies == nil then return end
     net.Start('pprotect_send_buddies')
       net.WriteEntity(ent)
@@ -419,7 +419,7 @@ net.Receive('pprotect_request_cl_data', function(len, ply)
       net.Send(ply)
     end
     return
-  elseif typ == "owner" then -- SEND ENTITY OWNER TO CLIENT
+  elseif typ == 1 then -- SEND ENTITY OWNER TO CLIENT
     net.Start("pprotect_send_owner")
      net.WriteEntity(ent)
      if ent.ppowner == nil then
