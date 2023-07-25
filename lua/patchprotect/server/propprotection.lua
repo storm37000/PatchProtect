@@ -64,7 +64,7 @@ function undo.Finish()
     ErrorNoHaltWithStack("tried to finish a nonexistant undo! Please run undo.Create first")
     return
   end
-  if en.o == nil then
+  if en.o == nil or not IsValid(en.o) then
     ErrorNoHaltWithStack("tried to finish an undo without any owner player! Please run undo.SetPlayer first")
   else
     for _, ent in ipairs( en.e ) do
