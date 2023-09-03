@@ -382,6 +382,9 @@ function cl_PProtect.cs_menu(p)
   p:addchk('Admin Bypass', 'If you are an admin this will toggle your ability to bypass restrictions( If allowed by the server ofcourse )', cl_PProtect.CSettings['adminbypass'], function(c)
     cl_PProtect.update_csetting('adminbypass', c)
   end)
+  p:addchk('No Physgun Reload', 'Toggle ON to disable your ability to unfreeze an entire contraption with physgun reload', cl_PProtect.CSettings['nophysreload'], function(c)
+    cl_PProtect.update_csetting('nophysreload', c)
+  end)
 end
 
 --------------------

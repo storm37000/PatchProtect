@@ -152,6 +152,8 @@ function sv_PProtect.CanPhysReload(ply, ent)
 
   if !IsValid(ply) then return false end
 
+  if ply.ppnophysreload then return false end
+
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 

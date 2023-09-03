@@ -6,6 +6,7 @@
 util.AddNetworkString('pprotect_new_settings')
 util.AddNetworkString('pprotect_save')
 util.AddNetworkString('pprotect_setadminbypass')
+util.AddNetworkString('pprotect_setnophysreload')
 
 -- CLEANUP
 util.AddNetworkString('pprotect_cleanup')
@@ -439,4 +440,9 @@ hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendSettings)
 -- Receive admin bypass setting
 net.Receive('pprotect_setadminbypass', function(len,pl)
   pl.ppadminbypass = net.ReadBool()
+end)
+
+-- Receive physgun no reload setting
+net.Receive('pprotect_setnophysreload', function(len,pl)
+  pl.ppnophysreload = net.ReadBool()
 end)
