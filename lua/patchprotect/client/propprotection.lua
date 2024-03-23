@@ -53,7 +53,7 @@ function cl_PProtect.setBuddy(budent, c)
   local id = budent:SteamID()
   if id == "NULL" then id = budent:Nick() end
   if c == nil then
-    if LocalPlayer().Buddies[id] != nil and LocalPlayer().Buddies[id].bud != nil then
+    if LocalPlayer().Buddies and LocalPlayer().Buddies[id] and LocalPlayer().Buddies[id].bud then
       return LocalPlayer().Buddies[id].bud
     end
     return false
