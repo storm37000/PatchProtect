@@ -83,7 +83,7 @@ function cl_PProtect.setBuddyPerm(budent, p, c)
   local id = budent:SteamID()
   if id == "NULL" then id = budent:Nick() end
   if c == nil then
-    if LocalPlayer().Buddies[id] != nil and LocalPlayer().Buddies[id].perm != nil then
+    if LocalPlayer().Buddies and LocalPlayer().Buddies[id] and LocalPlayer().Buddies[id].perm then
       return LocalPlayer().Buddies[id].perm[p]
     end
     return false
