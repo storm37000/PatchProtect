@@ -14,12 +14,20 @@ end
 hook.Add('InitPostEntity', 'pprotect_load_buddies', function()
   LocalPlayer().Buddies = {}
   if file.Exists('pprotect_buddies.txt', 'DATA') then
-    for k, v in pairs(util.JSONToTable(file.Read('pprotect_buddies.txt', 'DATA'))) do
-      if not isstring(k) or v == nil or v.bud == nil then cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin') continue end
-      LocalPlayer().Buddies[k] = v
-      notifyServer(k,v)
-    end
-    hook.Run('CPPIFriendsChanged', ply, LocalPlayer().Buddies)
+    file.AsyncRead('pprotect_buddies.txt', 'DATA', function(_,_,status,data)
+      data = util.JSONToTable(data)
+      if data then
+        for k, v in pairs(data) do
+          if v == nil or v.bud == nil or (not isstring(k)) then cl_PProtect.ClientNote('An entry in your buddy list is corrupt!', 'admin') continue end
+          LocalPlayer().Buddies[k] = v
+          notifyServer(k,v)
+        end
+      else
+        cl_PProtect.ClientNote('Your buddy list is corrupt!', 'admin')
+        saveBuddies()
+      end
+      hook.Run('CPPIFriendsChanged', ply, LocalPlayer().Buddies)
+    end)
   end
 end)
 
