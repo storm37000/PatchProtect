@@ -39,8 +39,10 @@ end
 
 -- Reset Buddies
 concommand.Add('pprotect_reset_buddies', function()
-  for k,_ in pairs( LocalPlayer().Buddies ) do
-    notifyServer(k,{})
+  if LocalPlayer().Buddies then
+    for k,_ in pairs( LocalPlayer().Buddies ) do
+      notifyServer(k,{})
+    end
   end
   LocalPlayer().Buddies = {}
   saveBuddies()
