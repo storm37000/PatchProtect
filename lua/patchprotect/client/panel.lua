@@ -170,19 +170,19 @@ function cl_PProtect.pp_menu(p)
 
     -- Protections
     p:addlbl('\nProtection Settings:', true)
-    p:addchk('Use-Protection', nil, cl_PProtect.Settings.Propprotection['use'], function(c)
+    p:addchk('Use-Protection', "Pressing 'use'-key on entities", cl_PProtect.Settings.Propprotection['use'], function(c)
       cl_PProtect.Settings.Propprotection['use'] = c
     end)
-    p:addchk('Reload-Protection', nil, cl_PProtect.Settings.Propprotection['reload'], function(c)
+    p:addchk('Reload-Protection', "Pressing 'reload'-key on entities", cl_PProtect.Settings.Propprotection['reload'], function(c)
       cl_PProtect.Settings.Propprotection['reload'] = c
     end)
     p:addchk('Damage-Protection', nil, cl_PProtect.Settings.Propprotection['damage'], function(c)
       cl_PProtect.Settings.Propprotection['damage'] = c
     end)
-    p:addchk('GravGun-Protection', nil, cl_PProtect.Settings.Propprotection['gravgun'], function(c)
+    p:addchk('GravGun-Protection', "Pick up entities with gravgun", cl_PProtect.Settings.Propprotection['gravgun'], function(c)
       cl_PProtect.Settings.Propprotection['gravgun'] = c
     end)
-    p:addchk('PropPickup-Protection', "Pick up props with 'use'-key", cl_PProtect.Settings.Propprotection['proppickup'], function(c)
+    p:addchk('PropPickup-Protection', "Pick up entities with 'use'-key", cl_PProtect.Settings.Propprotection['proppickup'], function(c)
       cl_PProtect.Settings.Propprotection['proppickup'] = c
     end)
 
@@ -221,7 +221,7 @@ function cl_PProtect.pp_menu(p)
     end)
 
     p:addlbl('\nProp-Delete on Disconnect:', true)
-    p:addchk('Use Prop-Delete', nil, cl_PProtect.Settings.Propprotection['propdelete'], function(c)
+    p:addchk('Enabled', nil, cl_PProtect.Settings.Propprotection['propdelete'], function(c)
       cl_PProtect.Settings.Propprotection['propdelete'] = c
     end)
 
@@ -388,37 +388,6 @@ function cl_PProtect.cs_menu(p)
 end
 
 --------------------
---  CREATE MENUS  --
---------------------
-
-hook.Add('PopulateToolMenu', 'pprotect_make_menus', function()
-  -- Anti-Spam
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPAntiSpam', 'AntiSpam', '', '', function(p)
-    cl_PProtect.UpdateMenus('as', p)
-  end)
-
-  -- Prop-Protection
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPPropProtection', 'PropProtection', '', '', function(p)
-    cl_PProtect.UpdateMenus('pp', p)
-  end)
-
-  -- Buddy
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPBuddy', 'Buddy', '', '', function(p)
-    cl_PProtect.UpdateMenus('b', p)
-  end)
-
-  -- Cleanup
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPCleanup', 'Cleanup', '', '', function(p)
-    cl_PProtect.UpdateMenus('cu', p)
-  end)
-
-  -- Client-Settings
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPClientSettings', 'Client Settings', '', '', function(p)
-    cl_PProtect.UpdateMenus('cs', p)
-  end)
-end)
-
---------------------
 --  UPDATE MENUS  --
 --------------------
 
@@ -448,6 +417,37 @@ function cl_PProtect.UpdateMenus(p_type, panel)
   end
 end
 hook.Add('OnSpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
+
+--------------------
+--  CREATE MENUS  --
+--------------------
+
+hook.Add('PopulateToolMenu', 'pprotect_make_menus', function()
+  -- Anti-Spam
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPAntiSpam', 'AntiSpam', '', '', function(p)
+    cl_PProtect.UpdateMenus('as', p)
+  end)
+
+  -- Prop-Protection
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPPropProtection', 'PropProtection', '', '', function(p)
+    cl_PProtect.UpdateMenus('pp', p)
+  end)
+
+  -- Buddy
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPBuddy', 'Buddy', '', '', function(p)
+    cl_PProtect.UpdateMenus('b', p)
+  end)
+
+  -- Cleanup
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPCleanup', 'Cleanup', '', '', function(p)
+    cl_PProtect.UpdateMenus('cu', p)
+  end)
+
+  -- Client-Settings
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPClientSettings', 'Client Settings', '', '', function(p)
+    cl_PProtect.UpdateMenus('cs', p)
+  end)
+end)
 
 ---------------
 --  NETWORK  --
