@@ -15,7 +15,7 @@ local function cl_PProtect_UpdateMenus(p_type, panel)
   -- load Panel
   for t,p in pairs( pans ) do
     xpcall(function()
-      if t == 'as' or t == 'pp' then
+      if t == 'as' or t == 'pp' or t == 'bl' then
         if LocalPlayer():IsSuperAdmin() then cl_PProtect[t .. '_menu'](p) else showErrorMessage(p, 'Sorry, you need to be a SuperAdmin\nto change the settings.') end
       else
         cl_PProtect[t .. '_menu'](p)
