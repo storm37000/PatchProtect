@@ -199,12 +199,10 @@ sv_PProtect.Settings = {
   Antispam = loadSettings('Antispam'),
   Propprotection = loadSettings('Propprotection')
 }
-sv_PProtect.Blocked = {
-  props = loadBlockedEnts('props'),
-  ents = loadBlockedEnts('ents'),
-  atools = loadBlockedTools('antispam'),
-  btools = loadBlockedTools('blocked')
-}
+sv_PProtect.Blocked.props = loadBlockedEnts('props')
+sv_PProtect.Blocked.ents = loadBlockedEnts('ents')
+sv_PProtect.Blocked.atools = loadBlockedTools('antispam')
+sv_PProtect.Blocked.btools = loadBlockedTools('blocked')
 MsgC(Color(255, 255, 0), '\n[PatchProtect]', Color(255, 255, 255), ' Successfully loaded.\n\n')
 
 
