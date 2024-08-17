@@ -76,7 +76,7 @@ function cl_PProtect.as_menu(p)
     -- Tool Protection
     p:addbtn('Set Anti-Spamed Tools',function()
       net.Start('pprotect_request_tools')
-      net.WriteString('Antispam')
+      net.WriteString('antispam')
       net.SendToServer()
     end)
 
