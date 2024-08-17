@@ -204,8 +204,7 @@ end
 --  SLIDER  --
 --------------
 
-local sldnum = 0
-function pan:addsld(min, max, text, value, t1, t2, decimals)
+function pan:addsld(min, max, text, value, decimals, func)
   local sld = vgui.Create('DNumSlider')
   sld:SetMin(min)
   sld:SetMax(max)
@@ -218,10 +217,11 @@ function pan:addsld(min, max, text, value, t1, t2, decimals)
   sld.Scratch:SetVisible(false)
 
   sld.OnValueChanged = function(self, number)
-    if sldnum != math.Round(number, decimals) then
-      sldnum = math.Round(number, decimals)
+    if number != math.Round(number, decimals) then
+      number = math.Round(number, decimals)
+      sld:SetValue(number)
     end
-    cl_PProtect.Settings[t1][t2] = sldnum
+    func(self,number)
   end
 
   function sld.Slider.Knob:Paint()

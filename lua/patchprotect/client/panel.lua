@@ -95,15 +95,15 @@ function cl_PProtect.as_menu(p)
 
     -- Cooldown
     p:addlbl('\nDuration till the next prop-spawn/tool-fire:', true)
-    p:addsld(0, 10, 'Cooldown (Seconds)', cl_PProtect.Settings.Antispam['cooldown'], 'Antispam', 'cooldown', 1)
+    p:addsld(0, 10, 'Cooldown (Seconds)', cl_PProtect.Settings.Antispam['cooldown'], 2, function(_,value) cl_PProtect.Settings.Antispam['cooldown'] = value end)
     p:addlbl('Number of props till admins get warned:')
-    p:addsld(0, 40, 'Amount', cl_PProtect.Settings.Antispam['spam'], 'Antispam', 'spam', 0)
+    p:addsld(0, 40, 'Amount', cl_PProtect.Settings.Antispam['spam'], 0, function(_,value) cl_PProtect.Settings.Antispam['spam'] = value end)
     p:addlbl('Automatic action after spamming:')
     p:addcmb({'Nothing', 'Cleanup', 'Kick', 'Ban', 'Command'}, cl_PProtect.Settings.Antispam['spamaction'], function(_,_,value) cl_PProtect.Settings.Antispam['spamaction'] = value cl_PProtect_UpdateMenus('as') end)
 
     -- Spamaction
     if cl_PProtect.Settings.Antispam['spamaction'] == 'Ban' then
-      p:addsld(0, 60, 'Ban (Minutes)', cl_PProtect.Settings.Antispam['bantime'], 'Antispam', 'bantime', 0)
+      p:addsld(0, 60, 'Ban (Minutes)', cl_PProtect.Settings.Antispam['bantime'], 0, function(_,value) cl_PProtect.Settings.Antispam['bantime'] = value end)
     elseif cl_PProtect.Settings.Antispam['spamaction'] == 'Command' then
       p:addlbl("Use '<player>' to use the spamming player.")
       p:addlbl("Some commands need sv_cheats 1 to run,\nlike 'kill <player>'")
@@ -256,7 +256,7 @@ function cl_PProtect.pp_menu(p)
       p:addchk("Keep admin's props", nil, cl_PProtect.Settings.Propprotection['adminsprops'], function(c)
         cl_PProtect.Settings.Propprotection['adminsprops'] = c
       end)
-      p:addsld(0, 300, 'Delay (sec.)', cl_PProtect.Settings.Propprotection['delay'], 'Propprotection', 'delay', 0)
+      p:addsld(0, 300, 'Delay (sec.)', cl_PProtect.Settings.Propprotection['delay'], 0, function(_,value) cl_PProtect.Settings.Propprotection['delay'] = value end)
     end
   end
 
