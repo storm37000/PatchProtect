@@ -319,7 +319,7 @@ function pan:addtxt(text)
   self:AddItem(txt)
 
   function txt:OnTextChanged()
-    cl_PProtect.Settings.Antispam['concommand'] = txt:GetValue()
+    text = txt:GetValue()
   end
 end
 
