@@ -91,7 +91,8 @@ function cl_PProtect.as_menu(p)
   -- save Settings
   p:addbtn('Save Settings',function()
     net.Start('pprotect_save')
-    net.WriteTable({ Antispam = cl_PProtect.Settings.Antispam })
+    net.WriteString('Antispam')
+    net.WriteTable(cl_PProtect.Settings.Antispam)
     net.SendToServer()
   end)
 end
@@ -154,7 +155,8 @@ function cl_PProtect.bl_menu(p)
   -- save Settings
   p:addbtn('Save Settings',function()
     net.Start('pprotect_save')
-    net.WriteTable({ Blocking = cl_PProtect.Settings.Blocking })
+    net.WriteString('Blocking')
+    net.WriteTable(cl_PProtect.Settings.Blocking)
     net.SendToServer()
   end)
 end
@@ -307,7 +309,8 @@ function cl_PProtect.pp_menu(p)
   -- save Settings
   p:addbtn('Save Settings',function()
     net.Start('pprotect_save')
-    net.WriteTable({ Propprotection = cl_PProtect.Settings.Propprotection} )
+    net.WriteString('Propprotection')
+    net.WriteTable(cl_PProtect.Settings.Propprotection)
     net.SendToServer()
   end)
 end

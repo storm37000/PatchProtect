@@ -236,23 +236,22 @@ end
 net.Receive('pprotect_save', function(len, pl)
   if !pl:IsSuperAdmin() then return end
 
-  local data = net.ReadTable()
+  local typ = net.ReadString()
+  if typ == nil then return end
+  sv_PProtect.Settings[typ] = net.ReadTable()
 
   sendSettings()
 
-  if data[1] == nil or data[2] == nil then return end
-  sv_PProtect.Settings[data[1]] = data[2]
-
   -- SAVE TO SQL TABLES
-  table.foreach(sv_PProtect.Settings[data[1]], function(setting, value)
-    if !sql.Query('SELECT value FROM pprotect_' .. string.lower(data[1]) .. " WHERE setting = '" .. setting .. "'") then
-      sql.Query('INSERT INTO pprotect_' .. string.lower(data[1]) .. " (setting, value) VALUES ('" .. setting .. "', '" .. tostring(value) .. "')")
+  table.foreach(sv_PProtect.Settings[typ], function(setting, value)
+    if !sql.Query('SELECT value FROM pprotect_' .. string.lower(typ) .. " WHERE setting = '" .. setting .. "'") then
+      sql.Query('INSERT INTO pprotect_' .. string.lower(typ) .. " (setting, value) VALUES ('" .. setting .. "', '" .. tostring(value) .. "')")
     end
-    sql.Query('UPDATE pprotect_' .. string.lower(data[1]) .. " SET value = '" .. tostring(value) .. "' WHERE setting = '" .. setting .. "'")
+    sql.Query('UPDATE pprotect_' .. string.lower(typ) .. " SET value = '" .. tostring(value) .. "' WHERE setting = '" .. setting .. "'")
   end)
 
-  sv_PProtect.Notify(pl, 'Saved new ' .. data[1] .. '-Settings', 'info')
-  print('[PatchProtect - ' .. data[1] .. '] ' .. pl:Nick() .. ' saved new settings.')
+  sv_PProtect.Notify(pl, 'Saved new ' .. typ .. '-Settings', 'info')
+  print('[PatchProtect - ' .. typ .. '] ' .. pl:Nick() .. ' saved new settings.')
 end)
 
 
