@@ -122,7 +122,7 @@ function cl_PProtect.as_menu(p)
   -- save Settings
   p:addbtn('Save Settings',function()
     net.Start('pprotect_save')
-    net.WriteTable({"Antispam" = cl_PProtect.Settings.Antispam})
+    net.WriteTable({ Antispam = cl_PProtect.Settings.Antispam })
     net.SendToServer()
   end)
 end
@@ -275,7 +275,7 @@ function cl_PProtect.pp_menu(p)
   -- save Settings
   p:addbtn('Save Settings',function()
     net.Start('pprotect_save')
-    net.WriteTable({"Propprotection" = cl_PProtect.Settings.Propprotection})
+    net.WriteTable({ Propprotection = cl_PProtect.Settings.Propprotection} )
     net.SendToServer()
   end)
 end
