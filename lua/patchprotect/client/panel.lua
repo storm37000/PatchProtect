@@ -457,3 +457,5 @@ end)
 net.Receive('pprotect_new_settings', function()
   cl_PProtect.Settings = net.ReadTable()
 end)
+
+cl_PProtect.UpdateMenus = cl_PProtect_UpdateMenus
