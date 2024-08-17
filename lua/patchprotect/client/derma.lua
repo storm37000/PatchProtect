@@ -317,9 +317,6 @@ function pan:addtxt(text, func)
   txt:SetText(text)
   txt:SetFont(cl_PProtect.setFont('roboto', 14, 500, true))
   txt.OnValueChange = func
-  function txt:OnChange()
-    self:SetBGColor(255,255,255)
-  end
   self:AddItem(txt)
 end
 
