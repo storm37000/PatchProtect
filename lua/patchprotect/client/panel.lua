@@ -108,6 +108,7 @@ function cl_PProtect.bl_menu(p)
 
   -- Main Settings
   p:addlbl('General Settings:', true)
+  if cl_PProtect.Settings.Blocking == nil then return end
   p:addchk('Enable Blocking', nil, cl_PProtect.Settings.Blocking['enabled'], function(c)
     cl_PProtect.Settings.Blocking['enabled'] = c
   end)
