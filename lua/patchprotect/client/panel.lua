@@ -1,3 +1,29 @@
+local function showErrorMessage(p, msg)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
+  p:ClearControls()
+  p:addlbl(msg,true,Color(200,0,0))
+end
+
+local pans = {}
+local function cl_PProtect_UpdateMenus(p_type, panel)
+  -- add Panel
+  if p_type and !pans[p_type] then
+    pans[p_type] = panel
+  end
+
+  -- load Panel
+  for t,p in pairs( pans ) do
+    xpcall(function()
+      if t == 'as' or t == 'pp' then
+        if LocalPlayer():IsSuperAdmin() then cl_PProtect[t .. '_menu'](p) else showErrorMessage(p, 'Sorry, you need to be a SuperAdmin\nto change the settings.') end
+      else
+        cl_PProtect[t .. '_menu'](p)
+      end
+    end,function(error) ErrorNoHaltWithStack(error) showErrorMessage(p,"An error occured while building this menu.") end)
+  end
+end
+
 ---------------------
 --  ANTISPAM MENU  --
 ---------------------
@@ -73,7 +99,7 @@ function cl_PProtect.as_menu(p)
     p:addlbl('Number of props till admins get warned:')
     p:addsld(0, 40, 'Amount', cl_PProtect.Settings.Antispam['spam'], 'Antispam', 'spam', 0)
     p:addlbl('Automatic action after spamming:')
-    p:addcmb({'Nothing', 'Cleanup', 'Kick', 'Ban', 'Command'}, 'spamaction', cl_PProtect.Settings.Antispam['spamaction'])
+    p:addcmb({'Nothing', 'Cleanup', 'Kick', 'Ban', 'Command'}, cl_PProtect.Settings.Antispam['spamaction'], function(_,index) cl_PProtect.Settings.Antispam[setting] = index cl_PProtect_UpdateMenus('as') end)
 
     -- Spamaction
     if cl_PProtect.Settings.Antispam['spamaction'] == 'Ban' then
@@ -390,33 +416,7 @@ end
 --------------------
 --  UPDATE MENUS  --
 --------------------
-
-local function showErrorMessage(p, msg)
-  if p == nil then return end
-  if p.ClearControls == nil then return end
-  p:ClearControls()
-  p:addlbl(msg,true,Color(200,0,0))
-end
-
-local pans = {}
-function cl_PProtect.UpdateMenus(p_type, panel)
-  -- add Panel
-  if p_type and !pans[p_type] then
-    pans[p_type] = panel
-  end
-
-  -- load Panel
-  for t,p in pairs( pans ) do
-    xpcall(function()
-      if t == 'as' or t == 'pp' then
-        if LocalPlayer():IsSuperAdmin() then cl_PProtect[t .. '_menu'](p) else showErrorMessage(p, 'Sorry, you need to be a SuperAdmin\nto change the settings.') end
-      else
-        cl_PProtect[t .. '_menu'](p)
-      end
-    end,function(error) ErrorNoHaltWithStack(error) showErrorMessage(p,"An error occured while building this menu.") end)
-  end
-end
-hook.Add('OnSpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
+hook.Add('OnSpawnMenuOpen', 'pprotect_update_menus', cl_PProtect_UpdateMenus)
 
 --------------------
 --  CREATE MENUS  --
@@ -425,27 +425,27 @@ hook.Add('OnSpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
 hook.Add('PopulateToolMenu', 'pprotect_make_menus', function()
   -- Anti-Spam
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPAntiSpam', 'AntiSpam', '', '', function(p)
-    cl_PProtect.UpdateMenus('as', p)
+    cl_PProtect_UpdateMenus('as', p)
   end)
 
   -- Prop-Protection
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPPropProtection', 'PropProtection', '', '', function(p)
-    cl_PProtect.UpdateMenus('pp', p)
+    cl_PProtect_UpdateMenus('pp', p)
   end)
 
   -- Buddy
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPBuddy', 'Buddy', '', '', function(p)
-    cl_PProtect.UpdateMenus('b', p)
+    cl_PProtect_UpdateMenus('b', p)
   end)
 
   -- Cleanup
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPCleanup', 'Cleanup', '', '', function(p)
-    cl_PProtect.UpdateMenus('cu', p)
+    cl_PProtect_UpdateMenus('cu', p)
   end)
 
   -- Client-Settings
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPClientSettings', 'Client Settings', '', '', function(p)
-    cl_PProtect.UpdateMenus('cs', p)
+    cl_PProtect_UpdateMenus('cs', p)
   end)
 end)
 

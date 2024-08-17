@@ -239,17 +239,13 @@ end
 --  COMBOBOX  --
 ----------------
 
-function pan:addcmb(items, setting, value)
+function pan:addcmb(items, value, func)
   local cmb = vgui.Create('DComboBox')
   table.foreach(items, function(key, choice)
     cmb:AddChoice(choice)
   end)
   cmb:SetValue(value)
-
-  function cmb:OnSelect(panel, index, value, data)
-    cl_PProtect.Settings.Antispam[setting] = index
-  end
-
+  cmb.OnSelect = func
   self:AddItem(cmb)
 end
 
