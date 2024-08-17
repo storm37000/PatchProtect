@@ -491,23 +491,13 @@ hook.Add('OnSpawnMenuOpen', 'pprotect_update_menus', cl_PProtect_UpdateMenus)
 --------------------
 
 hook.Add('PopulateToolMenu', 'pprotect_make_menus', function()
-  -- Anti-Spam
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPAntiSpam', 'AntiSpam', '', '', function(p)
-    cl_PProtect_UpdateMenus('as', p)
-  end)
-
-  -- Prop-Protection
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPPropProtection', 'PropProtection', '', '', function(p)
-    cl_PProtect_UpdateMenus('pp', p)
-  end)
-
-  -- Blocking
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PBlocking', 'Blocking', '', '', function(p)
-    cl_PProtect_UpdateMenus('bl', p)
+  -- Client-Settings
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPClientSettings', 'Client Settings', '', '', function(p)
+    cl_PProtect_UpdateMenus('cs', p)
   end)
 
   -- Buddy
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPBuddy', 'Buddy', '', '', function(p)
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPBuddy', 'Buddies', '', '', function(p)
     cl_PProtect_UpdateMenus('b', p)
   end)
 
@@ -516,9 +506,19 @@ hook.Add('PopulateToolMenu', 'pprotect_make_menus', function()
     cl_PProtect_UpdateMenus('cu', p)
   end)
 
-  -- Client-Settings
-  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPClientSettings', 'Client Settings', '', '', function(p)
-    cl_PProtect_UpdateMenus('cs', p)
+  -- Prop-Protection
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPPropProtection', 'PropProtection', '', '', function(p)
+    cl_PProtect_UpdateMenus('pp', p)
+  end)
+
+  -- Anti-Spam
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPAntiSpam', 'AntiSpam', '', '', function(p)
+    cl_PProtect_UpdateMenus('as', p)
+  end)
+
+  -- Blocking
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PBlocking', 'Blocking', '', '', function(p)
+    cl_PProtect_UpdateMenus('bl', p)
   end)
 end)
 
@@ -531,5 +531,3 @@ net.Receive('pprotect_new_settings', function()
   cl_PProtect.Settings = net.ReadTable()
   cl_PProtect_UpdateMenus()
 end)
-
-cl_PProtect.UpdateMenus = cl_PProtect_UpdateMenus
