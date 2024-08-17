@@ -38,6 +38,7 @@ function cl_PProtect.as_menu(p)
   p:addlbl('General Settings:', true)
   p:addchk('Enable AntiSpam', nil, cl_PProtect.Settings.Antispam['enabled'], function(c)
     cl_PProtect.Settings.Antispam['enabled'] = c
+    cl_PProtect_UpdateMenus('as')
   end)
 
   if cl_PProtect.Settings.Antispam['enabled'] then
@@ -76,7 +77,10 @@ function cl_PProtect.as_menu(p)
     p:addlbl('Number of props till admins get warned:')
     p:addsld(0, 40, 'Amount', cl_PProtect.Settings.Antispam['spam'], 0, function(_,value) cl_PProtect.Settings.Antispam['spam'] = value end)
     p:addlbl('Automatic action after spamming:')
-    p:addcmb({'Nothing', 'Cleanup', 'Kick', 'Ban', 'Command'}, cl_PProtect.Settings.Antispam['spamaction'], function(_,_,value) cl_PProtect.Settings.Antispam['spamaction'] = value cl_PProtect_UpdateMenus('as') end)
+    p:addcmb({'Nothing', 'Cleanup', 'Kick', 'Ban', 'Command'}, cl_PProtect.Settings.Antispam['spamaction'], function(_,_,value)
+      cl_PProtect.Settings.Antispam['spamaction'] = value
+      cl_PProtect_UpdateMenus('as')
+    end)
 
     -- Spamaction
     if cl_PProtect.Settings.Antispam['spamaction'] == 'Ban' then
@@ -109,9 +113,9 @@ function cl_PProtect.bl_menu(p)
 
   -- Main Settings
   p:addlbl('General Settings:', true)
-  if cl_PProtect.Settings.Blocking == nil then return end
   p:addchk('Enable Blocking', nil, cl_PProtect.Settings.Blocking['enabled'], function(c)
     cl_PProtect.Settings.Blocking['enabled'] = c
+    cl_PProtect_UpdateMenus('bl')
   end)
 
   if cl_PProtect.Settings.Blocking['enabled'] then
@@ -226,6 +230,7 @@ function cl_PProtect.pp_menu(p)
   p:addlbl('General Settings:', true)
   p:addchk('Enable PropProtection', nil, cl_PProtect.Settings.Propprotection['enabled'], function(c)
     cl_PProtect.Settings.Propprotection['enabled'] = c
+    cl_PProtect_UpdateMenus('pp')
   end)
 
   if cl_PProtect.Settings.Propprotection['enabled'] then
