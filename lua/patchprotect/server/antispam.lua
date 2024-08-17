@@ -49,7 +49,7 @@ end
 -- Prop/Entity-Block
 local function sv_PProtect_checkBlockLists(ply, object)
   if string.find( object, "models/", nil, true ) then
-    if sv_PProtect_CheckBLAdmin(ply) then return false
+    if sv_PProtect_CheckBLAdmin(ply) then return false end
     if sv_PProtect.Settings.Blocking['propblock'] and sv_PProtect.Blocked.props[string.lower(object)] then
       sv_PProtect.Notify(ply, 'This object is in the blocklist.')
       return true
@@ -59,7 +59,7 @@ local function sv_PProtect_checkBlockLists(ply, object)
       sv_PProtect.Notify(ply, 'This object is in the hard coded blocklist.')
       return true
     end
-    if sv_PProtect_CheckBLAdmin(ply) then return false
+    if sv_PProtect_CheckBLAdmin(ply) then return false end
     if sv_PProtect.Settings.Blocking['entblock'] and sv_PProtect.Blocked.ents[string.lower(object)] then
       sv_PProtect.Notify(ply, 'This object is in the blocklist.')
       return true
