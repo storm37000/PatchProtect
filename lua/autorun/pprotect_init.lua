@@ -35,7 +35,8 @@ else
   cl_PProtect = {
     Settings = {
       Antispam = {},
-      Propprotection = {}
+      Propprotection = {},
+      Blocking = {}
     },
     CSettings = {}
   }

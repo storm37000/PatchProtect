@@ -2,16 +2,6 @@
 --  ANTISPAM SETUP  --
 ----------------------
 
--- CHECK ANTISPAM ADMIN
-local function sv_PProtect_CheckASAdmin(ply)
-  if !sv_PProtect.Settings.Antispam['enabled'] then return true end
-  if !ply.ppadminbypass then return false end
-  if !(ply.IsSuperAdmin and ply.IsAdmin) then return false end
-  if ply:IsSuperAdmin() and sv_PProtect.Settings.Antispam['superadmins'] then return true end
-  if ply:IsAdmin() and sv_PProtect.Settings.Antispam['admins'] then return true end
-  return false
-end
-
 -------------------
 --  SPAM ACTION  --
 -------------------
@@ -47,33 +37,55 @@ local function sv_PProtect_spamaction(ply)
   end
 end
 
+local function sv_PProtect_CheckBLAdmin(ply)
+  if !sv_PProtect.Settings.Blocking['enabled'] then return true end
+  if !ply.ppadminbypass then return false end
+  if !(ply.IsSuperAdmin and ply.IsAdmin) then return false end
+  if ply:IsSuperAdmin() and sv_PProtect.Settings.Blocking['superadmins'] then return true end
+  if ply:IsAdmin() and sv_PProtect.Settings.Blocking['admins'] then return true end
+  return false
+end
+
+-- Prop/Entity-Block
+local function sv_PProtect_checkBlockLists(ply, object)
+  if string.find( object, "models/", nil, true ) then
+    if sv_PProtect_CheckBLAdmin(ply) then return false
+    if sv_PProtect.Settings.Blocking['propblock'] and sv_PProtect.Blocked.props[string.lower(object)] then
+      sv_PProtect.Notify(ply, 'This object is in the blocklist.')
+      return true
+    end
+  else -- it is an entity class
+    if sh_PProtect.CheckBlockedClass(object,"spawn") then
+      sv_PProtect.Notify(ply, 'This object is in the hard coded blocklist.')
+      return true
+    end
+    if sv_PProtect_CheckBLAdmin(ply) then return false
+    if sv_PProtect.Settings.Blocking['entblock'] and sv_PProtect.Blocked.ents[string.lower(object)] then
+      sv_PProtect.Notify(ply, 'This object is in the blocklist.')
+      return true
+    end
+  end
+  return false
+end
+
 -----------------------
 --  SPAWN ANTI SPAM  --
 -----------------------
 
-local function sv_PProtect_ModelBlacklist(ply, mdl)
-  if sv_PProtect.Settings.Antispam['propblock'] and sv_PProtect.Blocked.props[string.lower(mdl)] then
-    sv_PProtect.Notify(ply, 'This object is in the blacklist.')
-    return true
-  end
-end
-
-local function sv_PProtect_EntityBlacklist(ply, class)
-  if sh_PProtect.CheckBlockedClass(class,"spawn") or (sv_PProtect.Settings.Antispam['entblock'] and sv_PProtect.Blocked.ents[string.lower(class)]) then
-    sv_PProtect.Notify(ply, 'This object is in the blacklist.')
-    return true
-  end
+-- CHECK ANTISPAM ADMIN
+local function sv_PProtect_CheckASAdmin(ply)
+  if !sv_PProtect.Settings.Antispam['enabled'] then return true end
+  if !ply.ppadminbypass then return false end
+  if !(ply.IsSuperAdmin and ply.IsAdmin) then return false end
+  if ply:IsSuperAdmin() and sv_PProtect.Settings.Antispam['superadmins'] then return true end
+  if ply:IsAdmin() and sv_PProtect.Settings.Antispam['admins'] then return true end
+  return false
 end
 
 function sv_PProtect_CanSpawn(ply, object)
-  if sv_PProtect_CheckASAdmin(ply) then return end
+  if sv_PProtect_checkBlockLists(ply, object) then return false end
 
-  -- Prop/Entity-Block
-  if string.find( object, "models/", nil, true ) then
-    if sv_PProtect_ModelBlacklist(ply, object) then return false end
-  else
-    if sv_PProtect_EntityBlacklist(ply, object) then return false end
-  end
+  if sv_PProtect_CheckASAdmin(ply) then return end
 
   if !sv_PProtect.Settings.Antispam['prop'] then return end
   if ply.duplicate then return end
@@ -110,19 +122,20 @@ hook.Add('PlayerSpawnSWEP', 'pprotect_spawnSWEP', sv_PProtect_CanSpawn)
 ----------------------
 
 hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
+  -- Blocked Tool
+  if not sv_PProtect_CheckBLAdmin(ply) then
+    if sv_PProtect.Settings.Blocking['toolblock'] and sv_PProtect.Blocked.btools[tool] then
+      sv_PProtect.Notify(ply, 'This tool is in the blocklist.', 'normal')
+      return false
+    end
+  end
+
   -- Check Dupe
   if tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' or string.find(tool,"stacker") then
     ply.duplicate = true
   end
 
   if sv_PProtect_CheckASAdmin(ply) then return end
-
-  -- Blocked Tool
-  if sv_PProtect.Settings.Antispam['toolblock'] and sv_PProtect.Blocked.btools[tool] then
-    sv_PProtect.Notify(ply, 'This tool is in the blacklist.', 'normal')
-    return false
-  end
-
   if !sv_PProtect.Settings.Antispam['tool'] then return end
   if !sv_PProtect.Blocked.atools[tool] then return end
   if trace.HitNormal == vector_origin then return end

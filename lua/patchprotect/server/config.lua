@@ -46,9 +46,6 @@ sv_PProtect.Config.Antispam = {
   admins = false,
   alert = true,
   tool = true,
-  toolblock = true,
-  propblock = true,
-  entblock = true,
   propinprop = true,
   cooldown = 0.3,
   spam = 2,
@@ -80,6 +77,15 @@ sv_PProtect.Config.Propprotection = {
   adminprops = false,
   gravpunt = true,
   delay = 120
+}
+
+sv_PProtect.Config.Blocking = {
+  enabled = true,
+  superadmins = true,
+  admins = false,
+  toolblock = true,
+  propblock = true,
+  entblock = true
 }
 
 sv_PProtect.Blocked = {

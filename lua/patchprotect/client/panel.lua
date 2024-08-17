@@ -42,7 +42,7 @@ function cl_PProtect.as_menu(p)
 
   if cl_PProtect.Settings.Antispam['enabled'] then
     -- General
-	p:addchk('Ignore SuperAdmins', nil, cl_PProtect.Settings.Antispam['superadmins'], function(c)
+	  p:addchk('Ignore SuperAdmins', nil, cl_PProtect.Settings.Antispam['superadmins'], function(c)
       cl_PProtect.Settings.Antispam['superadmins'] = c
     end)
     p:addchk('Ignore Admins', nil, cl_PProtect.Settings.Antispam['admins'], function(c)
@@ -57,48 +57,17 @@ function cl_PProtect.as_menu(p)
     p:addchk('Tool-AntiSpam', nil, cl_PProtect.Settings.Antispam['tool'], function(c)
       cl_PProtect.Settings.Antispam['tool'] = c
     end)
-    p:addchk('Prop/Entity-AntiSpam (buggy, dont use)', nil, cl_PProtect.Settings.Antispam['prop'], function(c)
-      cl_PProtect.Settings.Antispam['prop'] = c
-    end)
-    p:addchk('Tool-Block', nil, cl_PProtect.Settings.Antispam['toolblock'], function(c)
-      cl_PProtect.Settings.Antispam['toolblock'] = c
-    end)
-    p:addchk('Model-Block', nil, cl_PProtect.Settings.Antispam['propblock'], function(c)
-      cl_PProtect.Settings.Antispam['propblock'] = c
-    end)
-    p:addchk('Entity-Block', nil, cl_PProtect.Settings.Antispam['entblock'], function(c)
-      cl_PProtect.Settings.Antispam['entblock'] = c
-    end)
-    p:addchk('Prop-In-Prop (buggy, dont use)', nil, cl_PProtect.Settings.Antispam['propinprop'], function(c)
-      cl_PProtect.Settings.Antispam['propinprop'] = c
-    end)
-
-    -- Tool Protection
+    -- Tool Anti-Spam
     p:addbtn('Set Anti-Spamed Tools',function()
       net.Start('pprotect_request_tools')
       net.WriteString('antispam')
       net.SendToServer()
     end)
-
-    -- Tool Block
-    p:addbtn('Set Blocked Tools',function()
-      net.Start('pprotect_request_tools')
-      net.WriteString('blocked')
-      net.SendToServer()
+    p:addchk('Prop/Entity-AntiSpam (buggy, dont use)', nil, cl_PProtect.Settings.Antispam['prop'], function(c)
+      cl_PProtect.Settings.Antispam['prop'] = c
     end)
-
-    -- Model Block
-    p:addbtn('Set blocked Models',function()
-      net.Start('pprotect_request_ents')
-      net.WriteString('props')
-      net.SendToServer()
-    end)
-
-    -- Ent Block
-    p:addbtn('Set blocked Entities',function()
-      net.Start('pprotect_request_ents')
-      net.WriteString('ents')
-      net.SendToServer()
+    p:addchk('Prop-In-Prop (buggy, dont use)', nil, cl_PProtect.Settings.Antispam['propinprop'], function(c)
+      cl_PProtect.Settings.Antispam['propinprop'] = c
     end)
 
     -- Cooldown
@@ -123,6 +92,68 @@ function cl_PProtect.as_menu(p)
   p:addbtn('Save Settings',function()
     net.Start('pprotect_save')
     net.WriteTable({ Antispam = cl_PProtect.Settings.Antispam })
+    net.SendToServer()
+  end)
+end
+
+---------------------
+--  BLOCKING MENU  --
+---------------------
+
+function cl_PProtect.bl_menu(p)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
+  -- clear Panel
+  p:ClearControls()
+
+  -- Main Settings
+  p:addlbl('General Settings:', true)
+  p:addchk('Enable Blocking', nil, cl_PProtect.Settings.Blocking['enabled'], function(c)
+    cl_PProtect.Settings.Blocking['enabled'] = c
+  end)
+
+  if cl_PProtect.Settings.Blocking['enabled'] then
+    -- General
+	  p:addchk('Ignore SuperAdmins', nil, cl_PProtect.Settings.Blocking['superadmins'], function(c)
+      cl_PProtect.Settings.Blocking['superadmins'] = c
+    end)
+    p:addchk('Ignore Admins', nil, cl_PProtect.Settings.Blocking['admins'], function(c)
+      cl_PProtect.Settings.Blocking['admins'] = c
+    end)
+    
+    p:addchk('Tool-Block', nil, cl_PProtect.Settings.Blocking['toolblock'], function(c)
+      cl_PProtect.Settings.Blocking['toolblock'] = c
+    end)
+    -- Tool Block
+    p:addbtn('Set Blocked Tools',function()
+      net.Start('pprotect_request_tools')
+      net.WriteString('blocked')
+      net.SendToServer()
+    end)
+    p:addchk('Model-Block', nil, cl_PProtect.Settings.Blocking['propblock'], function(c)
+      cl_PProtect.Settings.Blocking['propblock'] = c
+    end)
+    -- Model Block
+    p:addbtn('Set blocked Models',function()
+      net.Start('pprotect_request_ents')
+      net.WriteString('props')
+      net.SendToServer()
+    end)
+    p:addchk('Entity-Block', nil, cl_PProtect.Settings.Blocking['entblock'], function(c)
+      cl_PProtect.Settings.Blocking['entblock'] = c
+    end)
+    -- Ent Block
+    p:addbtn('Set blocked Entities',function()
+      net.Start('pprotect_request_ents')
+      net.WriteString('ents')
+      net.SendToServer()
+    end)
+  end
+
+  -- save Settings
+  p:addbtn('Save Settings',function()
+    net.Start('pprotect_save')
+    net.WriteTable({ Blocking = cl_PProtect.Settings.Blocking })
     net.SendToServer()
   end)
 end
@@ -464,6 +495,11 @@ hook.Add('PopulateToolMenu', 'pprotect_make_menus', function()
   -- Prop-Protection
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPPropProtection', 'PropProtection', '', '', function(p)
     cl_PProtect_UpdateMenus('pp', p)
+  end)
+
+  -- Blocking
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PBlocking', 'Blocking', '', '', function(p)
+    cl_PProtect_UpdateMenus('bl', p)
   end)
 
   -- Buddy
