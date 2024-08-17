@@ -314,9 +314,9 @@ function cl_PProtect.cu_menu(p)
   local result = {
     global = 0,
     players = {}
-   }
-   for key, ent in pairs( ents.GetAll() ) do
-     if ent:IsWorld() then continue end
+  }
+  for _, ent in ents.Iterator() do
+    if ent:IsWorld() then continue end
      local o = sh_PProtect.GetOwner(ent)
      if !o then continue end
 
@@ -337,10 +337,10 @@ function cl_PProtect.cu_menu(p)
        result.players[o] = 0
      end
      result.players[o] = result.players[o] + 1
-   end
-   -- set new Count-Data
-   o_global = result.global
-   o_players = result.players
+	end
+  -- set new Count-Data
+  o_global = result.global
+  o_players = result.players
 
   p:addlbl('NOTE: This menu only updates each time you open your spawn menu!', true)
 

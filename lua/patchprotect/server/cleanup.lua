@@ -20,11 +20,11 @@ end
 
 -- Cleanup Disconnected Players Props
 local function cleanupDisc(ply)
-  for _, ent in ipairs( ents.GetAll() ) do
+  for _, ent in ents.Iterator() do
     if ent.pprotect_cleanup != nil and ent.ppowner != nil and !ent:IsWorld() then
       ent:Remove()
     end
-  end
+	end
 
   sv_PProtect.Notify(nil, ply:Nick() .. ' removed all props from disconnected players.', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed all props from disconnected players.')
@@ -32,11 +32,11 @@ end
 
 -- Cleanup Players Props
 local function cleanupPly(pl, c, ply)
-  for _, ent in ipairs( ents.GetAll() ) do
+  for _, ent in ents.Iterator() do
     if sh_PProtect.GetOwner(ent) == pl then
       ent:Remove()
     end
-  end
+	end
 
   sv_PProtect.Notify(nil, ply:Nick() .. ' cleaned ' .. pl:Nick() .. "'s props. (" .. tostring(c) .. ')', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed ' .. tostring(c) .. ' props from ' .. pl:Nick() .. '.')
