@@ -1,4 +1,26 @@
-local pan = FindMetaTable('Panel')
+local fonts = {}
+local function cl_PProtect_setFont(f, s, b, a, sh, sy)
+  b, a, sh, sy = b or 500, a or false, sh or false, sy or false
+  local fstr = 'pprotect_' .. f .. '_' .. tostring(s) .. '_' .. tostring(b) .. '_' .. string.sub(tostring(a), 1, 1) .. '_' .. string.sub(tostring(sh), 1, 1)
+
+  if table.HasValue(fonts, fstr) then
+    return fstr
+  end
+
+  surface.CreateFont(fstr, {
+    font = f,
+    size = s,
+    weight = b,
+    antialias = a,
+    shadow = sh,
+    symbol = sy
+  })
+
+  table.insert(fonts, fstr)
+
+  return fstr
+end
+cl_PProtect.setFont = cl_PProtect_setFont
 
 -------------
 --  FRAME  --
@@ -23,7 +45,7 @@ function cl_PProtect.addfrm(w, h, title, hor)
   frm.title = vgui.Create('DLabel', frm)
   frm.title:SetText(title)
   frm.title:SetPos(15, 12.5)
-  frm.title:SetFont(cl_PProtect.setFont('roboto', 25, 750, true))
+  frm.title:SetFont(cl_PProtect_setFont('roboto', 25, 750, true))
   frm.title:SetColor(Color(0, 0, 0, 191.25))
   frm.title:SizeToContents()
 
@@ -44,7 +66,7 @@ function cl_PProtect.addfrm(w, h, title, hor)
     else
       draw.RoundedBox(4, 0, 0, 30, 30, Color(200, 80, 80))
     end
-    draw.SimpleText('r', cl_PProtect.setFont('marlett', 14, 0, false, false, true), 9, 8, Color(255, 255, 255))
+    draw.SimpleText('r', cl_PProtect_setFont('marlett', 14, 0, false, false, true), 9, 8, Color(255, 255, 255))
   end
 
   frm.list = vgui.Create('DPanelList', frm)
@@ -67,6 +89,8 @@ function cl_PProtect.addfrm(w, h, title, hor)
   return frm.list
 end
 
+local pan = FindMetaTable('Panel')
+
 -------------
 --  LABEL  --
 -------------
@@ -80,7 +104,7 @@ function pan:addlbl(text, header, color)
   local lbl = vgui.Create('DLabel')
   lbl:SetText(text)
   if header then lbl:SetDark(true) end
-  lbl:SetFont(cl_PProtect.setFont('roboto', 14, header, true))
+  lbl:SetFont(cl_PProtect_setFont('roboto', 14, header, true))
   lbl:SizeToContents()
   if color then lbl:SetColor(color) end
   self:AddItem(lbl)
@@ -100,7 +124,7 @@ function pan:addchk(text, tip, check, cb)
   if tip then
     chk:SetTooltip(tip)
   end
-  chk.Label:SetFont(cl_PProtect.setFont('roboto', 14, 500, true))
+  chk.Label:SetFont(cl_PProtect_setFont('roboto', 14, 500, true))
 
   function chk:OnChange()
     cb(chk:GetChecked())
@@ -153,33 +177,18 @@ end
 --   BUTTON   --
 ----------------
 
-function pan:addbtn(text, nettext, args)
+function pan:addbtn(text, func)
   local btn = vgui.Create('DButton')
   btn:Center()
   btn:SetTall(25)
   btn:SetText(text)
   btn:SetDark(true)
-  btn:SetFont(cl_PProtect.setFont('roboto', 14, 500, true))
+  btn:SetFont(cl_PProtect_setFont('roboto', 14, 500, true))
   btn:SetColor(Color(50, 50, 50))
 
-  function btn:DoClick()
+  btn.DoClick = function(self)
     if btn:GetDisabled() then return end
-
-    if type(args) == 'function' then
-      args()
-    else
-      net.Start(nettext)
-      if args != nil and cl_PProtect.Settings[args[1]] then
-        net.WriteTable({args[1], cl_PProtect.Settings[args[1]]})
-      else
-        net.WriteTable(args or {})
-      end
-      net.SendToServer()
-    end
-
-    if nettext == 'pprotect_save' then
-      cl_PProtect.UpdateMenus()
-    end
+    func(self)
   end
 
   function btn:Paint(w, h)
@@ -212,8 +221,8 @@ function pan:addsld(min, max, text, value, decimals, func)
   sld:SetText(text)
   sld:SetDark(true)
   sld:SetValue(value)
-  sld.TextArea:SetFont(cl_PProtect.setFont('roboto', 14, 500, true))
-  sld.Label:SetFont(cl_PProtect.setFont('roboto', 14, 500, true))
+  sld.TextArea:SetFont(cl_PProtect_setFont('roboto', 14, 500, true))
+  sld.Label:SetFont(cl_PProtect_setFont('roboto', 14, 500, true))
   sld.Scratch:SetVisible(false)
 
   sld.OnValueChanged = function(self, number)
@@ -264,7 +273,7 @@ function pan:addplp(ply, bud, open, cb, cb2)
 
   plp.lbl = vgui.Create('DLabel', plp)
   plp.lbl:SetText(ply:Nick())
-  plp.lbl:SetFont(cl_PProtect.setFont('roboto', 25, 750, true))
+  plp.lbl:SetFont(cl_PProtect_setFont('roboto', 25, 750, true))
   plp.lbl:SetPos(76, 9)
   plp.lbl:SetColor(Color(50, 50, 50))
   plp.lbl:SetWidth(230)
@@ -292,10 +301,10 @@ function pan:addplp(ply, bud, open, cb, cb2)
   function plp.chk:Paint(w, h)
     if !self:GetChecked() then
       draw.RoundedBox(4, 0, 0, w, h, Color(255, 50, 0))
-      draw.SimpleText('r', cl_PProtect.setFont('marlett', 16, 750, false, false, true), 2, 3, Color(255, 255, 255))
+      draw.SimpleText('r', cl_PProtect_setFont('marlett', 16, 750, false, false, true), 2, 3, Color(255, 255, 255))
     else
       draw.RoundedBox(4, 0, 0, w, h, Color(0, 200, 75))
-      draw.SimpleText('b', cl_PProtect.setFont('marlett', 22, 500, false, false, true), 0, 0, Color(255, 255, 255))
+      draw.SimpleText('b', cl_PProtect_setFont('marlett', 22, 500, false, false, true), 0, 0, Color(255, 255, 255))
     end
   end
 
@@ -311,7 +320,7 @@ end
 function pan:addtxt(text, func)
   local txt = vgui.Create('DTextEntry')
   txt:SetText(text)
-  txt:SetFont(cl_PProtect.setFont('roboto', 14, 500, true))
+  txt:SetFont(cl_PProtect_setFont('roboto', 14, 500, true))
   txt.OnValueChange = func
   self:AddItem(txt)
 end

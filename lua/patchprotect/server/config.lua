@@ -186,7 +186,7 @@ if !sql.TableExists('pprotect_version') or sql.QueryValue('SELECT * FROM pprotec
   sql.Query('DROP TABLE pprotect_version')
   sql.Query('CREATE TABLE IF NOT EXISTS pprotect_version (info TEXT)')
   sql.Query("INSERT INTO pprotect_version (info) VALUES ('" .. sql_version .. "')")
-  MsgC(Color(255, 0, 0), '\n[PatchProtect-Reset]', Color(255, 255, 255), " Reset all sql-settings due a new sql-table-version, sry.\nYou don't need to resetart the server, but please check all settings. Thanks.\n")
+  MsgC(Color(255, 0, 0), '\n[PatchProtect-Reset]', Color(255, 255, 255), " Reset all sql-settings due a new sql-table-version, sry.\nYou don't need to restart the server, but please check all settings. Thanks.\n")
 end
 sv_PProtect.Settings = {
   Antispam = loadSettings('Antispam'),
@@ -232,7 +232,7 @@ net.Receive('pprotect_save', function(len, pl)
   end)
 
   sv_PProtect.Notify(pl, 'Saved new ' .. data[1] .. '-Settings', 'info')
-  print('[PatchProtect - ' .. data[1] .. '] ' .. pl:Nick() .. ' saved new ' .. data[1] .. '-Settings.')
+  print('[PatchProtect - ' .. data[1] .. '] ' .. pl:Nick() .. ' saved new settings.')
 end)
 
 
@@ -243,7 +243,7 @@ end)
 -- SEND BLOCKED PROPS/ENTS TABLE
 net.Receive('pprotect_request_ents', function(len, pl)
   if !pl:IsSuperAdmin() then return end
-  local typ = net.ReadTable()[1]
+  local typ = net.ReadString()
 
   net.Start('pprotect_send_ents')
   net.WriteString(typ)
@@ -324,7 +324,7 @@ end
 -- SEND ANTISPAMED/BLOCKED TOOLS TABLE
 net.Receive('pprotect_request_tools', function(len, pl)
   if !pl:IsSuperAdmin() then return end
-  local t = string.sub(net.ReadTable()[1], 1, 1) .. 'tools'
+  local t = string.sub(net.ReadString(), 1, 1) .. 'tools'
   local tools = {}
 
   table.foreach(weapons.GetList(), function(_, wep)

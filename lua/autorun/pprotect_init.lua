@@ -6,7 +6,7 @@
 sh_PProtect = {}
 
 --update version in line with github commit #
-sh_PProtect.version = 463
+sh_PProtect.version = 549
 
 -- Include shared files
 include('patchprotect/shared/patchprotect.lua')
@@ -23,7 +23,6 @@ if SERVER then
   -- Force clients to download all client files
   AddCSLuaFile()
   AddCSLuaFile('patchprotect/client/csettings.lua')
-  AddCSLuaFile('patchprotect/client/fonts.lua')
   AddCSLuaFile('patchprotect/client/hud.lua')
   AddCSLuaFile('patchprotect/client/derma.lua')
   AddCSLuaFile('patchprotect/client/panel.lua')
@@ -43,7 +42,6 @@ else
 
   -- Include client files
   include('patchprotect/client/csettings.lua')
-  include('patchprotect/client/fonts.lua')
   include('patchprotect/client/hud.lua')
   include('patchprotect/client/derma.lua')
   include('patchprotect/client/panel.lua')

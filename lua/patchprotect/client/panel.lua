@@ -74,24 +74,32 @@ function cl_PProtect.as_menu(p)
     end)
 
     -- Tool Protection
-    if cl_PProtect.Settings.Antispam['tool'] then
-      p:addbtn('Set antispamed Tools', 'pprotect_request_tools', {'antispam'})
-    end
+    p:addbtn('Set Anti-Spamed Tools',function()
+      net.Start('pprotect_request_tools')
+      net.WriteString('Antispam')
+      net.SendToServer()
+    end)
 
     -- Tool Block
-    if cl_PProtect.Settings.Antispam['toolblock'] then
-      p:addbtn('Set blocked Tools', 'pprotect_request_tools', {'blocked'})
-    end
+    p:addbtn('Set Blocked Tools',function()
+      net.Start('pprotect_request_tools')
+      net.WriteString('blocked')
+      net.SendToServer()
+    end)
 
-    -- Prop Block
-    if cl_PProtect.Settings.Antispam['propblock'] then
-      p:addbtn('View blocked Models', 'pprotect_request_ents', {'props'})
-    end
+    -- Model Block
+    p:addbtn('Set blocked Models',function()
+      net.Start('pprotect_request_ents')
+      net.WriteString('props')
+      net.SendToServer()
+    end)
 
     -- Ent Block
-    if cl_PProtect.Settings.Antispam['entblock'] then
-      p:addbtn('View blocked Entities', 'pprotect_request_ents', {'ents'})
-    end
+    p:addbtn('Set blocked Entities',function()
+      net.Start('pprotect_request_ents')
+      net.WriteString('ents')
+      net.SendToServer()
+    end)
 
     -- Cooldown
     p:addlbl('\nDuration till the next prop-spawn/tool-fire:', true)
@@ -112,7 +120,11 @@ function cl_PProtect.as_menu(p)
   end
 
   -- save Settings
-  p:addbtn('Save Settings', 'pprotect_save', {'Antispam'})
+  p:addbtn('Save Settings',function()
+    net.Start('pprotect_save')
+    net.WriteTable({"Antispam" = cl_PProtect.Settings.Antispam})
+    net.SendToServer()
+  end)
 end
 
 --------------
@@ -261,7 +273,11 @@ function cl_PProtect.pp_menu(p)
   end
 
   -- save Settings
-  p:addbtn('Save Settings', 'pprotect_save', {'Propprotection'})
+  p:addbtn('Save Settings',function()
+    net.Start('pprotect_save')
+    net.WriteTable({"Propprotection" = cl_PProtect.Settings.Propprotection})
+    net.SendToServer()
+  end)
 end
 
 ------------------
@@ -371,17 +387,34 @@ function cl_PProtect.cu_menu(p)
   p:addlbl('NOTE: This menu only updates each time you open your spawn menu!', true)
 
   p:addlbl('Cleanup everything:', true)
-  p:addbtn('Cleanup everything (' .. tostring(o_global) .. ' entities)', 'pprotect_cleanup', {'all'})
+  p:addbtn('Cleanup everything (' .. tostring(o_global) .. ' entities)', function()
+    net.Start('pprotect_cleanup')
+    net.WriteString('all')
+    net.SendToServer()
+  end)
 
   p:addlbl('\nCleanup props from disconnected players:', true)
-  p:addbtn('Cleanup all props from disc. players', 'pprotect_cleanup', {'disc'})
+  p:addbtn('Cleanup all props from disc. players', function()
+    net.Start('pprotect_cleanup')
+    net.WriteString('disc')
+    net.SendToServer()
+  end)
 
   p:addlbl('\nCleanup unowned props:', true)
-  p:addbtn('Cleanup all unowned props', 'pprotect_cleanup', {'unowned'})
+  p:addbtn('Cleanup all unowned props', function()
+    net.Start('pprotect_cleanup')
+    net.WriteString('unowned')
+    net.SendToServer()
+  end)
 
   p:addlbl("\nCleanup player's props:", true)
   table.foreach(o_players, function(pl, c)
-    p:addbtn('Cleanup ' .. pl:Nick() .. ' (' .. tostring(c) .. ' entities)', 'pprotect_cleanup', {'ply', pl, tostring(c)})
+    p:addbtn('Cleanup ' .. pl:Nick() .. ' (' .. tostring(c) .. ' entities)', function()
+      net.Start('pprotect_cleanup')
+      net.WriteString('ply')
+      net.WritePlayer(pl)
+      net.SendToServer()
+    end)
   end)
 end
 
@@ -456,6 +489,7 @@ end)
 -- RECEIVE NEW SETTINGS
 net.Receive('pprotect_new_settings', function()
   cl_PProtect.Settings = net.ReadTable()
+  cl_PProtect_UpdateMenus()
 end)
 
 cl_PProtect.UpdateMenus = cl_PProtect_UpdateMenus

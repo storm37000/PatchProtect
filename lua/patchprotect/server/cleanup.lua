@@ -3,7 +3,7 @@
 ---------------------
 
 -- Cleanup Map
-local function cleanupMap(typ, ply)
+local function cleanupMap(ply)
   -- cleanup map
   game.CleanUpMap()
 
@@ -11,11 +11,10 @@ local function cleanupMap(typ, ply)
   if !ply:IsValid() then
     sv_PProtect.Notify(nil, 'Removed all props.', 'info')
     print('[PatchProtect - Cleanup] Removed all props.')
-    return
+  else
+    sv_PProtect.Notify(nil, ply:Nick() .. ' cleaned Map.', 'info')
+    print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' cleaned Map.')
   end
-
-  sv_PProtect.Notify(nil, ply:Nick() .. ' cleaned Map.', 'info')
-  print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' cleaned Map.')
 end
 
 -- Cleanup Disconnected Players Props
@@ -31,10 +30,12 @@ local function cleanupDisc(ply)
 end
 
 -- Cleanup Players Props
-local function cleanupPly(pl, c, ply)
+local function cleanupPly(pl, ply)
+  local c = 0
   for _, ent in ents.Iterator() do
     if sh_PProtect.GetOwner(ent) == pl then
       ent:Remove()
+      c = c + 1
     end
 	end
 
@@ -55,7 +56,7 @@ local function cleanupUnowned(ply)
 end
 
 -- General Cleanup-Function
-function sv_PProtect.Cleanup(typ, ply)
+net.Receive('pprotect_cleanup', function(_,ply)
   -- check permissions
   if ply:IsValid() and (!sv_PProtect.Settings.Propprotection['adminscleanup'] or !ply:IsAdmin()) and !ply:IsSuperAdmin() then
     sv_PProtect.Notify(ply, 'You are not allowed to clean the map.')
@@ -63,14 +64,10 @@ function sv_PProtect.Cleanup(typ, ply)
   end
 
   -- get cleanup-type
-  local d = {}
-  if !isstring(typ) then
-    d = net.ReadTable()
-    typ = d[1]
-  end
+  local typ = net.ReadString()
 
   if typ == 'all' then
-    cleanupMap(d[1], ply)
+    cleanupMap(ply)
     return
   end
 
@@ -80,15 +77,14 @@ function sv_PProtect.Cleanup(typ, ply)
   end
 
   if typ == 'ply' then
-    cleanupPly(d[2], d[3], ply)
+    cleanupPly(net.ReadPlayer(), ply)
     return
   end
 
   if typ == 'unowned' then
     cleanupUnowned(ply)
   end
-end
-net.Receive('pprotect_cleanup', sv_PProtect.Cleanup)
+end)
 
 ----------------------------------------
 --  CLEAR DISCONNECTED PLAYERS PROPS  --
