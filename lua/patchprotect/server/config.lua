@@ -237,9 +237,11 @@ net.Receive('pprotect_save', function(len, pl)
   if !pl:IsSuperAdmin() then return end
 
   local data = net.ReadTable()
-  PrintTable(data)
-  sv_PProtect.Settings[data[1]] = data[2]
+
   sendSettings()
+
+  if data[1] == nil or data[2] == nil then return end
+  sv_PProtect.Settings[data[1]] = data[2]
 
   -- SAVE TO SQL TABLES
   table.foreach(sv_PProtect.Settings[data[1]], function(setting, value)
