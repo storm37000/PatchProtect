@@ -99,7 +99,7 @@ function cl_PProtect.as_menu(p)
     p:addlbl('Number of props till admins get warned:')
     p:addsld(0, 40, 'Amount', cl_PProtect.Settings.Antispam['spam'], 'Antispam', 'spam', 0)
     p:addlbl('Automatic action after spamming:')
-    p:addcmb({'Nothing', 'Cleanup', 'Kick', 'Ban', 'Command'}, cl_PProtect.Settings.Antispam['spamaction'], function(_,index) cl_PProtect.Settings.Antispam[setting] = index cl_PProtect_UpdateMenus('as') end)
+    p:addcmb({'Nothing', 'Cleanup', 'Kick', 'Ban', 'Command'}, cl_PProtect.Settings.Antispam['spamaction'], function(_,index) cl_PProtect.Settings.Antispam['spamaction'] = index cl_PProtect_UpdateMenus('as') end)
 
     -- Spamaction
     if cl_PProtect.Settings.Antispam['spamaction'] == 'Ban' then
