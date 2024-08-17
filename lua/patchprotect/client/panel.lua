@@ -81,7 +81,7 @@ function cl_PProtect.as_menu(p)
     elseif cl_PProtect.Settings.Antispam['spamaction'] == 'Command' then
       p:addlbl("Use '<player>' to use the spamming player.")
       p:addlbl("Some commands need sv_cheats 1 to run,\nlike 'kill <player>'")
-      p:addtxt(cl_PProtect.Settings.Antispam['concommand'])
+      p:addtxt(cl_PProtect.Settings.Antispam['concommand'], function(val) cl_PProtect.Settings.Antispam['concommand'] = val end)
     end
   end
 

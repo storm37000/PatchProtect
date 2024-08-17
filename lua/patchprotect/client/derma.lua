@@ -312,15 +312,12 @@ end
 --  TEXTBOX  --
 ---------------
 
-function pan:addtxt(text)
+function pan:addtxt(text, func)
   local txt = vgui.Create('DTextEntry')
   txt:SetText(text)
   txt:SetFont(cl_PProtect.setFont('roboto', 14, 500, true))
+  txt.OnValueChange = func
   self:AddItem(txt)
-
-  function txt:OnTextChanged()
-    text = txt:GetValue()
-  end
 end
 
 ------------
