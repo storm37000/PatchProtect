@@ -82,6 +82,13 @@ sv_PProtect.Config.Propprotection = {
   delay = 120
 }
 
+sv_PProtect.Blocked = {
+  props = {},
+  ents = {},
+  atools = {},
+  btools = {}
+}
+
 ----------------------
 --  RESET SETTINGS  --
 ----------------------
