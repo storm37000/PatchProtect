@@ -237,6 +237,7 @@ net.Receive('pprotect_save', function(len, pl)
   if !pl:IsSuperAdmin() then return end
 
   local data = net.ReadTable()
+  PrintTable(data)
   sv_PProtect.Settings[data[1]] = data[2]
   sendSettings()
 
