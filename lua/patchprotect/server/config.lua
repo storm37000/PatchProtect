@@ -84,9 +84,9 @@ sv_PProtect.Config.Blocking = {
   enabled = true,
   superadmins = true,
   admins = false,
-  toolblock = true,
-  propblock = true,
-  entblock = true
+  toolblock = false,
+  propblock = false,
+  entblock = false
 }
 
 sv_PProtect.Blocked = {
@@ -95,6 +95,12 @@ sv_PProtect.Blocked = {
   atools = {},
   btools = {}
 }
+
+----------------------
+--  LOADED CONFIG  --
+----------------------
+
+sv_PProtect.Settings = {}
 
 ----------------------
 --  RESET SETTINGS  --
@@ -202,10 +208,9 @@ if !sql.TableExists('pprotect_version') or sql.QueryValue('SELECT * FROM pprotec
   sql.Query("INSERT INTO pprotect_version (info) VALUES ('" .. sql_version .. "')")
   MsgC(Color(255, 0, 0), '\n[PatchProtect-Reset]', Color(255, 255, 255), " Reset all sql-settings due a new sql-table-version, sry.\nYou don't need to restart the server, but please check all settings. Thanks.\n")
 end
-sv_PProtect.Settings = {
-  Antispam = loadSettings('Antispam'),
-  Propprotection = loadSettings('Propprotection')
-}
+for k, _ in pairs(sv_PProtect.Config) do
+  sv_PProtect.Settings[k] = loadSettings(k)
+end
 sv_PProtect.Blocked.props = loadBlockedEnts('props')
 sv_PProtect.Blocked.ents = loadBlockedEnts('ents')
 sv_PProtect.Blocked.atools = loadBlockedTools('antispam')
