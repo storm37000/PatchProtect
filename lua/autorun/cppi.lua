@@ -34,7 +34,7 @@ end
 -- Get friends from a player
 function PLAYER:CPPIGetFriends()
   local plist = {}
-  for _,ply in ipairs( player.GetAll() ) do
+  for _, ply in player.Iterator() do
     if sh_PProtect.IsBuddy(self, ply) then
       table.insert(plist,ply)
     end

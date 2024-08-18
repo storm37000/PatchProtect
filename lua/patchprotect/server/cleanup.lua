@@ -101,7 +101,7 @@ local function setCleanup(ply)
 
   local sid = ply:SteamID()
 
-  for _, v in ipairs( ents.GetAll() ) do
+  for _, v in ents.Iterator() do
     if !sh_PProtect.IsWorld(v) and v:CPPIGetOwner() and v:CPPIGetOwner() == ply then
       if sv_PProtect.Settings.Propprotection['delay'] ~= 0 then
         v.pprotect_cleanup = sid
@@ -113,7 +113,7 @@ local function setCleanup(ply)
 
   if sv_PProtect.Settings.Propprotection['propdelete'] and sv_PProtect.Settings.Propprotection['delay'] ~= 0 then
     timer.Create('pprotect_cleanup_' .. sid, sv_PProtect.Settings.Propprotection['delay'], 1, function()
-      for _, v in ipairs( ents.GetAll() ) do
+      for _, v in ents.Iterator() do
         if v.pprotect_cleanup and v.pprotect_cleanup == sid then
           v:Remove()
         end
@@ -133,7 +133,7 @@ hook.Add( "player_disconnect", "pprotect_playerdisconnectedcancel", function( da
   local steamid = data.networkid --Same as Player:SteamID()
   if not aborting[steamid] then return end
   aborting[steamid] = nil
-  for _, v in ipairs( ents.GetAll() ) do
+  for _, v in ents.Iterator() do
     if v.pprotect_cleanup and v.pprotect_cleanup == steamid then
       v:Remove()
     end
@@ -151,7 +151,7 @@ end)
 
 hook.Add('PlayerInitialSpawn', 'pprotect_abortcleanupgetply', function(ply)
   if not aborting[ply:SteamID()] then return end
-  for _, v in ipairs( ents.GetAll() ) do
+  for _, v in ents.Iterator() do
     if v.pprotect_cleanup and v.pprotect_cleanup == ply:SteamID() then
       v.pprotect_cleanup = nil
       aborting[ply:SteamID()] = nil
