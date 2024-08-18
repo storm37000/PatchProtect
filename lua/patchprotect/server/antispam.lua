@@ -97,7 +97,7 @@ function sv_PProtect_CanSpawn(ply, object)
     return
   end
   ply.props = (ply.props or 0) + 1
-  sv_PProtect.Notify(ply, 'Please wait ' .. math.Round(ply.propcooldown - CurTime(), 1) .. ' seconds', 'normal')
+  sv_PProtect.Notify(ply, 'Please wait ' .. math.Round(ply.propcooldown - CurTime(), 1) .. ' seconds')
 
   -- Spamaction
   if ply.props >= sv_PProtect.Settings.Antispam['spam'] then
@@ -125,7 +125,7 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   -- Blocked Tool
   if not sv_PProtect_CheckBLAdmin(ply) then
     if sv_PProtect.Settings.Blocking['toolblock'] and sv_PProtect.Blocked.btools[tool] then
-      sv_PProtect.Notify(ply, 'This tool is in the blocklist.', 'normal')
+      sv_PProtect.Notify(ply, 'This tool is in the blocklist.')
       return false
     end
   end
@@ -148,7 +148,7 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   end
 
   ply.tools = (ply.tools or 0) + 1
-  sv_PProtect.Notify(ply, 'Please wait ' .. math.Round(ply.toolcooldown - CurTime(), 1) .. ' seconds', 'normal')
+  sv_PProtect.Notify(ply, 'Please wait ' .. math.Round(ply.toolcooldown - CurTime(), 1) .. ' seconds')
 
   -- Spamaction
   if ply.tools >= sv_PProtect.Settings.Antispam['spam'] then

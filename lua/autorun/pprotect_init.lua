@@ -6,7 +6,7 @@
 sh_PProtect = {}
 
 --update version in line with github commit #
-sh_PProtect.version = 549
+sh_PProtect.version = 560
 
 -- Include shared files
 include('patchprotect/shared/patchprotect.lua')
@@ -34,9 +34,10 @@ else
   -- Create client table
   cl_PProtect = {
     Settings = {
-      Antispam = {},
-      Propprotection = {},
-      Blocking = {}
+      --Antispam = {},
+      --Propprotection = {},
+      --Blocking = {},
+      --Autosave = {}
     },
     CSettings = {}
   }

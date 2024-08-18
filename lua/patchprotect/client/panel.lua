@@ -24,6 +24,57 @@ local function cl_PProtect_UpdateMenus(p_type, panel)
   end
 end
 
+--------------
+--  FRAMES  --
+--------------
+
+local cl_PProtect_Blocked = {
+  props = {},
+  ents = {},
+  atools = {},
+  btools = {}
+}
+
+-- ANTISPAMED/BLOCKED TOOLS
+net.Receive('pprotect_send_tools', function()
+  local t = net.ReadString()
+  local typ = 'antispam'
+  if t == 'btools' then
+    typ = 'blocked'
+  end
+  cl_PProtect_Blocked[t] = net.ReadTable()
+  local frm = cl_PProtect.addfrm(250, 350, typ .. ' tools:', false)
+
+  for key, value in SortedPairs(cl_PProtect_Blocked[t]) do
+    frm:addchk(key, nil, cl_PProtect_Blocked[t][key], function(c)
+      net.Start('pprotect_save_tools')
+      net.WriteTable({t, typ, key, c})
+      net.SendToServer()
+      cl_PProtect_Blocked[t][key] = c
+    end)
+  end
+end)
+
+-- BLOCKED PROPS/ENTS
+net.Receive('pprotect_send_ents', function()
+  local typ = net.ReadString()
+  cl_PProtect_Blocked[typ] = net.ReadTable()
+  local frm = cl_PProtect.addfrm(800, 600, 'blocked ' .. typ .. ':', true, 'Save ' .. typ, {typ, cl_PProtect_Blocked[typ]}, 'pprotect_save_ents')
+
+  table.foreach(cl_PProtect_Blocked[typ], function(name, model)
+    frm:addico(model, name, function(icon)
+      local menu = DermaMenu()
+      menu:AddOption('Remove from Blocked-List', function()
+        net.Start('pprotect_save_ents')
+        net.WriteTable({typ, name})
+        net.SendToServer()
+        icon:Remove()
+      end)
+      menu:Open()
+    end)
+  end)
+end)
+
 ---------------------
 --  ANTISPAM MENU  --
 ---------------------
@@ -100,121 +151,6 @@ function cl_PProtect.as_menu(p)
     net.SendToServer()
   end)
 end
-
----------------------
---  BLOCKING MENU  --
----------------------
-
-function cl_PProtect.bl_menu(p)
-  if p == nil then return end
-  if p.ClearControls == nil then return end
-  -- clear Panel
-  p:ClearControls()
-
-  -- Main Settings
-  p:addlbl('General Settings:', true)
-  p:addchk('Enable Blocking', nil, cl_PProtect.Settings.Blocking['enabled'], function(c)
-    cl_PProtect.Settings.Blocking['enabled'] = c
-    cl_PProtect_UpdateMenus('bl')
-  end)
-
-  if cl_PProtect.Settings.Blocking['enabled'] then
-    -- General
-	  p:addchk('Ignore SuperAdmins', nil, cl_PProtect.Settings.Blocking['superadmins'], function(c)
-      cl_PProtect.Settings.Blocking['superadmins'] = c
-    end)
-    p:addchk('Ignore Admins', nil, cl_PProtect.Settings.Blocking['admins'], function(c)
-      cl_PProtect.Settings.Blocking['admins'] = c
-    end)
-    
-    p:addchk('Tool-Block', nil, cl_PProtect.Settings.Blocking['toolblock'], function(c)
-      cl_PProtect.Settings.Blocking['toolblock'] = c
-    end)
-    -- Tool Block
-    p:addbtn('Set Blocked Tools',function()
-      net.Start('pprotect_request_tools')
-      net.WriteString('blocked')
-      net.SendToServer()
-    end)
-    p:addchk('Model-Block', nil, cl_PProtect.Settings.Blocking['propblock'], function(c)
-      cl_PProtect.Settings.Blocking['propblock'] = c
-    end)
-    -- Model Block
-    p:addbtn('Set blocked Models',function()
-      net.Start('pprotect_request_ents')
-      net.WriteString('props')
-      net.SendToServer()
-    end)
-    p:addchk('Entity-Block', nil, cl_PProtect.Settings.Blocking['entblock'], function(c)
-      cl_PProtect.Settings.Blocking['entblock'] = c
-    end)
-    -- Ent Block
-    p:addbtn('Set blocked Entities',function()
-      net.Start('pprotect_request_ents')
-      net.WriteString('ents')
-      net.SendToServer()
-    end)
-  end
-
-  -- save Settings
-  p:addbtn('Save Settings',function()
-    net.Start('pprotect_save')
-    net.WriteString('Blocking')
-    net.WriteTable(cl_PProtect.Settings.Blocking)
-    net.SendToServer()
-  end)
-end
-
---------------
---  FRAMES  --
---------------
-
-local cl_PProtect_Blocked = {
-  props = {},
-  ents = {},
-  atools = {},
-  btools = {}
-}
-
--- ANTISPAMED/BLOCKED TOOLS
-net.Receive('pprotect_send_tools', function()
-  local t = net.ReadString()
-  local typ = 'antispam'
-  if t == 'btools' then
-    typ = 'blocked'
-  end
-  cl_PProtect_Blocked[t] = net.ReadTable()
-  local frm = cl_PProtect.addfrm(250, 350, typ .. ' tools:', false)
-
-  for key, value in SortedPairs(cl_PProtect_Blocked[t]) do
-    frm:addchk(key, nil, cl_PProtect_Blocked[t][key], function(c)
-      net.Start('pprotect_save_tools')
-      net.WriteTable({t, typ, key, c})
-      net.SendToServer()
-      cl_PProtect_Blocked[t][key] = c
-    end)
-  end
-end)
-
--- BLOCKED PROPS/ENTS
-net.Receive('pprotect_send_ents', function()
-  local typ = net.ReadString()
-  cl_PProtect_Blocked[typ] = net.ReadTable()
-  local frm = cl_PProtect.addfrm(800, 600, 'blocked ' .. typ .. ':', true, 'Save ' .. typ, {typ, cl_PProtect_Blocked[typ]}, 'pprotect_save_ents')
-
-  table.foreach(cl_PProtect_Blocked[typ], function(name, model)
-    frm:addico(model, name, function(icon)
-      local menu = DermaMenu()
-      menu:AddOption('Remove from Blocked-List', function()
-        net.Start('pprotect_save_ents')
-        net.WriteTable({typ, name})
-        net.SendToServer()
-        icon:Remove()
-      end)
-      menu:Open()
-    end)
-  end)
-end)
 
 ---------------------------
 --  PROPPROTECTION MENU  --
@@ -316,6 +252,70 @@ function cl_PProtect.pp_menu(p)
     net.Start('pprotect_save')
     net.WriteString('Propprotection')
     net.WriteTable(cl_PProtect.Settings.Propprotection)
+    net.SendToServer()
+  end)
+end
+
+---------------------
+--  BLOCKING MENU  --
+---------------------
+
+function cl_PProtect.bl_menu(p)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
+  -- clear Panel
+  p:ClearControls()
+
+  -- Main Settings
+  p:addlbl('General Settings:', true)
+  p:addchk('Enable Blocking', nil, cl_PProtect.Settings.Blocking['enabled'], function(c)
+    cl_PProtect.Settings.Blocking['enabled'] = c
+    cl_PProtect_UpdateMenus('bl')
+  end)
+
+  if cl_PProtect.Settings.Blocking['enabled'] then
+    -- General
+	  p:addchk('Ignore SuperAdmins', nil, cl_PProtect.Settings.Blocking['superadmins'], function(c)
+      cl_PProtect.Settings.Blocking['superadmins'] = c
+    end)
+    p:addchk('Ignore Admins', nil, cl_PProtect.Settings.Blocking['admins'], function(c)
+      cl_PProtect.Settings.Blocking['admins'] = c
+    end)
+    
+    p:addchk('Tool-Block', nil, cl_PProtect.Settings.Blocking['toolblock'], function(c)
+      cl_PProtect.Settings.Blocking['toolblock'] = c
+    end)
+    -- Tool Block
+    p:addbtn('Set Blocked Tools',function()
+      net.Start('pprotect_request_tools')
+      net.WriteString('blocked')
+      net.SendToServer()
+    end)
+    p:addchk('Model-Block', nil, cl_PProtect.Settings.Blocking['propblock'], function(c)
+      cl_PProtect.Settings.Blocking['propblock'] = c
+    end)
+    -- Model Block
+    p:addbtn('Set blocked Models',function()
+      net.Start('pprotect_request_ents')
+      net.WriteString('props')
+      net.SendToServer()
+    end)
+    p:addchk('Entity-Block', nil, cl_PProtect.Settings.Blocking['entblock'], function(c)
+      cl_PProtect.Settings.Blocking['entblock'] = c
+    end)
+    -- Ent Block
+    p:addbtn('Set blocked Entities',function()
+      net.Start('pprotect_request_ents')
+      net.WriteString('ents')
+      net.SendToServer()
+    end)
+  end
+
+  -- save Settings
+  p:addbtn('Save Settings',function()
+    net.Start('pprotect_save')
+    net.WriteString('Blocking')
+    net.WriteTable(cl_PProtect.Settings.Blocking)
     net.SendToServer()
   end)
 end
@@ -424,7 +424,7 @@ function cl_PProtect.cu_menu(p)
   o_global = result.global
   o_players = result.players
 
-  p:addlbl('NOTE: This menu only updates each time you open your spawn menu!', true)
+  p:addlbl('This only updates each time you open spawn menu!', true)
 
   p:addlbl('Cleanup everything:', true)
   p:addbtn('Cleanup everything (' .. tostring(o_global) .. ' entities)', function()
@@ -456,6 +456,78 @@ function cl_PProtect.cu_menu(p)
       net.SendToServer()
     end)
   end)
+end
+
+---------------------
+--  AUTOSAVE MENU  --
+---------------------
+
+function cl_PProtect.ams_menu(p)
+  if p == nil then return end
+  if p.ClearControls == nil then return end
+  -- clear Panel
+  p:ClearControls()
+
+  -- Main Settings
+  p:addlbl('Server Settings:', true)
+  if LocalPlayer():IsSuperAdmin() then
+    p:addchk('Module Enabled', nil, cl_PProtect.Settings.Autosave['enabled'], function(c)
+      cl_PProtect.Settings.Autosave['enabled'] = c
+      cl_PProtect_UpdateMenus('ams')
+    end)
+    if cl_PProtect.Settings.Autosave['enabled'] then
+      p:addlbl('Rank Restriction:')
+      p:addcmb({'Everyone', 'Superadmins', 'Admins'}, cl_PProtect.Settings.Autosave['rank'], function(_,_,value)
+        cl_PProtect.Settings.Autosave['rank'] = value
+      end)
+      p:addlbl('Save/Load Cooldown (Minutes):')
+      p:addsld(1, 10, '', cl_PProtect.Settings.Autosave['interval'], 0, function(_,value)
+        cl_PProtect.Settings.Autosave['interval'] = value
+      end)
+      p:addchk('Allow Autosave', 'Disable if you only want manual saving.', cl_PProtect.Settings.Autosave['automatic'], function(c)
+        cl_PProtect.Settings.Autosave['automatic'] = c
+      end)
+    end
+    -- save Settings
+    p:addbtn('Save Settings',function()
+      net.Start('pprotect_save')
+      net.WriteString('Autosave')
+      net.WriteTable(cl_PProtect.Settings.Autosave)
+      net.SendToServer()
+    end)
+  else
+    showErrorMessage(p, 'Sorry, you need to be a SuperAdmin\nto change the settings.')
+  end
+
+  p:addlbl('Client Operation:', true)
+  p:addlbl('This will save your entities \nand allow you to restore them.\nas long as you are on the same map.')
+  if cl_PProtect.Settings.Autosave['enabled'] and (cl_PProtect.Settings.Autosave['rank'] == "Everyone" or (cl_PProtect.Settings.Autosave['rank'] == "Superadmins" and LocalPlayer():IsSuperAdmin()) or (cl_PProtect.Settings.Autosave['rank'] == "Admins" and (LocalPlayer():IsAdmin() or LocalPlayer():IsSuperAdmin()))) then
+    if cl_PProtect.Settings.Autosave['automatic'] then
+      p:addchk('Enable Autosave', 'Autosave every interval minutes.', cl_PProtect.CSettings['ams_automatic'], function(c)
+        cl_PProtect.update_csetting('ams_automatic', c)
+        timer.Adjust('pprotect_autosave', cl_PProtect.CSettings['ams_interval'] * 60)
+        cl_PProtect_UpdateMenus('ams')
+      end)
+      if cl_PProtect.CSettings['ams_automatic'] then
+        p:addsld(cl_PProtect.Settings.Autosave['interval'], 10, 'Autosave Interval (Minutes)', cl_PProtect.CSettings['ams_interval'], 0, function(_,value)
+          cl_PProtect.update_csetting('ams_interval', value)
+          timer.Adjust('pprotect_autosave', value * 60)
+        end)
+        p:addlbl('Time until auto save: ' .. timer.TimeLeft('pprotect_autosave'))
+      end
+    end
+    p:addbtn('Save Now',function()
+      net.Start('pprotect_request_player_save')
+      net.WriteBool(false) -- load or save
+      net.SendToServer()
+    end)
+    p:addbtn('Load Save',function()
+      net.Start('pprotect_request_player_save')
+      net.WriteBool(true) -- load or save
+      net.SendToServer()
+    end)
+    --local lvl = p:addlvl()
+  end
 end
 
 ----------------------------
@@ -509,6 +581,11 @@ hook.Add('PopulateToolMenu', 'pprotect_make_menus', function()
   -- Cleanup
   spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPCleanup', 'Cleanup', '', '', function(p)
     cl_PProtect_UpdateMenus('cu', p)
+  end)
+
+  -- Autosave
+  spawnmenu.AddToolMenuOption('Utilities', 'PatchProtect', 'PPAutosave', 'Autosave', '', '', function(p)
+    cl_PProtect_UpdateMenus('ams', p)
   end)
 
   -- Prop-Protection

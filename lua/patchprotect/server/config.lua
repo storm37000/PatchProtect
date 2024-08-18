@@ -33,6 +33,7 @@ util.AddNetworkString('pprotect_request_cl_data')
 util.AddNetworkString('pprotect_send_buddies')
 util.AddNetworkString('pprotect_send_isworld')
 util.AddNetworkString('pprotect_send_owner')
+util.AddNetworkString('pprotect_request_player_save')
 
 ----------------------
 --  DEFAULT CONFIG  --
@@ -43,6 +44,7 @@ sv_PProtect.Config = {}
 -- ANTI SPAM
 sv_PProtect.Config.Antispam = {
   enabled = true,
+  superadmins = true,
   admins = false,
   alert = true,
   tool = true,
@@ -67,8 +69,8 @@ sv_PProtect.Config.Propprotection = {
   damageinvehicle = true,
   gravgun = true,
   proppickup = true,
-  creator = false,
-  propdriving = false,
+  creator = true,
+  propdriving = true,
   worldpick = false,
   worlduse = true,
   worldtool = false,
@@ -87,6 +89,13 @@ sv_PProtect.Config.Blocking = {
   toolblock = false,
   propblock = false,
   entblock = false
+}
+
+sv_PProtect.Config.Autosave = {
+  enabled = true,
+  rank = "Everyone",
+  automatic = true,
+  interval = 2
 }
 
 sv_PProtect.Blocked = {
@@ -452,16 +461,55 @@ net.Receive('pprotect_request_cl_data', function(len, ply)
   end
 end)
 
-
 -- SEND SETTINGS
 hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendSettings)
 
+-- Receive request to save player's stuff
+net.Receive('pprotect_request_player_save', function(_,pl)
+  if sv_PProtect.Settings.Autosave['enabled'] and (sv_PProtect.Settings.Autosave['rank'] == "Everyone" or (sv_PProtect.Settings.Autosave['rank'] == "Superadmins" and pl:IsSuperAdmin()) or (sv_PProtect.Settings.Autosave['rank'] == "Admins" and (pl:IsAdmin() or pl:IsSuperAdmin()))) then
+    if pl.ppsavecooldown == nil or pl.ppsavecooldown < (os.time()) then
+      pl.ppsavecooldown = os.time() + (sv_PProtect.Settings.Autosave['interval'] * 60)
+      if net.ReadBool() then
+        hook.Run( "PersistenceLoad", 'autosave_' .. pl:SteamID64() )
+        undo.Create( 'autosave_load' )
+        undo.SetPlayer( pl )
+        for _, ent in ents.Iterator() do
+          if ent:GetPersistent() then
+            ent:SetPersistent(false)
+            undo.AddEntity(ent)
+          end
+        end
+        undo.Finish()
+        sv_PProtect.Notify(pl, 'Successfully loaded your save for this map!', 'info')
+      else
+        --do the save here
+        for _, ent in ents.Iterator() do
+          if ent.ppowner == pl then
+            ent:SetPersistent(true)
+          end
+        end
+        hook.Run( "PersistenceSave", 'autosave_' .. pl:SteamID64() )
+        for _, ent in ents.Iterator() do
+          if ent.ppowner == pl then
+            ent:SetPersistent(false)
+          end
+        end
+        sv_PProtect.Notify(pl, 'Successfully saved your spawned entities for this map!', 'info')
+      end
+    else
+      sv_PProtect.Notify(pl, 'Trying to save/load too quickly!  Please wait ' .. (pl.ppsavecooldown - os.time()) .. ' Seconds.' )
+    end
+  else
+    sv_PProtect.Notify(pl, 'Module disabled or you do not have the proper permissions!')
+  end
+end)
+
 -- Receive admin bypass setting
-net.Receive('pprotect_setadminbypass', function(len,pl)
+net.Receive('pprotect_setadminbypass', function(_,pl)
   pl.ppadminbypass = net.ReadBool()
 end)
 
 -- Receive physgun no reload setting
-net.Receive('pprotect_setnophysreload', function(len,pl)
+net.Receive('pprotect_setnophysreload', function(_,pl)
   pl.ppnophysreload = net.ReadBool()
 end)

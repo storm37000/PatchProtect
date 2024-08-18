@@ -261,6 +261,32 @@ end
 ----------------
 --  LISTVIEW  --
 ----------------
+function pan:addlvl()
+  local lvl = vgui.Create('DListView')
+  function lvl:AddLine(...)
+    local lvll = self.AddLine(...)
+    lvll:SetHeight(40)
+    lvll:SetCursor('hand')
+
+    function lvll:Paint(w, h)
+      if lvll:IsLineSelected() then
+        draw.RoundedBox(4, 0, 0, w, h, Color(255, 150, 0))
+      else
+        draw.RoundedBox(4, 0, 0, w, h, Color(230, 230, 230))
+      end
+    end
+
+    return lvll
+  end
+
+  self:AddItem(lvl)
+
+  return lvl
+end
+
+------------------------
+--  Buddies LISTVIEW  --
+------------------------
 function pan:addplp(ply, bud, open, cb, cb2)
   local plp = vgui.Create('DPanel')
   plp:SetHeight(40)

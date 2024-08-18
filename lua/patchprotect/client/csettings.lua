@@ -8,7 +8,9 @@ local csettings_default = {
   fppmode = false,
   notes = true,
   adminbypass = true,
-  nophysreload = false
+  nophysreload = false,
+  ams_automatic = false,
+  ams_interval = 5
 }
 
 -- Load/Create CSettings
@@ -24,7 +26,21 @@ function cl_PProtect.load_csettings()
       sql.Query("INSERT INTO pprotect_csettings (setting, value) VALUES ('" .. setting .. "', '" .. tostring(value) .. "')")
       cl_PProtect.CSettings[setting] = value
     else
-      cl_PProtect.CSettings[setting] = tobool(v)
+      -- Convert strings to numbers and booleans
+      if tonumber(v) != nil then
+        cl_PProtect.CSettings[setting] = tonumber(v)
+      end
+      if v == 'true' or v == 'false' then
+        cl_PProtect.CSettings[setting] = tobool(v)
+      end
+    end
+  end)
+
+  timer.Create('pprotect_autosave', cl_PProtect.CSettings['ams_interval'] * 60, 0, function()
+    if cl_PProtect.Settings.Autosave['enabled'] and cl_PProtect.CSettings['ams_automatic'] then
+      net.Start('pprotect_request_player_save')
+      net.WriteBool(false) -- load or save
+      net.SendToServer()
     end
   end)
 end
