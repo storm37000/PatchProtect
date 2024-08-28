@@ -578,6 +578,3 @@ hook.Add( "AdvDupe_FinishPasting", "pp_autosave", function(tbl)
   ply.AdvDupe2.Pasting = false
   sv_PProtect.Notify(ply, 'Finished pasting!', 'info')
 end)
-
-require("sfs")
-require("pon")
