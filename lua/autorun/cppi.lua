@@ -45,8 +45,7 @@ end
 -- Get the owner of an entity
 function ENTITY:CPPIGetOwner()
   local ply = sh_PProtect.GetOwner(self)
-  if ply == nil then return nil,nil end
-  if ply == "wait" then return CPPI.CPPI_DEFER,CPPI.CPPI_DEFER end
+  if ply == "wait" then return nil,CPPI.CPPI_NOTIMPLEMENTED end
   return ply, CPPI.CPPI_NOTIMPLEMENTED
 end
 
