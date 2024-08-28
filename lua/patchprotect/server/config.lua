@@ -464,35 +464,101 @@ end)
 -- SEND SETTINGS
 hook.Add('PlayerInitialSpawn', 'pprotect_playersettings', sendSettings)
 
+-- Receive admin bypass setting
+net.Receive('pprotect_setadminbypass', function(_,pl)
+  pl.ppadminbypass = net.ReadBool()
+end)
+
+-- Receive physgun no reload setting
+net.Receive('pprotect_setnophysreload', function(_,pl)
+  pl.ppnophysreload = net.ReadBool()
+end)
+
+
+file.CreateDir( "pp_autosave" )
+file.CreateDir( "pp_autosave/" .. game.GetMap() )
 -- Receive request to save player's stuff
 net.Receive('pprotect_request_player_save', function(_,pl)
   if sv_PProtect.Settings.Autosave['enabled'] and (sv_PProtect.Settings.Autosave['rank'] == "Everyone" or (sv_PProtect.Settings.Autosave['rank'] == "Superadmins" and pl:IsSuperAdmin()) or (sv_PProtect.Settings.Autosave['rank'] == "Admins" and (pl:IsAdmin() or pl:IsSuperAdmin()))) then
+    if AdvDupe2 == nil or AdvDupe2.duplicator == nil then return end
+    if pl.AdvDupe2 and pl.AdvDupe2.Pasting then sv_PProtect.Notify(pl, 'Busy! Please wait...') return end
     if pl.ppsavecooldown == nil or pl.ppsavecooldown < (os.time()) then
       pl.ppsavecooldown = os.time() + (sv_PProtect.Settings.Autosave['interval'] * 60)
+      local prefmode = "json"
+      if sfs and sfs.VERSION then
+        prefmode = "sfs"
+      elseif pon then
+        prefmode = "pon"
+      end
+      local filestring = "pp_autosave/" .. game.GetMap() .. "/" .. pl:SteamID64() .. "_"
       if net.ReadBool() then
-        hook.Run( "PersistenceLoad", 'autosave_' .. pl:SteamID64() )
-        undo.Create( 'autosave_load' )
-        undo.SetPlayer( pl )
-        for _, ent in ents.Iterator() do
-          if ent:GetPersistent() then
-            ent:SetPersistent(false)
-            undo.AddEntity(ent)
+        sv_PProtect.Notify(pl, 'loading your save for this map...')
+        if prefmode ~= "json" and not file.Exists(filestring .. prefmode .. ".txt","DATA") then
+          if pon and file.Exists(filestring .. "pon.txt","DATA") then
+            prefmode = "pon"
+          elseif file.Exists(filestring .. "json.txt","DATA") then
+            prefmode = "json"
+          else
+            sv_PProtect.Notify(pl, 'No save file found for this map!') return
           end
         end
-        undo.Finish()
-        sv_PProtect.Notify(pl, 'Successfully loaded your save for this map!', 'info')
+        file.AsyncRead(filestring .. prefmode .. ".txt","DATA",function(_,_,_,data)
+          if ( !data ) then return end
+          local tab
+          if prefmode == "sfs" then
+            tab = sfs.decode( data )
+          elseif prefmode == "pon" then
+            tab = pon.decode( data )
+          elseif prefmode == "json" then
+            tab = util.JSONToTable( data )
+          end
+          if ( !tab ) then return end
+          if ( !tab.Entities ) then return end
+          if ( !tab.Constraints ) then return end
+          pl.AdvDupe2.Entities = tab.Entities
+          pl.AdvDupe2.Constraints = tab.Constraints
+          --ply.AdvDupe2.Position = pos
+          --ply.AdvDupe2.Angle = Angle(0,0,0)
+          --ply.AdvDupe2.Angle.pitch = 0
+          --ply.AdvDupe2.Angle.roll = 0
+          pl.AdvDupe2.Pasting = true
+          pl.AdvDupe2.Name = "autosave_load"
+          pl.AdvDupe2.Revision = 5
+          AdvDupe2.InitPastingQueue(pl, Vector(0,0,0), Angle(0,0,0), nil, true, true, false, tobool( pl:GetInfo( "advdupe2_paste_protectoveride" )))
+--          undo.Create( 'autosave_load' )
+--          undo.SetPlayer( pl )
+--          local entities = duplicator.Paste( nil, tab.Entities, tab.Constraints )
+--          for _, ent in pairs( entities ) do
+--            undo.AddEntity(ent)
+--          end
+--          undo.Finish()
+          sv_PProtect.Notify(pl, 'Successfully loaded, now pasting...')
+        end)
       else
         --do the save here
+        local enttab = {}
         for _, ent in ents.Iterator() do
-          if ent.ppowner == pl then
-            ent:SetPersistent(true)
+          if ent.ppowner == pl and not ent:IsConstraint() then
+            table.insert(enttab,ent)
           end
         end
-        hook.Run( "PersistenceSave", 'autosave_' .. pl:SteamID64() )
-        for _, ent in ents.Iterator() do
-          if ent.ppowner == pl then
-            ent:SetPersistent(false)
-          end
+        local EntTable,ConstraintTable = AdvDupe2.duplicator.AreaCopy(pl,enttab,Vector(0,0,0),true)
+        local tab = {
+          Entities = EntTable,
+          Constraints = ConstraintTable
+        }
+        if prefmode == "sfs" then
+          file.Write( filestring .. prefmode .. ".txt", sfs.encode( tab ))
+          file.Delete( filestring .. "pon" .. ".txt" )
+          file.Delete( filestring .. "json" .. ".txt" )
+        elseif prefmode == "pon" then
+          file.Write( filestring .. prefmode .. ".txt", pon.encode( tab ))
+          file.Delete( filestring .. "sfs" .. ".txt" )
+          file.Delete( filestring .. "json" .. ".txt" )
+        elseif prefmode == "json" then
+          file.Write( filestring .. prefmode .. ".txt", util.TableToJSON( tab ))
+          file.Delete( filestring .. "sfs" .. ".txt" )
+          file.Delete( filestring .. "pon" .. ".txt" )
         end
         sv_PProtect.Notify(pl, 'Successfully saved your spawned entities for this map!', 'info')
       end
@@ -504,12 +570,14 @@ net.Receive('pprotect_request_player_save', function(_,pl)
   end
 end)
 
--- Receive admin bypass setting
-net.Receive('pprotect_setadminbypass', function(_,pl)
-  pl.ppadminbypass = net.ReadBool()
+hook.Add( "AdvDupe_FinishPasting", "pp_autosave", function(tbl)
+  local ply = tbl[1].Player
+  if not ply then return end
+  if ply.AdvDupe2.Name ~= "autosave_load" then return end
+  ply.AdvDupe2 = {}
+  ply.AdvDupe2.Pasting = false
+  sv_PProtect.Notify(pl, 'Finished pasting!', 'info')
 end)
 
--- Receive physgun no reload setting
-net.Receive('pprotect_setnophysreload', function(_,pl)
-  pl.ppnophysreload = net.ReadBool()
-end)
+require("sfs")
+require("pon")

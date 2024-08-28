@@ -1,7 +1,7 @@
 local function showErrorMessage(p, msg)
   if p == nil then return end
-  if p.ClearControls == nil then return end
-  p:ClearControls()
+  --if p.ClearControls == nil then return end
+  --p:ClearControls()
   p:addlbl(msg,true,Color(200,0,0))
 end
 
@@ -499,9 +499,10 @@ function cl_PProtect.ams_menu(p)
     showErrorMessage(p, 'Sorry, you need to be a SuperAdmin\nto change the settings.')
   end
 
-  p:addlbl('Client Operation:', true)
-  p:addlbl('This will save your entities \nand allow you to restore them.\nas long as you are on the same map.')
   if cl_PProtect.Settings.Autosave['enabled'] and (cl_PProtect.Settings.Autosave['rank'] == "Everyone" or (cl_PProtect.Settings.Autosave['rank'] == "Superadmins" and LocalPlayer():IsSuperAdmin()) or (cl_PProtect.Settings.Autosave['rank'] == "Admins" and (LocalPlayer():IsAdmin() or LocalPlayer():IsSuperAdmin()))) then
+    p:addlbl('Client Operation:', true)
+    p:addlbl('This will save your entities \nand allow you to restore them.\nas long as you are on the same map.')
+    if AdvDupe2 == nil then showErrorMessage(p, 'Sorry, This server is missing Advanced Duplicator 2.') return end
     if cl_PProtect.Settings.Autosave['automatic'] then
       p:addchk('Enable Autosave', 'Autosave every interval minutes.', cl_PProtect.CSettings['ams_automatic'], function(c)
         cl_PProtect.update_csetting('ams_automatic', c)
