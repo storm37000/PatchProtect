@@ -576,7 +576,7 @@ hook.Add( "AdvDupe_FinishPasting", "pp_autosave", function(tbl)
   if ply.AdvDupe2.Name ~= "autosave_load" then return end
   ply.AdvDupe2 = {}
   ply.AdvDupe2.Pasting = false
-  sv_PProtect.Notify(pl, 'Finished pasting!', 'info')
+  sv_PProtect.Notify(ply, 'Finished pasting!', 'info')
 end)
 
 require("sfs")
