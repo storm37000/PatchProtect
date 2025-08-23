@@ -43,7 +43,7 @@ net.Receive('pprotect_send_tools', function()
     typ = 'blocked'
   end
   cl_PProtect_Blocked[t] = net.ReadTable()
-  local frm = cl_PProtect.addfrm(250, 350, typ .. ' tools:', false)
+  local frm = cl_PProtect.addfrm(350, ScrH() * 0.7, typ .. ' tools:', false)
 
   for key, value in SortedPairs(cl_PProtect_Blocked[t]) do
     frm:addchk(key, nil, cl_PProtect_Blocked[t][key], function(c)
@@ -59,7 +59,7 @@ end)
 net.Receive('pprotect_send_ents', function()
   local typ = net.ReadString()
   cl_PProtect_Blocked[typ] = net.ReadTable()
-  local frm = cl_PProtect.addfrm(800, 600, 'blocked ' .. typ .. ':', true, 'Save ' .. typ, {typ, cl_PProtect_Blocked[typ]}, 'pprotect_save_ents')
+  local frm = cl_PProtect.addfrm(ScrW() * 0.7, ScrH() * 0.7, 'blocked ' .. typ .. ':', true, 'Save ' .. typ, {typ, cl_PProtect_Blocked[typ]}, 'pprotect_save_ents')
 
   table.foreach(cl_PProtect_Blocked[typ], function(name, model)
     frm:addico(model, name, function(icon)
