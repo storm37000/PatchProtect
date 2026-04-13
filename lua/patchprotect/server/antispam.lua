@@ -131,7 +131,7 @@ hook.Add('CanTool', 'pprotect_antispam_toolgun', function(ply,trace,tool)
   end
 
   -- Check Dupe
-  if tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' or string.find(tool,"stacker") then
+  if tool and (tool == 'duplicator' or tool == 'adv_duplicator' or tool == 'advdupe2' or tool == 'wire_adv' or string.find(tool,"stacker")) then
     ply.duplicate = true
   end
 
