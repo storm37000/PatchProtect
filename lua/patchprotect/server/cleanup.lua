@@ -46,7 +46,7 @@ end
 -- Cleanup Unowned Props
 local function cleanupUnowned(ply)
   for _, ent in ipairs( ents.GetAll() ) do
-    if !ent:CPPIGetOwner() and !sh_PProtect.IsWorld(ent) then
+    if !ent:CPPIGetOwner() and !ent:IsWorld() then
       ent:Remove()
     end
   end
