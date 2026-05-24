@@ -16,7 +16,7 @@ end
 -- ent: valid entity to check
 -- sett: PatchProtect setting to use to check for world-premissions
 local function CheckWorld(ent, sett)
-  if sv_PProtect.Settings.Propprotection['world' .. sett] and ent:CPPIGetOwner() == nil then return true end
+  if sv_PProtect.Settings.Propprotection['world' .. sett] and sh_PProtect.IsWorld(ent) then return true end
   return false
 end
 
@@ -41,7 +41,7 @@ function undo.AddEntity(ent)
   ue(ent)
   if not IsValid( ent ) then return end
   table.insert(en.e, ent)
-  if not ent:CPPIGetOwner() and IsValid(en.o) then
+  if not ent.ppowner and IsValid(en.o) then
     ent:CPPISetOwner(en.o)
   end
 end
@@ -53,7 +53,7 @@ function undo.SetPlayer(ply)
   up(ply)
   en.o = ply
   for _, ent in ipairs( en.e ) do
-    if not ent:CPPIGetOwner() then
+    if not ent.ppowner then
       ent:CPPISetOwner(en.o)
     end
   end
@@ -68,9 +68,9 @@ function undo.Finish()
     ErrorNoHaltWithStack("tried to finish an undo without any owner player! Please run undo.SetPlayer first")
   else
     for _, ent in ipairs( en.e ) do
-      --if not ent:CPPIGetOwner() then
+      if not ent.ppowner then
         ent:CPPISetOwner(en.o)
-      --end
+      end
       -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
       if sv_PProtect.Settings.Antispam['propinprop'] and (not CheckPPAdmin(en.o)) then
         local phys = ent:GetPhysicsObject()
@@ -134,7 +134,7 @@ function sv_PProtect.CanPhysgun(ply, ent)
   if sh_PProtect.IsShared(ent, 'phys') then return end
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to hold this object.')
@@ -164,7 +164,7 @@ function sv_PProtect.CanPhysReload(ply, ent)
   if CheckWorld(ent, 'pick') then return end
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to unfreeze this object.')
@@ -200,7 +200,7 @@ function sv_PProtect.CanTool(ply, ent, tool)
   if sh_PProtect.IsShared(ent, 'tool') then return end
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'tool') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to use ' .. tool .. ' on this object.')
@@ -233,7 +233,7 @@ function sv_PProtect.CanUse(ply, ent)
   if sh_PProtect.IsShared(ent, 'use') then return end
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'use') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to use this object.')
@@ -264,7 +264,7 @@ function sv_PProtect.CanPickup(ply, ent)
   if sh_PProtect.IsShared(ent, 'use') then return end
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'use') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to pick up this object.')
@@ -299,7 +299,7 @@ function sv_PProtect.CanProperty(ply, property, ent)
   if sh_PProtect.IsShared(ent, 'tool') then return end
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'prop') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to change the properties on this object.')
@@ -333,7 +333,7 @@ function sv_PProtect.CanDrive(ply, ent)
   if sh_PProtect.IsShared(ent, 'phys') then return end
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'prop') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to drive this object.')
@@ -370,7 +370,7 @@ function sv_PProtect.CanDamage(ply, ent)
   if sh_PProtect.IsShared(ent, 'dmg') then return end
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'dmg') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to damage this object.')
@@ -408,7 +408,7 @@ function sv_PProtect.CanGravPunt(ply, ent)
   -- I assume people don't want to allow both grabing and throwing props using gravity gun
 
   -- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to punt this object.')
@@ -432,7 +432,7 @@ function sv_PProtect.CanGravPickup(ply, ent)
   if CheckWorld(ent, 'grav') then return end
 
   --- Check Owner and Buddy
-  local owner = ent:CPPIGetOwner()
+  local owner = sh_PProtect.GetOwner(ent)
   if ply == owner or sh_PProtect.IsBuddy(owner, ply, 'phys') then return end
 
   sv_PProtect.Notify(ply, 'You are not allowed to use the Grav-Gun on this object.')

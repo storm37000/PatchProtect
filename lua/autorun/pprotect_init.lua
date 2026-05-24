@@ -8,14 +8,6 @@ sh_PProtect = {}
 --update version in line with github commit #
 sh_PProtect.version = 560
 
-sh_PProtect.budyperms = {
-  phys = false,
-  tool = false,
-  use = false,
-  prop = false,
-  dmg = false
-}
-
 -- Include shared files
 include('patchprotect/shared/patchprotect.lua')
 

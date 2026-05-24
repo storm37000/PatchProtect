@@ -31,6 +31,8 @@ util.AddNetworkString('pprotect_notify')
 -- MISC DATA SYNC
 util.AddNetworkString('pprotect_request_cl_data')
 util.AddNetworkString('pprotect_send_buddies')
+util.AddNetworkString('pprotect_send_isworld')
+util.AddNetworkString('pprotect_send_owner')
 util.AddNetworkString('pprotect_request_player_save')
 
 ----------------------
@@ -446,8 +448,16 @@ net.Receive('pprotect_request_cl_data', function(len, ply)
       net.Send(ply)
     end
     return
-  elseif typ == 1 then
-    --OBSOLETE
+  elseif typ == 1 then -- SEND ENTITY OWNER TO CLIENT
+    net.Start("pprotect_send_owner")
+     net.WriteEntity(ent)
+     if ent.ppowner == nil then
+      net.WriteEntity(game.GetWorld())
+     else
+      net.WriteEntity(ent.ppowner)
+     end
+    net.Send(ply)
+    return
   end
 end)
 
@@ -528,7 +538,7 @@ net.Receive('pprotect_request_player_save', function(_,pl)
         --do the save here
         local enttab = {}
         for _, ent in ents.Iterator() do
-          if ent:CPPIGetOwner() == pl and not ent:IsConstraint() then
+          if ent.ppowner == pl and not ent:IsConstraint() then
             table.insert(enttab,ent)
           end
         end
