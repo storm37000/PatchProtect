@@ -67,7 +67,7 @@ if CLIENT then return end
 -- Set owner of an entity
 function ENTITY:CPPISetOwner(ply)
   if hook.Run('CPPIAssignOwnership', ply, self, CPPI.CPPI_NOTIMPLEMENTED) == false then return false end
-    self:Setppowner(ply)
+    timer.Simple(0, function() self:Setppowner(ply) end)
   return true
 end
 
