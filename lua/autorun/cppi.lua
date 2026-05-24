@@ -8,11 +8,17 @@ CPPI.CPPI_NOTIMPLEMENTED = 9090
 local PLAYER = FindMetaTable('Player')
 local ENTITY = FindMetaTable('Entity')
 
-hook.Add( "OnEntityCreated", "pprotect_ownership_net", function( ent )
-  timer.Simple(0, function()
-    ent:NetworkVar( "Entity", "ppowner" )
-  end)
-end )
+local old_SetupDataTables = ENTITY.SetupDataTables
+function ENTITY:SetupDataTables() -- this wont work for many entities
+  old_SetupDataTables()
+  ent:NetworkVar( "Entity", "ppowner" )
+end
+
+--hook.Add( "OnEntityCreated", "pprotect_ownership_net", function( ent )
+--  timer.Simple(0, function()
+--    ent:NetworkVar( "Entity", "ppowner" )
+--  end)
+--end )
 
 -- Get name of prop protection
 function CPPI:GetName()
