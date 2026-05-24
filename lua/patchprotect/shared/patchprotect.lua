@@ -23,7 +23,7 @@ function sh_PProtect.IsBuddy(ply, bud, mode)
 	    net.WriteEntity(ply)
     net.SendToServer()
   end
-  if ply.Buddies[bud:SteamID()] == nil or ply.Buddies[bud:SteamID()].bud == nil then return false end
+  if ply.Buddies == nil or ply.Buddies[bud:SteamID()] == nil or ply.Buddies[bud:SteamID()].bud == nil then return false end
   if (mode == nil and ply.Buddies[bud:SteamID()].bud == true) or (mode != nil and ply.Buddies[bud:SteamID()].bud == true and ply.Buddies[bud:SteamID()].perm != nil and ply.Buddies[bud:SteamID()].perm[mode] == true) then
     return true
   end
