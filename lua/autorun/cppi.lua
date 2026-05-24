@@ -8,6 +8,12 @@ CPPI.CPPI_NOTIMPLEMENTED = 9090
 local PLAYER = FindMetaTable('Player')
 local ENTITY = FindMetaTable('Entity')
 
+hook.Add( "OnEntityCreated", "pprotect_ownership_net", function( ent )
+  timer.Simple(0, function()
+    ent:NetworkVar( "Entity", "ppowner" )
+  end)
+end )
+
 -- Get name of prop protection
 function CPPI:GetName()
   return 'PatchProtect'
@@ -44,9 +50,10 @@ end
 
 -- Get the owner of an entity
 function ENTITY:CPPIGetOwner()
-  local ply = sh_PProtect.GetOwner(self)
-  if ply == "wait" then return nil,CPPI.CPPI_NOTIMPLEMENTED end
-  return ply, CPPI.CPPI_NOTIMPLEMENTED
+  if not self.Getppowner then return end
+  local owner = self:Getppowner()
+  if not owner then return end
+  return owner, CPPI.CPPI_NOTIMPLEMENTED
 end
 
 if CLIENT then return end
@@ -54,11 +61,7 @@ if CLIENT then return end
 -- Set owner of an entity
 function ENTITY:CPPISetOwner(ply)
   if hook.Run('CPPIAssignOwnership', ply, self, CPPI.CPPI_NOTIMPLEMENTED) == false then return false end
-    self.ppowner = ply
-    net.Start("pprotect_send_owner")
-     net.WriteEntity(self)
-     net.WriteEntity(self.ppowner)
-    net.Broadcast()
+    self:Setppowner(ply)
   return true
 end
 

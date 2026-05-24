@@ -399,7 +399,7 @@ function cl_PProtect.cu_menu(p)
   }
   for _, ent in ents.Iterator() do
     if ent:IsWorld() then continue end
-     local o = sh_PProtect.GetOwner(ent)
+     local o = ent:CPPIGetOwner()
      if !o then continue end
 
      -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
