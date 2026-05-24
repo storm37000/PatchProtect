@@ -10,7 +10,7 @@ local ENTITY = FindMetaTable('Entity')
 
 local old_SetupDataTables = ENTITY.SetupDataTables
 function ENTITY:SetupDataTables() -- this wont work for many entities
-  old_SetupDataTables()
+  old_SetupDataTables(self)
   ent:NetworkVar( "Entity", "ppowner" )
 end
 
