@@ -45,11 +45,11 @@ end
 
 -- Cleanup Unowned Props
 local function cleanupUnowned(ply)
-  for _, ent in ipairs( ents.GetAll() ) do
-    if !ent:CPPIGetOwner() and !ent:IsWorld() then
+  for _, ent in ents.Iterator() do
+    if ent:CPPIGetOwner() == nil and !ent:IsWorld() then
       ent:Remove()
     end
-  end
+	end
 
   sv_PProtect.Notify(nil, ply:Nick() .. ' removed all unowned props.', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed all unowned props.')
