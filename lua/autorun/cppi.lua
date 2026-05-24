@@ -11,7 +11,7 @@ local ENTITY = FindMetaTable('Entity')
 local old_SetupDataTables = ENTITY.SetupDataTables
 function ENTITY:SetupDataTables() -- this wont work for many entities
   old_SetupDataTables(self)
-  ent:NetworkVar( "Entity", "ppowner" )
+  self:NetworkVar( "Entity", "ppowner" )
 end
 
 --hook.Add( "OnEntityCreated", "pprotect_ownership_net", function( ent )
