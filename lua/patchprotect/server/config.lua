@@ -494,7 +494,7 @@ net.Receive('pprotect_request_player_save', function(_,pl)
       if net.ReadBool() then
         sv_PProtect.Notify(pl, 'loading your save for this map...')
         if prefmode ~= "json" and not file.Exists(filestring .. prefmode .. ".txt","DATA") then
-          if pon and file.Exists(filestring .. "pon.txt","DATA") then
+          if file.Exists(filestring .. "pon.txt","DATA") then
             prefmode = "pon"
           elseif file.Exists(filestring .. "json.txt","DATA") then
             prefmode = "json"
@@ -506,8 +506,10 @@ net.Receive('pprotect_request_player_save', function(_,pl)
           if ( !data ) then return end
           local tab
           if prefmode == "sfs" then
+            if not sfs then require("sfs") end
             tab = sfs.decode( data )
           elseif prefmode == "pon" then
+            if not pon then require("pon") end
             tab = pon.decode( data )
           elseif prefmode == "json" then
             tab = util.JSONToTable( data )
