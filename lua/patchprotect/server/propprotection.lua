@@ -68,9 +68,9 @@ function undo.Finish()
     ErrorNoHaltWithStack("tried to finish an undo without any owner player! Please run undo.SetPlayer first")
   else
     for _, ent in ipairs( en.e ) do
-      --if not ent:CPPIGetOwner() then
+      if not ent:CPPIGetOwner() then
         ent:CPPISetOwner(en.o)
-      --end
+      end
       -- if the entity is a duplication or the PropInProp protection is disabled or the spawner is an admin (and accepted by PatchProtect) or it is not a physics prop, then don't check for penetrating props
       if sv_PProtect.Settings.Antispam['propinprop'] and (not CheckPPAdmin(en.o)) then
         local phys = ent:GetPhysicsObject()
