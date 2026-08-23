@@ -29,13 +29,13 @@ local function showOwner()
   local ent = LocalPlayer():GetEyeTrace().Entity
   if !ent or !ent:IsValid() or ent:IsWorld() or ent:IsPlayer() then return end
 
-  local Owner, IsShared, IsBuddy = sh_PProtect.GetOwner(ent), sh_PProtect.IsShared(ent), sh_PProtect.IsBuddy(Owner, LocalPlayer())
+  local Owner = ent:CPPIGetOwner()
+  local IsShared = sh_PProtect.IsShared(ent)
+  local IsBuddy = sh_PProtect.IsBuddy(Owner, LocalPlayer())
 
   local txt = nil
   if Owner == nil then
     txt = 'World'
-  elseif Owner == "wait" then
-    txt = 'Waiting for server...'
   elseif IsValid(Owner) then
     txt = Owner:Nick() .. " | " .. Owner:SteamID()
     if IsBuddy then

@@ -20,7 +20,7 @@ end
 -- Cleanup Disconnected Players Props
 local function cleanupDisc(ply)
   for _, ent in ents.Iterator() do
-    if ent.pprotect_cleanup != nil and ent.ppowner != nil and !ent:IsWorld() then
+    if ent.pprotect_cleanup != nil and ent:CPPIGetOwner() != nil and !ent:IsWorld() then
       ent:Remove()
     end
 	end
@@ -33,7 +33,7 @@ end
 local function cleanupPly(pl, ply)
   local c = 0
   for _, ent in ents.Iterator() do
-    if sh_PProtect.GetOwner(ent) == pl then
+    if ent:CPPIGetOwner() == pl then
       ent:Remove()
       c = c + 1
     end
@@ -45,11 +45,11 @@ end
 
 -- Cleanup Unowned Props
 local function cleanupUnowned(ply)
-  for _, ent in ipairs( ents.GetAll() ) do
-    if !sh_PProtect.GetOwner(ent) and !sh_PProtect.IsWorld(ent) then
+  for _, ent in ents.Iterator() do
+    if ent:CPPIGetOwner() == nil and !ent:IsWorld() then
       ent:Remove()
     end
-  end
+	end
 
   sv_PProtect.Notify(nil, ply:Nick() .. ' removed all unowned props.', 'info')
   print('[PatchProtect - Cleanup] ' .. ply:Nick() .. ' removed all unowned props.')
@@ -102,7 +102,7 @@ local function setCleanup(ply)
   local sid = ply:SteamID()
 
   for _, v in ents.Iterator() do
-    if !sh_PProtect.IsWorld(v) and v:CPPIGetOwner() and v:CPPIGetOwner() == ply then
+    if v:CPPIGetOwner() and v:CPPIGetOwner() == ply then
       if sv_PProtect.Settings.Propprotection['delay'] ~= 0 then
         v.pprotect_cleanup = sid
       elseif sv_PProtect.Settings.Propprotection['propdelete'] then

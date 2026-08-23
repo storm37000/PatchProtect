@@ -8,6 +8,32 @@ CPPI.CPPI_NOTIMPLEMENTED = 9090
 local PLAYER = FindMetaTable('Player')
 local ENTITY = FindMetaTable('Entity')
 
+--ENTITY.old_InstallDataTable = ENTITY.InstallDataTable
+--function ENTITY:InstallDataTable()
+--  self:old_InstallDataTable()
+--  self:DTVar( "Entity","ppowner" )
+--end
+
+hook.Add( "OnEntityCreated", "pprotect_ownership_net", function( ent )
+  if not ent.InstallDataTable then ent.InstallDataTable = ENTITY.InstallDataTable end
+  if not ent.NetworkVar then ent:InstallDataTable() ent.InstallDataTable = function() end end
+  ent:NetworkVar( "Entity","ppowner" ) --this doesnt work for base_gmodentity for some reason?
+  --print(ent,"ppowner created")
+  PrintTable(ent.dt)
+--  function ent:Getppowner()
+--    return self:GetDTEntity(1)
+--  end
+--  function ent:Setppowner(owner)
+--    return self:SetDTEntity(1,owner)
+--  end
+--  timer.Simple(0, function()
+--    if not IsValid(ent) then return end
+--    for k, v in ipairs( ent:GetInternalVariable("m_GMOD_EHANDLE") ) do
+--      print( k, v )
+--    end
+--  end)
+end )
+
 -- Get name of prop protection
 function CPPI:GetName()
   return 'PatchProtect'
@@ -44,21 +70,20 @@ end
 
 -- Get the owner of an entity
 function ENTITY:CPPIGetOwner()
-  local ply = sh_PProtect.GetOwner(self)
-  if ply == "wait" then return nil,CPPI.CPPI_NOTIMPLEMENTED end
-  return ply, CPPI.CPPI_NOTIMPLEMENTED
+  if not self.Getppowner then return end
+  local owner = self:Getppowner()
+  if owner == NULL then return end
+  return owner, CPPI.CPPI_NOTIMPLEMENTED
 end
 
 if CLIENT then return end
 
 -- Set owner of an entity
 function ENTITY:CPPISetOwner(ply)
+  --print(self,"ppowner set")
+  if not self.Setppowner then return false end
   if hook.Run('CPPIAssignOwnership', ply, self, CPPI.CPPI_NOTIMPLEMENTED) == false then return false end
-    self.ppowner = ply
-    net.Start("pprotect_send_owner")
-     net.WriteEntity(self)
-     net.WriteEntity(self.ppowner)
-    net.Broadcast()
+    self:Setppowner(ply)
   return true
 end
 
