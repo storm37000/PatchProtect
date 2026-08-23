@@ -19,7 +19,7 @@ hook.Add( "OnEntityCreated", "pprotect_ownership_net", function( ent )
   if not ent.NetworkVar then ent:InstallDataTable() ent.InstallDataTable = function() end end
   ent:NetworkVar( "Entity","ppowner" ) --this doesnt work for base_gmodentity for some reason?
   --print(ent,"ppowner created")
-  PrintTable(ent.dt)
+  --PrintTable(ent.dt)
 --  function ent:Getppowner()
 --    return self:GetDTEntity(1)
 --  end
