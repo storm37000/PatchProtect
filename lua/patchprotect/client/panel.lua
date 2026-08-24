@@ -401,6 +401,7 @@ function cl_PProtect.cu_menu(p)
     if ent:IsWorld() then continue end
      local o = ent:CPPIGetOwner()
      if !o then continue end
+     if not o.Nick then continue end
 
      -- check deleted entities (which shouldn't be counted, because they shouldn't exist anymore)
      --if istable(dels) and table.HasValue(dels, ent:EntIndex()) then return end
