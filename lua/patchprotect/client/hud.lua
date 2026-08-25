@@ -34,7 +34,7 @@ local function showOwner()
   local IsBuddy = sh_PProtect.IsBuddy(Owner, LocalPlayer())
 
   local txt = nil
-  if Owner == nil then
+  if Owner == nil or not Owner.Nick then
     txt = 'World'
   elseif IsValid(Owner) then
     txt = Owner:Nick() .. " | " .. Owner:SteamID()
