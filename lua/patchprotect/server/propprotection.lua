@@ -113,14 +113,10 @@ end)
 -------------------------------
 
 function sv_PProtect.CanPhysgun(ply, ent)
-  -- Check Entity
-  if !IsValid(ent) then return false end
   
   if ent:GetClass() == "vc_fuel_nozzle" then return end
 
   if sh_PProtect.CheckBlocked(ent,"phys") then return false end
-
-  if ply == ent then return end
 
   ----if !IsValid(ply) then return false end
 
@@ -150,15 +146,12 @@ function sv_PProtect.CanPhysReload(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['reload'] then return end
 
-  if !IsValid(ply) then return false end
+  --if !IsValid(ply) then return false end
 
   if ply.ppnophysreload then return false end
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
-
-  -- Check Entity
-  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'pick') then return end
@@ -182,9 +175,6 @@ function sv_PProtect.CanTool(ply, ent, tool)
     sv_PProtect.Notify(ply, 'You are not allowed to use the creator tool on this server.')
     return false
   end
-
-  -- Check Entity
-  if !IsValid(ent) then return end
 
   if sh_PProtect.CheckBlocked(ent,"tool") then return false end
 
@@ -223,9 +213,6 @@ function sv_PProtect.CanUse(ply, ent)
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
   -- Check World
   if CheckWorld(ent, 'use') then return end
 
@@ -253,9 +240,6 @@ function sv_PProtect.CanPickup(ply, ent)
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
-
-  -- Check Entity
-  if !IsValid(ent) then return false end
 
   -- Check World
   if CheckWorld(ent, 'use') then return end
@@ -289,9 +273,6 @@ function sv_PProtect.CanProperty(ply, property, ent)
     return false
   end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
   -- Check World
   if CheckWorld(ent, 'tool') then return end
 
@@ -323,9 +304,6 @@ function sv_PProtect.CanDrive(ply, ent)
     return false
   end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
   -- Check World
   if CheckWorld(ent, 'pick') then return end
   
@@ -349,6 +327,8 @@ function sv_PProtect.CanDamage(ply, ent)
   -- Check Protection
   if !sv_PProtect.Settings.Propprotection['damage'] then return end
 
+  --if !IsValid(ply) then return false end
+
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 
@@ -357,9 +337,6 @@ function sv_PProtect.CanDamage(ply, ent)
     sv_PProtect.Notify(ply, 'You are not allowed to damage other players while sitting in a vehicle.')
     return false
   end
-
-  -- Check Entity
-  if !IsValid(ent) then return false end
 
   if ent:IsPlayer() then return end
 
@@ -400,9 +377,6 @@ function sv_PProtect.CanGravPunt(ply, ent)
   -- Check Admin
   if CheckPPAdmin(ply) then return end
 
-  -- Check Entity
-  if !IsValid(ent) then return false end
-
   -- Check World
   if CheckWorld(ent, 'grav') then return end
   -- I assume people don't want to allow both grabing and throwing props using gravity gun
@@ -424,9 +398,6 @@ function sv_PProtect.CanGravPickup(ply, ent)
 
   -- Check Admin
   if CheckPPAdmin(ply) then return end
-
-  -- Check Entity
-  if !IsValid(ent) then ply:DropObject() return false end
 
   -- Check World
   if CheckWorld(ent, 'grav') then return end

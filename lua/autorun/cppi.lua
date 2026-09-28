@@ -103,6 +103,7 @@ end
 
 -- Can tool
 function ENTITY:CPPICanTool(ply, tool)
+  if ply == self then return true end --player cantool themselves, fixes starfall issues
   local ret = sv_PProtect.CanTool(ply, self, tool)
   if ret == nil then return true end
   return ret
@@ -110,6 +111,7 @@ end
 
 -- Can physgun
 function ENTITY:CPPICanPhysgun(ply)
+  if ply == self then return true end --player canphys themselves, fixes starfall issues
   local ret = sv_PProtect.CanPhysgun(ply, self)
   if ret == nil then return true end
   return ret
