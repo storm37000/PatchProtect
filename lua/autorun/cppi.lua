@@ -16,7 +16,10 @@ local ENTITY = FindMetaTable('Entity')
 
 hook.Add( "OnEntityCreated", "pprotect_ownership_net", function( ent )
   if not ent.InstallDataTable then ent.InstallDataTable = ENTITY.InstallDataTable end
-  if not ent.NetworkVar then ent:InstallDataTable() ent.InstallDataTable = function() end end
+  if not ent.NetworkVar then
+    ent:InstallDataTable()
+    ent.InstallDataTable = function(myself) print(myself) end
+  end
   ent:NetworkVar( "Entity","ppowner" ) --this doesnt work for base_gmodentity for some reason?
   --print(ent,"ppowner created")
   --PrintTable(ent.dt)
