@@ -178,6 +178,8 @@ function sv_PProtect.CanTool(ply, ent, tool)
 
   if sh_PProtect.CheckBlocked(ent,"tool") then return false end
 
+  if ent:EntIndex() == 0 then return end
+
   --if !IsValid(ply) then return false end
 
   -- Check Admin
