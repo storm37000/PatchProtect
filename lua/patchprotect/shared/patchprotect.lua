@@ -37,7 +37,7 @@ function sh_PProtect.CheckBlocked(ent,typ)
   local class = ent:GetClass()
   if class == "func_breakable_surf" and ent:CPPIGetOwner() == nil and (typ == "phys") then return true end
   if class == "func_door_rotating" and ent:CPPIGetOwner() == nil and (typ == "phys") then return true end
-  if class == "func_door" and sh_PProtect.IsWorld(ent) and (typ == "phys") then return true end
+  if class == "func_door" and ent:CPPIGetOwner() == nil and (typ == "phys") then return true end
   sh_PProtect.CheckBlockedClass(class,typ)
 end
 
